@@ -1,0 +1,55 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "${workspaceFolder}/Build/*",
+                "${workspaceFolder}/Code/${fileBasenameNoExtension}",
+                "${workspaceFolder}/Code/${fileBasenameNoExtension}.dSYM"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "create_build_dir",
+            "type": "shell",
+            "command": "mkdir",
+            "args": [
+                "-p",
+                "${workspaceFolder}/Build"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "type": "cppbuild",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-fcolor-diagnostics",
+                "-fansi-escape-codes",
+                "-g",
+                "${workspaceFolder}/Code/${fileBasename}",
+                "-o",
+                "${workspaceFolder}/Build/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "clean",
+                "create_build_dir"
+            ]
+        }
+    ]
+}
