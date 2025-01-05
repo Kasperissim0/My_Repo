@@ -7,7 +7,9 @@
       "request": "launch",
       "program": "${workspaceFolder}/Build/${fileBasenameNoExtension}",
       "args": [],
-      "preLaunchTask": "build"
+      "preLaunchTask": "build",
+      "cwd": "${workspaceFolder}",
+      "env": {}
     },
     {
       "name": "C/C++: clang++ build and debug active file",
@@ -15,7 +17,6 @@
       "request": "launch",
       "program": "${workspaceFolder}/Build/${fileBasenameNoExtension}",
       "args": [],
-      "stopAtEntry": false,
       "cwd": "${fileDirname}",
       "environment": [],
       "externalConsole": false,
