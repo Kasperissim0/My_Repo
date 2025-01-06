@@ -28,6 +28,7 @@
             "type": "cppbuild",
             "command": "/usr/bin/clang++",
             "args": [
+                "-std=c++11", // Add this line
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-g",
