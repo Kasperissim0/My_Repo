@@ -2,8 +2,14 @@
 using namespace std;
 
 int main() {
-   const double income = 95000;
-   double TempIncome= 95000;
+
+   double TempIncome;
+
+   cout << "How Much Money Have You Earned ?\n";
+   cin >> TempIncome;
+   
+   const double income = TempIncome;
+   
 
    double tax1 = TempIncome * 0.04;
    TempIncome = TempIncome - tax1;
