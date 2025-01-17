@@ -21,7 +21,7 @@ int main() {
   cout << "The Coin Landed on Tails.\n";
     break;
   case 2 :
-  cout << "The Coin Landed on Tails.\n";
+  cout << "The Coin Landed on Heads.\n";
   break;
   default:
   cout << "The Coin Landed on it's Side.\n";
