@@ -1,9 +1,14 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
-using namespace std;
+using std::cout;
+using std::cin;
+using std::endl;
 
 int main() {
-
-
   
+  
+
 }
+
