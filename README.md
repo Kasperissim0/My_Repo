@@ -2,4 +2,4 @@
 learning C++ and VSCode.
 
 ## Why
-¯\_(ツ)_/¯
+¯ \_(ツ)_/¯
