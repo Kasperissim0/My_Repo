@@ -1,14 +1,17 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <thread>
+#include <chrono>
 
-using std::cout;
-using std::cin;
-using std::endl;
+using namespace std;
 
 int main() {
-  
-  
 
+
+
+
+
+
+
+  
 }
-
