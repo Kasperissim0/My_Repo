@@ -13,8 +13,8 @@ int main() {
   cout << "What is Your Name ?\n";
   cin >> Name; // Normal Name
 
-  vector<char> NameCharacters(Name.length());
-  char TempName[Name.length()]; // Create a Vector with the length equal to the amount of characters in Name
+  vector<char> NameCharacters(Name.length()); // Create a Vector with the length equal to the amount of characters in Name
+  char TempName[Name.length()]; // Create an Array with the length equal to the amount of characters in Name
 
   for (int i = 0; i < Name.length()+1; ++i)
     NameCharacters[i] = Name[i]; // Store each letter of the Name inside the Vector
