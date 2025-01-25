@@ -5,8 +5,18 @@
 #include <thread>
 #include <chrono>
 #include <limits>
+#include <algorithm> 
 
 using namespace std;
+
+struct Information {
+
+    string message;
+    string title;
+    bool MessageConfirmed;
+    bool TitleConfirmed;
+
+};
 
 string ReverseSentence(const string& sentence) {
 
@@ -43,6 +53,16 @@ void CleanLine () {
 
 
 }
+string TrimBlankSpace (const string& input) {
+
+  auto StringStart = find_if_not(input.begin(), input.end(), ::isspace); // Find First Non-Space Charachter
+  auto StringEnd = find_if_not(input.rbegin(), input.rend(), ::isspace).base(); // Find Last Non-Space Charachter
+
+  string TrimmedString = string(StringStart, StringEnd); // Create a String Starting Without the Spaces
+ 
+  return TrimmedString;
+
+}
 string RequestMessage () {
 
     int Choice1a;
@@ -62,7 +82,6 @@ string RequestMessage () {
             // Ensure Message exists
             cout << "Message Cannot be Empty" << endl;
             this_thread::sleep_for(chrono::seconds(2));
-            system("clear");
             goto start;
 
         }
@@ -71,7 +90,7 @@ string RequestMessage () {
             ask:
                 // Show message and ask for confirmation
                 system("clear");
-                cout << "This Is Your Message: \n\n" << "'" << message << "'" << endl;
+                cout << "This Is Your Message: \n\n" << "'" << TrimBlankSpace(message) << "'" << endl;
                 cout << "\nDo You Confirm That This Is Your Message ?\n\n";
 
                 cout << setw(20) << "Yes" << setw(40) << "Press 1" << endl;
@@ -112,14 +131,80 @@ string RequestMessage () {
     return message;
     
 }
-string RequestTitle () {
+Information DoubleRequest () {
 
-    string title; 
+    Information package;
+    
+    int Choice1b;
+    package.message = TrimBlankSpace(RequestMessage());
+    package.MessageConfirmed = true;
+    package.TitleConfirmed = false;
 
-    // here
+    while (package.TitleConfirmed == false) {
 
+        start:
+            CleanLine();
+            system("clear");
+            cout << "Create a Title for You Message:" << endl;
+            getline(cin, package.title);
 
-    return title;
+        if (package.title.empty() == true) {
+
+            // Ensure Title exists
+            cout << "Title Cannot be Empty" << endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            goto start;
+
+        }
+        else if (package.title.empty() == false) {
+
+            package.title = TrimBlankSpace(package.title);
+            ask:
+                // Show title and ask for confirmation
+                system("clear");
+                cout << "This Is Your Title: \n\n" << "'" << package.title << "'" << endl;
+                cout << "\nDo You Confirm That This Is Your Title ?\n\n";
+
+                cout << setw(20) << "Yes" << setw(40) << "Press 1" << endl;
+                cout << setw(19) << "No" << setw(41) << "Press 2" << endl;
+
+                cin >> Choice1b;
+
+            if (cin.fail() || (Choice1b !=1 && Choice1b !=2)) {
+
+                CleanLine();
+                system("clear");
+                cout << "Please select from the given options." << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+                system("clear");
+                goto ask;
+
+             }
+            else if (Choice1b == 1) {
+    
+                system("clear");
+                cout << "This is Your Title: " << "'" << package.title << "'\n" << endl
+                    << "This is Your Message: "  << "'" << package.message << "'\n" << endl;
+                this_thread::sleep_for(chrono::seconds(5));
+                system("clear");
+                package.TitleConfirmed = true;
+                break;
+
+            }
+            else if (Choice1b == 2) {
+
+                goto start;
+
+            }
+        }
+        else {
+
+            goto start;
+
+        }
+    }
+
+    return package;
 
 }
 
@@ -183,17 +268,24 @@ int main() {
 }
     if (Choice1 == 1) {
 
-        message = RequestMessage();
-        MessageConfirmed = true;
-        TitleConfirmed = false;
-        title = RequestTitle();
+        Information InfoBundle = DoubleRequest();
+        title = InfoBundle.title;
+        message = InfoBundle.message;
+        MessageConfirmed = InfoBundle.MessageConfirmed;
+        TitleConfirmed = InfoBundle.TitleConfirmed;
 
         goto start;
 
     }
     else if (Choice1 == 2) {
 
-        // here
+        // ! Add Message Reading Functionality
+        system("clear");
+        cout << "Currently Under Development" << endl;
+        this_thread::sleep_for(chrono::seconds(2));
+        system("clear");
+        goto start;
+        // ! Add Message Reading Functionality
 
     }
     else {
@@ -201,124 +293,7 @@ int main() {
         goto start;
 
     }
-    // ! More Code Here
     
-
-
-
-
-    /*while (true) {
-        // Clear screen and display main menu
-        system("clear");
-
-        cout << "How Can I Help You ?\n" << endl;
-        cout << setw(20) << "Leave A Message" << setw(40) << "Press 1" << endl;
-        cout << setw(19) << "Read A Message" << setw(41) << "Press 2" << endl;
-        cout << setw(9) << "Exit" << setw(51) << "Press 3" << endl;
-
-        // Get user's menu choice
-        cin >> Choice1;
-        cin.ignore(); // Clear input buffer
-        system("clear");
-
-        switch (Choice1) {
-            case 1: {
-                // Reset confirmation flags at the start of message creation
-                MessageConfirmed = false;
-                TitleConfirmed = false;
-
-                // Message input and confirmation loop
-                while (!MessageConfirmed) {
-                    // Prompt for message
-                    cout << "Insert Your Message Here: ";
-
-                    // Get the entire line of input
-                    getline(cin, sentence);
-
-                    // Validate message is not empty
-                    if (sentence.empty()) {
-                        cout << "Message cannot be empty. Press Enter to continue." << endl;
-                        cin.ignore();
-                        system("clear");
-                        continue; // Go back to the start of the loop
-                    }
-
-                    system("clear");
-
-                    // Show message and ask for confirmation
-                    cout << "This Is Your Message: \n\n" << "'" << sentence << "'" << endl;
-                    cout << "\nDo You Confirm That This Is Your Message ?\n\n";
-
-                    cout << setw(20) << "Yes" << setw(40) << "Press 1" << endl;
-                    cout << setw(19) << "No" << setw(41) << "Press 2" << endl;
-
-                    // Get confirmation choice
-                    cin >> Choice1a;
-                    cin.ignore();
-                    system("clear");
-
-                    switch (Choice1a) {
-                        case 1: {
-                            // Encrypt message
-                            sentence = ReverseSentence(sentence);
-                            cout << "Your Message Has Been Saved" << endl;
-                            this_thread::sleep_for(chrono::seconds(2));
-                            system("clear");
-
-                            // Title input loop
-                            while (true) {
-                                cout << "Create a Name For Your Message: \n";
-                                getline(cin, Name1);
-
-                                // Validate title is not empty
-                                if (!Name1.empty()) {
-                                    TitleConfirmed = true;
-                                    break;
-                                }
-
-                                cout << "Title cannot be empty. Try again." << endl;
-                                this_thread::sleep_for(chrono::seconds(1));
-                                system("clear");
-                            }
-
-                            MessageConfirmed = true;
-                            break;
-                        }
-                        case 2:
-                            // Clear message if user chooses to cancel
-                            sentence.clear();
-                            system("clear");
-                            break;
-
-                        default:
-                            // Handle invalid input
-                            cout << "Invalid option selected. Please try again." << endl;
-                            this_thread::sleep_for(chrono::seconds(1));
-                            break;
-                    }
-                }
-                break;
-            }
-            case 2:
-                cout << "Under Development" << endl;
-                this_thread::sleep_for(chrono::seconds(2));
-                system("clear");
-                break;
-
-            case 3:
-                // Exit the program
-                cout << "Exiting the program. Goodbye!" << endl;
-                this_thread::sleep_for(chrono::seconds(2));
-                system("clear");
-                return 0;
-
-            default:
-                cout << "Invalid option selected. Please try again." << endl;
-                this_thread::sleep_for(chrono::seconds(2));
-                system("clear");
-                break;
-        }
-    }
-    */
     return 0;
+
 }
