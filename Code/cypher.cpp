@@ -250,12 +250,43 @@ int main() {
         case 2:
             goto escape;
         case 3:
+            
+            int QuitApp;
 
-            system("clear");
-            cout << "Exiting Program, Goodbye." << endl;
-            this_thread::sleep_for(chrono::seconds(2));
-            system("clear");
-            return 0;
+            quit_choice:
+                system("clear");
+                cout << "Are You Sure ?" << endl 
+                    << "All Your Messages Will Be Erased\n" << endl
+                    << setw(20) << "Yes" << setw(40) << "Press 1" << endl
+                    << setw(19) << "No" << setw(41) << "Press 2" << endl;
+
+                cin >> QuitApp;
+
+            if (cin.fail() || (QuitApp != 1 && QuitApp != 2)) {
+
+                CleanLine();
+                system("clear");
+                cout << "Please select from the given options." << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+                system("clear");
+                goto quit_choice;
+
+            }
+            else if (QuitApp == 1) {
+
+                system("clear");
+                cout << "Exiting Program, Goodbye." << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+                system("clear");
+                return 0;
+
+            } 
+            else if (QuitApp == 2) {
+
+                system("clear");
+                goto start;
+
+            }
         
         default:
             goto start;
@@ -268,24 +299,118 @@ int main() {
 }
     if (Choice1 == 1) {
 
-        Information InfoBundle = DoubleRequest();
-        title = InfoBundle.title;
-        message = InfoBundle.message;
-        MessageConfirmed = InfoBundle.MessageConfirmed;
-        TitleConfirmed = InfoBundle.TitleConfirmed;
+        if (title.empty() == true) {
 
-        goto start;
+            init_package:
+                Information InfoBundle = DoubleRequest();
+
+                title = InfoBundle.title;
+                message = InfoBundle.message;
+                MessageConfirmed = InfoBundle.MessageConfirmed;
+                TitleConfirmed = InfoBundle.TitleConfirmed;
+
+                goto start;
+        }
+        else if (title.empty() == false) {
+
+            int ToOverride;
+
+            replace_m:
+                system("clear");
+                cout << "You Already Have a Message Titled " << "'" << title << "'" << " Saved.\n" << endl
+                    << "Do You Wish to Override it ?\n" << endl
+                    << setw(20) << "Yes" << setw(40) << "Press 1" << endl
+                    << setw(19) << "No" << setw(41) << "Press 2" << endl;
+                cin >> ToOverride;
+
+            if (cin.fail() || (ToOverride != 1 && ToOverride != 2)) {
+
+                CleanLine();
+                system("clear");
+                cout << "Please select from the given options." << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+                system("clear");
+                goto replace_m;
+
+            }
+            else if (ToOverride == 1) {
+
+                goto init_package;
+
+            }
+            else if (ToOverride == 2) {
+
+                goto start;
+
+            }
+            else {
+
+                goto start;
+
+            }
+
+
+        }
 
     }
     else if (Choice1 == 2) {
 
         // ! Add Message Reading Functionality
-        system("clear");
-        cout << "Currently Under Development" << endl;
-        this_thread::sleep_for(chrono::seconds(2));
-        system("clear");
-        goto start;
-        // ! Add Message Reading Functionality
+
+        int Choice2;
+
+        if (title.empty() == false) {
+            ask_message:
+                system("clear");
+                cout << setw(50) << "Select The Message You Want to Read: \n\n";
+                this_thread::sleep_for(chrono::seconds(1));
+                cout << "1." << setw(20) << title << endl;
+
+                cout << "\n\n\nDo You Wish to Read the Message Titled: " << setw(25) << "'" << title << "'" << " ?\n" << endl;
+                cout << setw(20) << "Yes" << setw(40) << "Press 1" << endl;
+                cout << setw(19) << "No" << setw(41) << "Press 2" << endl;
+                cin >> Choice2;
+
+            if (cin.fail() || (Choice2 != 1 && Choice2 != 2)) {
+
+                CleanLine();
+                system("clear");
+                cout << "Please select from the given options." << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+                system("clear");
+                goto ask_message;
+
+            }
+            else if (Choice2 == 1) {
+
+                system("clear");
+                cout << "Title: " << title << '\n' << '\n' 
+                    << "Content:" << endl << endl << message << endl;
+                this_thread::sleep_for(chrono::seconds(5));
+                goto start;
+
+            }
+            else if (Choice2 == 2) {
+
+                goto start;
+
+            }
+            else {
+
+                goto ask_message;
+
+            }
+
+        }
+
+        else if (title.empty() == true) {
+
+            system("clear");
+            cout << "There Are No Messages To Read" << endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            goto start;
+
+        }
 
     }
     else {
