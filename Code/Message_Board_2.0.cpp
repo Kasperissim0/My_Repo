@@ -41,9 +41,9 @@ void YesORNoChoice () {
        << setw(19) << "No" << setw(41) << "Press 2" << endl;
 
 }
-bool ValidateInput (const int& UserChoice, const int& AmountOfOptions = 2, const int& MinValue_optional = 1){
+bool ValidateInput (const int& UserChoice, const int& AmountOfOptions = 2, const int& MinValue = 1){
 
-  if (cin.fail() || UserChoice > AmountOfOptions || UserChoice < MinValue_optional) {
+  if (cin.fail() || UserChoice > AmountOfOptions || UserChoice < MinValue) {
 
     CleanLine();
     system("clear");
@@ -216,14 +216,16 @@ Information DoubleRequest () {
 
 /* 
 
-    1.  TODO Simplify Everything (≈200 lines of code)
-    2.  TODO Add Paswords
-    3.  TODO Add Multiple Messages
-    4.  TODO Add Editing Messages
-    5.  TODO Add Deleting Messages
+    1.  [x] Simplify Everything
+    2.  [ ] Add Multiple Messages
+    3.  [ ] Add Editing Messages
+    4.  [ ] Add Deleting Messages
+    5.  [ ] Add Paswords
 
     
 */ 
+
+
 
 int main() {
     
