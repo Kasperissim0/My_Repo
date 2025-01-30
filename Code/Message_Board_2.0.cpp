@@ -284,76 +284,16 @@ Information DoubleRequest () {
 
 }
 
-void GenerateTestData(vector<Information>& data) {
-    // Create several Information objects with test content
-    Information msg1;
-    msg1.title = "Daily Report";
-    msg1.message = "Today's meeting went well. We discussed the upcoming project timeline and assigned tasks to team members.";
-    msg1.MessageConfirmed = true;
-    msg1.TitleConfirmed = true;
-    data.push_back(msg1);
-
-    Information msg2;
-    msg2.title = "Shopping List";
-    msg2.message = "Milk, eggs, bread, cheese, fruits, vegetables, and don't forget to pick up cat food!";
-    msg2.MessageConfirmed = true;
-    msg2.TitleConfirmed = true;
-    data.push_back(msg2);
-
-    Information msg3;
-    msg3.title = "Birthday Party";
-    msg3.message = "Remember to organize Sarah's surprise birthday party next Saturday. Need to order cake and decorations.";
-    msg3.MessageConfirmed = true;
-    msg3.TitleConfirmed = true;
-    data.push_back(msg3);
-
-    Information msg4;
-    msg4.title = "Project Ideas";
-    msg4.message = "1. Create a mobile app\n2. Design new website\n3. Develop game prototype\n4. Write technical documentation";
-    msg4.MessageConfirmed = true;
-    msg4.TitleConfirmed = true;
-    data.push_back(msg4);
-
-    Information msg5;
-    msg5.title = "Vacation Plans";
-    msg5.message = "Book flights for summer vacation. Check hotels in Paris and Rome. Make restaurant reservations.";
-    msg5.MessageConfirmed = true;
-    msg5.TitleConfirmed = true;
-    data.push_back(msg5);
-
-    Information msg6;
-    msg6.title = "Bug Fixes";
-    msg6.message = "Fixed memory leak in main loop. Updated user interface. Resolved login issues. Testing needed.";
-    msg6.MessageConfirmed = true;
-    msg6.TitleConfirmed = true;
-    data.push_back(msg6);
-
-    Information msg7;
-    msg7.title = "Movie List";
-    msg7.message = "Must watch: The Matrix, Inception, Interstellar, The Dark Knight, and The Shawshank Redemption";
-    msg7.MessageConfirmed = true;
-    msg7.TitleConfirmed = true;
-    data.push_back(msg7);
-
-    Information msg8;
-    msg8.title = "Recipe Notes";
-    msg8.message = "Grandma's secret chocolate cake recipe: 2 cups flour, 1 cup sugar, 3 eggs, 1 cup milk, vanilla extract...";
-    msg8.MessageConfirmed = true;
-    msg8.TitleConfirmed = true;
-    data.push_back(msg8);
-}
-
 
 /* 
 
-    1.  [x] Simplify Everything
-    2.  [x] Add Multiple Messages
-    3.  [x] Add Paswords
-    4.  [ ] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
-    4.  [ ] Add Editing Messages
-    5.  [ ] Add Deleting Messages 
-
-    
+  1.  [x] Simplify Everything
+  2.  [x] Add Multiple Messages
+  3.  [x] Add Paswords
+  4.  [ ] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
+  4.  [ ] Add Editing Messages
+  5.  [ ] Add Deleting Messages 
+ 
 */ 
 
 
@@ -362,7 +302,6 @@ int main() {
     
   // Initate Variables
   vector<Information> data;
-  GenerateTestData(data); // TODO Delete this.
   int UCMainMenu; // UC = User Choice
 
 
