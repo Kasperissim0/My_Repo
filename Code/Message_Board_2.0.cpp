@@ -6,6 +6,7 @@
 #include <chrono>
 #include <limits>
 #include <algorithm> 
+#include <vector>
 
 using namespace std;
 
@@ -13,8 +14,10 @@ struct Information {
 
   string message;
   string title;
+  string password;
   bool MessageConfirmed;
   bool TitleConfirmed;
+  bool HasPassword;
 
 };
 
@@ -140,6 +143,7 @@ Information DoubleRequest () {
     Information package;
     
     int UCTitle;
+    int UCPassword;
     package.message = TrimBlankSpace(RequestMessage());
     package.MessageConfirmed = true;
     package.TitleConfirmed = false;
@@ -176,7 +180,7 @@ Information DoubleRequest () {
               YesORNoChoice();
 
               cin >> UCTitle;
-              bool ValidUserInput = ValidateInput(UCTitle, 2);
+              bool ValidUserInput = ValidateInput(UCTitle);
 
           if (ValidUserInput == false) {
 
@@ -185,14 +189,82 @@ Information DoubleRequest () {
           }
 
           else if (UCTitle == 1) {
-  
-              system("clear");
-              cout << "This is Your Title: " << "'" << package.title << "'\n" << endl
-                  << "This is Your Message: "  << "'" << package.message << "'\n" << endl;
-              this_thread::sleep_for(chrono::seconds(5));
-              system("clear");
-              package.TitleConfirmed = true;
-              break;
+
+              create_pass:
+                system("clear");
+                cout << "Do You Wish To Protect Your Message With a Password ?\n" << endl;
+
+                YesORNoChoice();
+
+                cin >> UCPassword;
+                ValidUserInput = ValidateInput(UCPassword);
+
+              if (ValidUserInput == false) {
+
+                goto create_pass;
+
+              }
+
+              // No Password
+              else if (UCPassword == 2) {
+
+                system("clear");
+                cout << "This is Your Title: " << "'" << package.title << "'\n" << endl
+                    << "This is Your Message: "  << "'" << package.message << "'\n" << endl;
+                this_thread::sleep_for(chrono::seconds(5));
+                system("clear");
+                package.HasPassword = false;
+                package.TitleConfirmed = true;
+                break;
+
+              }
+
+              // With a Password
+              else if (UCPassword == 1) {
+
+                system("clear");
+                cout << "Insert Your Password:" << endl;
+                cin >> package.password;
+
+                // Double Check Password
+                pass_check:
+                  system("clear");
+                  cout << "This is Your Password: " << package.password << endl;
+                  cout << "\nRemember, You Won't Be Able Ta Acess Your Message Without it.\n\n"
+                  << "Do You Confirm That This Is Your Password ?\n\n";
+
+                  int UCPassCheck;
+                  YesORNoChoice();
+
+                  cin >> UCPassCheck;
+                  ValidUserInput = ValidateInput(UCPassCheck);
+
+                if (ValidUserInput == false) {
+
+                  goto pass_check;
+
+                }
+                
+                else if (UCPassCheck == 1) {
+
+                  system("clear");
+                  cout << "This is Your Title: " << "'" << package.title << "'\n" << endl
+                      << "This is Your Message: "  << "'" << package.message << "'\n" << endl
+                      << "This is Your Password: " << package.password << "\n" << endl;
+                  this_thread::sleep_for(chrono::seconds(5));
+                  system("clear");
+                  package.HasPassword = true;
+                  package.TitleConfirmed = true;
+                  break;
+
+                }
+                else if (UCPassCheck == 2) {
+
+                  goto create_pass;
+
+                }
+
+              }
 
           }
           
@@ -212,15 +284,74 @@ Information DoubleRequest () {
 
 }
 
+void GenerateTestData(vector<Information>& data) {
+    // Create several Information objects with test content
+    Information msg1;
+    msg1.title = "Daily Report";
+    msg1.message = "Today's meeting went well. We discussed the upcoming project timeline and assigned tasks to team members.";
+    msg1.MessageConfirmed = true;
+    msg1.TitleConfirmed = true;
+    data.push_back(msg1);
+
+    Information msg2;
+    msg2.title = "Shopping List";
+    msg2.message = "Milk, eggs, bread, cheese, fruits, vegetables, and don't forget to pick up cat food!";
+    msg2.MessageConfirmed = true;
+    msg2.TitleConfirmed = true;
+    data.push_back(msg2);
+
+    Information msg3;
+    msg3.title = "Birthday Party";
+    msg3.message = "Remember to organize Sarah's surprise birthday party next Saturday. Need to order cake and decorations.";
+    msg3.MessageConfirmed = true;
+    msg3.TitleConfirmed = true;
+    data.push_back(msg3);
+
+    Information msg4;
+    msg4.title = "Project Ideas";
+    msg4.message = "1. Create a mobile app\n2. Design new website\n3. Develop game prototype\n4. Write technical documentation";
+    msg4.MessageConfirmed = true;
+    msg4.TitleConfirmed = true;
+    data.push_back(msg4);
+
+    Information msg5;
+    msg5.title = "Vacation Plans";
+    msg5.message = "Book flights for summer vacation. Check hotels in Paris and Rome. Make restaurant reservations.";
+    msg5.MessageConfirmed = true;
+    msg5.TitleConfirmed = true;
+    data.push_back(msg5);
+
+    Information msg6;
+    msg6.title = "Bug Fixes";
+    msg6.message = "Fixed memory leak in main loop. Updated user interface. Resolved login issues. Testing needed.";
+    msg6.MessageConfirmed = true;
+    msg6.TitleConfirmed = true;
+    data.push_back(msg6);
+
+    Information msg7;
+    msg7.title = "Movie List";
+    msg7.message = "Must watch: The Matrix, Inception, Interstellar, The Dark Knight, and The Shawshank Redemption";
+    msg7.MessageConfirmed = true;
+    msg7.TitleConfirmed = true;
+    data.push_back(msg7);
+
+    Information msg8;
+    msg8.title = "Recipe Notes";
+    msg8.message = "Grandma's secret chocolate cake recipe: 2 cups flour, 1 cup sugar, 3 eggs, 1 cup milk, vanilla extract...";
+    msg8.MessageConfirmed = true;
+    msg8.TitleConfirmed = true;
+    data.push_back(msg8);
+}
 
 
 /* 
 
-    1.  [ ] Simplify Everything <- Make Evertyting a Seperate Function ⬇️ ( int main = only function calls )
-    2.  [ ] Add Multiple Messages
-    3.  [ ] Add Editing Messages
-    4.  [ ] Add Deleting Messages
-    5.  [ ] Add Paswords
+    1.  [x] Simplify Everything
+    2.  [x] Add Multiple Messages
+    3.  [x] Add Paswords
+    4.  [ ] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
+    4.  [ ] Add Editing Messages
+    5.  [ ] Add Deleting Messages 
 
     
 */ 
@@ -230,10 +361,8 @@ Information DoubleRequest () {
 int main() {
     
   // Initate Variables
-  string message;
-  string title;
-  bool MessageConfirmed = false;
-  bool TitleConfirmed = false;
+  vector<Information> data;
+  GenerateTestData(data); // TODO Delete this.
   int UCMainMenu; // UC = User Choice
 
 
@@ -291,67 +420,22 @@ int main() {
     // Leave a Message
     else if (UCMainMenu == 1) {
 
-      if (title.empty() == true) {
+      Information NewInfoPackage = DoubleRequest();
 
-        init_package:
+      data.insert(data.rbegin().base(), NewInfoPackage);
 
-          Information data = DoubleRequest();
-
-          title = data.title;
-          message = data.title;
-          MessageConfirmed = data.MessageConfirmed;
-          TitleConfirmed = data.TitleConfirmed;
-
-          goto main_menu;
-          
-
-      }
-
-      else if (title.empty() == false) {
-
-        replace_message:
-
-          int UCToOverride;
-
-          system("clear");
-
-          cout << "You Already Have a Message Titled: " << "'" << title << "'" << " Saved.\n" << endl
-               << "Do You Wish To Override It ?" << endl;
-
-          YesORNoChoice();
-          cin >> UCToOverride;
-          UserInputValid = ValidateInput(UCToOverride, 2);
-
-          if (UserInputValid == false) {
-
-            goto replace_message;
-
-          }
-
-          else if (UCToOverride == 1) {
-
-            goto init_package;
-
-          }
-          
-          else if (UCToOverride == 2) {
-
-            goto main_menu;
-
-          }
-
-
-      } 
-
+      goto main_menu;
 
     }
+    
     
     // Read a Message
     else if (UCMainMenu == 2) {
 
       int UCRead;
 
-      if (title.empty() == true) {
+      // If there are no messages direct back to start
+      if (data.empty() == true) {
 
         system("clear");
         cout << "There Are No Messages To Read" << endl;
@@ -360,46 +444,90 @@ int main() {
 
       }
 
-      else if (title.empty() == false) {
-
+      else if (data.empty() == false) {
+        
+        // Show All Titles in the Vector
         select_message:
 
           system("clear");
           cout << setw(50) << "Select The Message You Want to Read: \n\n";
           this_thread::sleep_for(chrono::seconds(1));
-          cout << "1." << setw(20) << title << endl;
 
-          cout << "\n\n\nDo You Wish to Read the Message Titled: " << setw(25) << "'" << title << "'" << " ?\n" << endl;
-          
-          YesORNoChoice();
+          for (int a = 0; a < data.size(); a++) {
+
+           cout << left << setw(2) << a + 1 << ". ";
+           cout << left << setw(50) << ("   '" + data[a].title + "'"); 
+           cout << setw(39) << "If You Wish To Read this Message:                ->  Press ";
+           cout << left << setw(2) << (a + 1) << " <-" << endl;
+
+          }
+          // Add an Exit to the menu
+          cout << "\nIf You Wish To Go Back To The Menu:                -> Press " << data.size() + 1 << " <-" << endl
+               << "\n\n\n" << right << setw(45) << "Which Message Do You Wish To Read ?" << endl;
 
           cin >> UCRead;
-          UserInputValid = ValidateInput(UCRead);
-
-
+          UserInputValid = ValidateInput(UCRead, data.size() + 1); 
+          
+      }
+      // Validate input
       if (UserInputValid == false) {
 
        goto select_message;
 
       }
+      // Show Selected Message (-1 from User Choice because of 0 indexing)
+      else if (UCRead <= data.size()) {
 
-      else if (UCRead == 1) {
+        // Check for a password
+        if (data[UCRead - 1].HasPassword == false) {
 
           system("clear");
-          cout << "Title: " << title << '\n' << '\n' 
-              << "Content:" << endl << endl << message << endl;
+          cout << "Title: " << data[UCRead - 1].title << '\n' << '\n' 
+               << "Content:" << endl << endl << data[UCRead - 1].message << endl;
           this_thread::sleep_for(chrono::seconds(4));
           goto main_menu;
 
+        }
+        // Password Found
+        else if (data[UCRead - 1].HasPassword == true) {
+
+          string AttemptedPassword;
+          
+          system("clear");
+
+          cout << "This Message is Password Locked, Enter the Password to Gain Acess: " << endl;
+          cin >> AttemptedPassword;
+
+          // Correct Password
+          if (AttemptedPassword == data[UCRead - 1].password) {
+
+            system("clear");
+            cout << "Title: " << data[UCRead - 1].title << '\n' << '\n' 
+                 << "Content:" << endl << endl << data[UCRead - 1].message << endl;
+            this_thread::sleep_for(chrono::seconds(4));
+            goto main_menu;
+
+          }
+          // Incorrect Password
+          else if (AttemptedPassword != data[UCRead - 1].password) {
+
+            system("clear");
+            cout << "Incorrect Password" << endl;
+            this_thread::sleep_for(chrono::seconds(2));
+
+            goto main_menu;
+
+          }
+
+
+        }
+
       }
+      else if (UCRead == data.size() + 1) {
 
-      else if (UCRead == 2) {
-
-          goto main_menu;
+        goto main_menu;
 
       }
-
-    }
 
   }
 
