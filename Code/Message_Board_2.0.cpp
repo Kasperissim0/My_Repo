@@ -20,12 +20,12 @@ struct Information {
 
 void ShowMainMenu() {
 
-    system("clear");
+  system("clear");
 
-    cout << "How Can I Help You ?\n" << endl;
-    cout << setw(20) << "Leave A Message" << setw(40) << "Press 1" << endl;
-    cout << setw(19) << "Read A Message" << setw(41) << "Press 2" << endl;
-    cout << setw(9) << "Exit" << setw(51) << "Press 3" << endl;
+  cout << "How Can I Help You ?\n" << endl;
+  cout << setw(20) << "Leave A Message" << setw(40) << "Press 1" << endl;
+  cout << setw(19) << "Read A Message" << setw(41) << "Press 2" << endl;
+  cout << setw(9) << "Exit" << setw(51) << "Press 3" << endl;
 
 }
 void CleanLine () {
@@ -216,7 +216,7 @@ Information DoubleRequest () {
 
 /* 
 
-    1.  [x] Simplify Everything
+    1.  [ ] Simplify Everything <- Make Evertyting a Seperate Function ⬇️ ( int main = only function calls )
     2.  [ ] Add Multiple Messages
     3.  [ ] Add Editing Messages
     4.  [ ] Add Deleting Messages
@@ -272,17 +272,17 @@ int main() {
       }
       else if (UCQuit == 1) {
 
-          system("clear");
-          cout << "Exiting Program, Goodbye." << endl;
-          this_thread::sleep_for(chrono::seconds(2));
-          system("clear");
-          return 0;
+        system("clear");
+        cout << "Exiting Program, Goodbye." << endl;
+        this_thread::sleep_for(chrono::seconds(2));
+        system("clear");
+        return 0;
 
       } 
       else if (UCQuit == 2) {
 
-          system("clear");
-          goto main_menu;
+        system("clear");
+        goto main_menu;
 
       }
 
