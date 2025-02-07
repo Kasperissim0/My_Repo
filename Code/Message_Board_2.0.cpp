@@ -7,11 +7,13 @@
 #include <limits>
 #include <algorithm> 
 #include <vector>
+#include <cctype> // Required for toupper (capitalize lowercase letter)
 
 using namespace std;
 
 struct Information {
 
+  int UserChoice;
   string message;
   string title;
   string password;
@@ -20,6 +22,7 @@ struct Information {
   bool HasPassword;
 
 };
+
 
 void ShowMainMenu() {
 
@@ -38,10 +41,10 @@ void CleanLine () {
     cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Remove any leftover characters, including '\n'
 
 }
-void YesORNoChoice () {
+void YesORNoChoice (string const& Message1 = "Yes", string const& Message2 = "No") {
 
-  cout << setw(20) << "Yes" << setw(40) << "Press 1" << endl
-       << setw(19) << "No" << setw(41) << "Press 2" << endl;
+  cout << setw(20) << Message1 << setw(40) << "Press 1" << endl
+       << setw(19) << Message2 << setw(41) << "Press 2" << endl;
 
 }
 bool ValidateInput (const int& UserChoice, const int& AmountOfOptions = 2, const int& MinValue = 1){
@@ -71,93 +74,148 @@ string TrimBlankSpace (const string& input) {
   return TrimmedString;
 
 }
-string RequestMessage () {
+bool UCConfirmInput (const string& input, string InputType, const bool& RepeatInput = false, const string& ExtraMessage = "") {
 
-    int UCMessage;
-    string message;
-    bool MessageConfirmed = false;
+  Information data;
 
-    while (MessageConfirmed == false) {
+  bool ValidUserInput = false;
+  InputType = TrimBlankSpace(InputType);
+  vector<char> CapitalizedInputType;
 
-        insert_message:
+  for (char letter: InputType) {
 
-            CleanLine();
-            system("clear");
-            cout << "Insert Your Message Here: \n";
-            getline(cin, message);
+    CapitalizedInputType.push_back(letter);
 
-        if (message.empty()) {
+  }
 
-            // Ensure Message exists
-            cout << "Message Cannot be Empty" << endl;
-            this_thread::sleep_for(chrono::seconds(2));
-            goto insert_message;
+  CapitalizedInputType[0] = toupper(CapitalizedInputType[0]);
 
-        }
+  if (RepeatInput == false) {
 
-        else if (message.empty() == false) {
+    goto final_confirm;
 
-            confirm_message:
+  }
+
+  confirm_input:
+    system("clear");
+    cout << "This Is Your ";
+    for (char letter: CapitalizedInputType){
+
+      cout << letter;
+
+    }
+    cout << ":\n\n" << "'" << TrimBlankSpace(input) << "'" << endl
+         << "\nDo You Confirm That This Is Your ";
+    for (char letter: CapitalizedInputType) {
+
+      cout << letter;
+
+    } 
+    cout << " ?\n\n";
+
+  final_confirm:
+    if (ExtraMessage.empty() == false) {
+
+      cout << ExtraMessage << '\n';
+
+    }
+    
+    YesORNoChoice();
+
+    cin >> data.UserChoice;
+    ValidUserInput = ValidateInput(data.UserChoice);
+
+    if (ValidUserInput == false) {
         
-                // Show message and ask for confirmation
-                system("clear");
-                cout << "This Is Your Message: \n\n" << "'" << TrimBlankSpace(message) << "'" << endl
-                     << "\nDo You Confirm That This Is Your Message ?\n\n";
+        if (ValidUserInput == false && RepeatInput == false) {
 
-                YesORNoChoice();
-
-                cin >> UCMessage;
-                bool ValidUserInput = ValidateInput(UCMessage, 2);
-
-            if (ValidUserInput == false) {
-
-              goto confirm_message;
-
-            }
-
-            else if (UCMessage == 1) {
-
-                system("clear");
-                cout << "Your Message Has Been Saved" << endl;
-                this_thread::sleep_for(chrono::seconds(2));
-                MessageConfirmed = true;
-                break;
-
-            }
-            else if (UCMessage == 2) {
-
-                system("clear");
-                goto insert_message;
-
-            }
+        goto final_confirm;
 
         }
+
+        else if (ValidUserInput == false && RepeatInput == true) {
+
+          goto confirm_input;
+
+        }
+
+      }
+    
+    else if (data.UserChoice == 1) {
+
+      system("clear");
+      return true;
 
     }
 
-    return message;
-    
+    else if (data.UserChoice == 2) {
+
+      system("clear");
+      return false;
+
+    }
+
+return false; // to satisfy the compiler (will never be reached)
+}
+string RequestMessage () {
+
+  Information data;
+
+    while (true) {
+
+      CleanLine();
+      system("clear");
+      cout << "Insert Your Message Here: \n";
+      getline(cin, data.message);
+
+      if (data.message.empty()) {
+
+        cout << "Message Cannot be Empty" << endl;
+        this_thread::sleep_for(chrono::seconds(2));
+        continue;
+
+      }
+
+      else if (data.message.empty() == false) {
+
+        data.MessageConfirmed = UCConfirmInput(data.message,"message", true);
+
+        if (data.MessageConfirmed == true) {
+        
+          return data.message;
+
+        }
+        else {
+
+          continue;
+
+        }
+      
+      }
+
+    }
+
 }
 Information DoubleRequest () {
 
-    Information package;
+    Information data;
     
-    int UCTitle;
-    int UCPassword;
-    package.message = TrimBlankSpace(RequestMessage());
-    package.MessageConfirmed = true;
-    package.TitleConfirmed = false;
+    bool UCTitle;
+    bool UCPassword;
+    data.message = TrimBlankSpace(RequestMessage());
+    data.MessageConfirmed = true;
+    data.TitleConfirmed = false;
 
-    while (package.TitleConfirmed == false) {
+    while (data.TitleConfirmed == false) {
 
       insert_title:
 
           CleanLine();
           system("clear");
           cout << "Create a Title for You Message:" << endl;
-          getline(cin, package.title);
+          getline(cin, data.title);
 
-      if (package.title.empty() == true) {
+      if (data.title.empty() == true) {
 
           // Ensure Title exists
           cout << "Title Cannot be Empty" << endl;
@@ -166,109 +224,68 @@ Information DoubleRequest () {
 
       }
 
-      else if (package.title.empty() == false) {
+      else if (data.title.empty() == false) {
 
-          package.title = TrimBlankSpace(package.title);
+        confirm_title:
 
-          confirm_title:
+          UCTitle = UCConfirmInput(data.title, "title", true);
 
-              // Show title and ask for confirmation
+        if (UCTitle == true) {
+            
+            create_pass:
               system("clear");
-              cout << "This Is Your Title: \n\n" << "'" << package.title << "'" << endl;
-              cout << "\nDo You Confirm That This Is Your Title ?\n\n";
+              UCPassword = UCConfirmInput("void", "void", false, "Do You Wish To Protect Your Message With a Password ?\n");
 
-              YesORNoChoice();
+            // No Password
+            if (UCPassword == false) {
 
-              cin >> UCTitle;
-              bool ValidUserInput = ValidateInput(UCTitle);
+              system("clear");
+              cout << "This is Your Title: " << "'" << data.title << "'\n" << endl
+                  << "This is Your Message: "  << "'" << data.message << "'\n" << endl;
+              this_thread::sleep_for(chrono::seconds(5));
+              system("clear");
+              data.HasPassword = false;
+              data.TitleConfirmed = true;
+              break;
 
-          if (ValidUserInput == false) {
+            }
 
-            goto confirm_title;
+            // With a Password
+            else if (UCPassword == true) {
 
-          }
-
-          else if (UCTitle == 1) {
-
-              create_pass:
                 system("clear");
-                cout << "Do You Wish To Protect Your Message With a Password ?\n" << endl;
+                cout << "Insert Your Password:" << endl;
+                cin >> data.password;
 
-                YesORNoChoice();
+              // Double Check Password
+              pass_check:
+                system("clear");
+                bool ValidUserInput = UCConfirmInput(data.password, "password", true, "Remember, You Won't Be Able To Acess Your Message Without Your Password.\n");
 
-                cin >> UCPassword;
-                ValidUserInput = ValidateInput(UCPassword);
+              if (ValidUserInput == true) {
 
-              if (ValidUserInput == false) {
+                system("clear");
+                cout << "This is Your Title: " << "'" << data.title << "'\n" << endl
+                    << "This is Your Message: "  << "'" << data.message << "'\n" << endl
+                    << "This is Your Password: " << data.password << "\n" << endl;
+                this_thread::sleep_for(chrono::seconds(5));
+                system("clear");
+                data.HasPassword = true;
+                data.TitleConfirmed = true;
+                break;
+
+              }
+              else if (ValidUserInput == false) {
 
                 goto create_pass;
 
               }
 
-              // No Password
-              else if (UCPassword == 2) {
+            }
 
-                system("clear");
-                cout << "This is Your Title: " << "'" << package.title << "'\n" << endl
-                    << "This is Your Message: "  << "'" << package.message << "'\n" << endl;
-                this_thread::sleep_for(chrono::seconds(5));
-                system("clear");
-                package.HasPassword = false;
-                package.TitleConfirmed = true;
-                break;
-
-              }
-
-              // With a Password
-              else if (UCPassword == 1) {
-
-                system("clear");
-                cout << "Insert Your Password:" << endl;
-                cin >> package.password;
-
-                // Double Check Password
-                pass_check:
-                  system("clear");
-                  cout << "This is Your Password: " << package.password << endl;
-                  cout << "\nRemember, You Won't Be Able Ta Acess Your Message Without it.\n\n"
-                  << "Do You Confirm That This Is Your Password ?\n\n";
-
-                  int UCPassCheck;
-                  YesORNoChoice();
-
-                  cin >> UCPassCheck;
-                  ValidUserInput = ValidateInput(UCPassCheck);
-
-                if (ValidUserInput == false) {
-
-                  goto pass_check;
-
-                }
-                
-                else if (UCPassCheck == 1) {
-
-                  system("clear");
-                  cout << "This is Your Title: " << "'" << package.title << "'\n" << endl
-                      << "This is Your Message: "  << "'" << package.message << "'\n" << endl
-                      << "This is Your Password: " << package.password << "\n" << endl;
-                  this_thread::sleep_for(chrono::seconds(5));
-                  system("clear");
-                  package.HasPassword = true;
-                  package.TitleConfirmed = true;
-                  break;
-
-                }
-                else if (UCPassCheck == 2) {
-
-                  goto create_pass;
-
-                }
-
-              }
-
-          }
-          
-          else if (UCTitle == 2) {
+        }
+        
+        else if (UCTitle == false) {
 
             goto insert_title;
 
@@ -280,9 +297,10 @@ Information DoubleRequest () {
 
     }
 
-    return package;
+    return data;
 
 }
+
 
 
 /* 
@@ -290,10 +308,10 @@ Information DoubleRequest () {
   1.  [x] Simplify Everything
   2.  [x] Add Multiple Messages
   3.  [x] Add Paswords
-  4.  [ ] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
+  4.  [x] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
   4.  [ ] Add Editing Messages
   5.  [ ] Add Deleting Messages 
- 
+    
 */ 
 
 
@@ -320,25 +338,14 @@ int main() {
     // Exit the Programm  
     else if (UCMainMenu == 3) {
 
-      quit_choice:
+      bool UCQuit;
 
-        int UCQuit;
+      system("clear");
+      cout << "Are You Sure ?" << endl << "All Your Messages Will Be Erased\n" << endl;
 
-          system("clear");
-          cout << "Are You Sure ?" << endl 
-               << "All Your Messages Will Be Erased\n" << endl;
+      UCQuit = UCConfirmInput("void", "void");
 
-           YesORNoChoice();
-
-          cin >> UCQuit;
-          UserInputValid = ValidateInput(UCQuit, 2);
-
-      if (UserInputValid == false) {
-
-        goto quit_choice;
-
-      }
-      else if (UCQuit == 1) {
+      if (UCQuit == true) {
 
         system("clear");
         cout << "Exiting Program, Goodbye." << endl;
@@ -347,7 +354,8 @@ int main() {
         return 0;
 
       } 
-      else if (UCQuit == 2) {
+      
+      else {
 
         system("clear");
         goto main_menu;
