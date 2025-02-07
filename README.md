@@ -2,4 +2,4 @@
 learning programming and C++.
 
 ## Why
-¯\_(ツ)_/¯
+¯\ _(ツ)_/¯
