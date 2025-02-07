@@ -1,5 +1,5 @@
 ## What
-learning C++ and VSCode.
+learning programming and C++.
 
 ## Why
 ¯\_(ツ)_/¯
