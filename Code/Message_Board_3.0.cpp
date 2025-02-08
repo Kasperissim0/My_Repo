@@ -438,7 +438,7 @@ bool GrantAcessToMessage (const vector<Information>& DataStorage, const int& Cho
 
 }
 
-
+/* //? Test Data (AI Generated)
 vector<Information> GenerateTestData() {
 
   vector<Information> testData;
@@ -588,7 +588,7 @@ vector<Information> GenerateTestData() {
   return testData;
 
 }
-
+*/
 
 
 /* 
@@ -607,7 +607,7 @@ vector<Information> GenerateTestData() {
 int main() {
     
   // Initate Variables
-  vector<Information> data = GenerateTestData();
+  vector<Information> data; // = GenerateTestData(); //? Test Data (Messages + Titles + Passwords)
   int UCMainMenu; // UC = User Choice
 
 

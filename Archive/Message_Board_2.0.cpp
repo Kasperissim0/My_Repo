@@ -302,20 +302,6 @@ Information DoubleRequest () {
 }
 
 
-
-/* 
-
-  1.  [x] Simplify Everything
-  2.  [x] Add Multiple Messages
-  3.  [x] Add Paswords
-  4.  [x] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
-  4.  [ ] Add Editing Messages
-  5.  [ ] Add Deleting Messages 
-    
-*/ 
-
-
-
 int main() {
     
   // Initate Variables
