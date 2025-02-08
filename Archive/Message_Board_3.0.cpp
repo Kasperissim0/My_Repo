@@ -591,19 +591,6 @@ vector<Information> GenerateTestData() {
 */
 
 
-/* 
-
-  1.  [x] Simplify Everything
-  2.  [x] Add Multiple Messages
-  3.  [x] Add Paswords
-  4.  [x] SHORTEN: Create a Function for the (This is your ... , Do You Confirm the that this is your ...)
-  5.  [x] Add Editing Messages
-  6.  [x] Add Deleting Messages 
-    
-*/ 
-
-
-
 int main() {
     
   // Initate Variables
