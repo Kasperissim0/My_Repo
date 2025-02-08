@@ -23,9 +23,11 @@ struct Information {
 
 };
 
-void ShowMainMenu() {
+void ShowMainMenu(const vector<Information>& AmountOfMessages) {
 
   system("clear");
+
+  cout << "You Currently Have " << AmountOfMessages.size() << " Messages Saved\n\n\n";
 
   cout << "How Can I Help You ?\n\n" << endl;
 
@@ -599,8 +601,7 @@ int main() {
 
 
   main_menu: 
-  
-    ShowMainMenu();
+    ShowMainMenu(data);
     cin >> UCMainMenu;
     bool ValidInputMainMenu = ValidateInput(UCMainMenu, 3);
 
@@ -613,14 +614,25 @@ int main() {
     // Exit the Programm  
     else if (UCMainMenu == 3) {
 
-      bool UCQuit;
+      int UCQuit;
+      bool ValidExitInput;
 
-      system("clear");
-      cout << "Are You Sure ?" << endl << "All Your Messages Will Be Erased\n" << endl;
+      quit:
+        system("clear");
+        cout << "Are You Sure ?" << endl << "All Your Messages Will Be Erased\n" << endl;
+        YesORNoChoice();
+        
+        cin >> UCQuit;
 
-      UCQuit = UCConfirmInput("void", "void");
+        ValidExitInput = ValidateInput(UCQuit);
 
-      if (UCQuit == true) {
+      if (!ValidExitInput) {
+
+        goto quit;
+
+      }
+
+      if (UCQuit == 1) {
 
         system("clear");
         cout << "Exiting Program, Goodbye." << endl;
