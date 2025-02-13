@@ -11,7 +11,7 @@
 
 using namespace std;
 
-int GenerateRandomNumber ();
+int GenerateRandomNumber (); // Define For Use in the matrix stucture
 
 struct Matrix { // Define the Martix Structure
 
