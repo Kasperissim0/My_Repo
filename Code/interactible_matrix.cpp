@@ -13,7 +13,7 @@ using namespace std;
 
 int GenerateRandomNumber ();
 
-struct Matrix {
+struct Matrix { // Define the Martix Structure
 
   int ArrayAmount;
   int ArraySize;
@@ -105,7 +105,7 @@ struct Matrix {
 
   }
 
-  void AddArraysTogether (Matrix& SampleMatrix) {
+  void AddArraysTogether (Matrix& SampleMatrix) { // Add All Arrayst Column by Column, then Row by Row
 
     int *TheLastSum = new int(0);
     int TempPrice = 0;
@@ -181,9 +181,21 @@ int main () {
   cout << "\nInsert Size Of Arrays: " << endl;
   cin >> ArraySize;
 
-  Matrix MatrixInstance(ArrayAmount, ArraySize);
+  Matrix MatrixInstance(ArrayAmount, ArraySize); // Create a "Matrix" Object
 
-  MatrixInstance.AddArraysTogether(MatrixInstance);
+  MatrixInstance.AddArraysTogether(MatrixInstance); // Uste the Add Arrays Method
+
+  /*
+  
+    0.[ ] Array Multiplication
+
+    1.[ ] Adding Elements
+    2.[ ] Removing Elements
+    3.[ ] Add Matrix Traversal
+    4.[ ] Acessing Elements
+    5.[ ] Modifing Elements
+    
+    */
 
   return 0;  
 }
