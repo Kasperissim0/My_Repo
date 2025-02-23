@@ -564,7 +564,7 @@ int main () {
   int ArrayAmount;
   int ArraySize;
 
-  while (true) {
+  while (true) { // Get Valid Array Amount
 
     system("clear");
 
@@ -586,7 +586,7 @@ int main () {
 
   }
   
-  while (true) {
+  while (true) { // Get Valid Array Size
 
     system("clear");
 
