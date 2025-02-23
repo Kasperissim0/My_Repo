@@ -413,11 +413,10 @@ struct Matrix { // Define the Martix Structure
 
       cin >> UserChoice; // Get User Choice
 
-      if ((UserChoice <= 0 || UserChoice > 3 || cin.fail()) || (UserChoice == 1 && CurrentIndex == 1) || (UserChoice == 2 && CurrentIndex == AmountOfNumbers)) { // Handle Invalid Inputs
+      if ((UserChoice <= 0 || UserChoice > 5 || cin.fail()) || (UserChoice == 1 && CurrentIndex == 1) || (UserChoice == 2 && CurrentIndex == AmountOfNumbers)) { // Handle Invalid Inputs
 
         system("clear");
 
-        this_thread::sleep_for(chrono::seconds(1));
         cout << "Invalid Input" << endl;
         this_thread::sleep_for(chrono::seconds(2));
 
@@ -499,6 +498,103 @@ struct Matrix { // Define the Martix Structure
 
         }
 
+      else if (UserChoice == 4) { // Delete a Number
+
+            system("clear");
+
+            size_t LastArrowLocation2 = CurrentPath.rfind(" -> ");
+        
+            if (*AdjustedIndex > 0) { // Check if not at the start
+        
+              *CurrentPointer[*AdjustedIndex - 1] = 19283;
+
+              if (LastArrowLocation2 != string::npos) {
+
+                CurrentPath.erase(LastArrowLocation2, numeric_limits<int>::max());
+                CurrentPath += " ";
+
+              }
+      
+              CurrentIndex--;
+              --(*AdjustedIndex);
+      
+              cout << "Number deleted." << endl;
+              this_thread::sleep_for(chrono::seconds(1)); 
+
+            }
+            
+            else {
+
+              cout << "Cannot delete the first value" << endl;
+              this_thread::sleep_for(chrono::seconds(1));
+
+            }
+
+            continue;
+
+          }
+      
+      else if (UserChoice == 5) { // Change a Number
+
+        while (true) {
+
+            system("clear");
+        
+            if (*AdjustedIndex > 0) { // Check if not at the start
+
+              int UCNewValue;
+              size_t LastArrowLocation3 = CurrentPath.rfind(" -> ");
+      
+              cout << "Insert the new number: " << endl;
+
+              if (cin >> UCNewValue) { // Check if input is valid
+
+                *CurrentPointer[*AdjustedIndex - 1] = UCNewValue;
+    
+                if (LastArrowLocation3 != string::npos) {
+
+                  CurrentPath.erase(LastArrowLocation3, numeric_limits<int>::max());
+                  CurrentPath += " -> " + to_string(UCNewValue); // Add the new value to the path
+
+                }
+    
+                system("clear");
+                cout << "Number changed." << endl;
+                this_thread::sleep_for(chrono::seconds(1));
+
+                break;
+
+              } 
+              
+              else {
+
+                system("clear");
+                cout << "Invalid input. Please enter a number." << endl;
+                ClearInputRead();
+                this_thread::sleep_for(chrono::seconds(2));
+
+                continue;
+
+              }
+
+            } 
+            
+            else {
+
+              system("clear");
+              cout << "Cannot change the first value" << endl;
+              this_thread::sleep_for(chrono::seconds(1));
+
+              break;
+                
+            }
+            
+        }
+          
+        continue;
+
+      }
+
     }
 
   }
@@ -534,23 +630,28 @@ void ShowTravelOptions (const int& CurrentIndex, const int& AmountOfNumbers) { /
   if (CurrentIndex == 1) { // The First Number Menu 
     
     cout << "Press 2 To Move Forwards\n" 
-        << "Press 3 To Quit\n" << endl;
+         << "\nPress 4 To Delete Current Value\n"
+         << "Press 5 To Change Current Value\n"
+         << "\nPress 3 To Quit\n" << endl;
 
   }
 
   else if (CurrentIndex == AmountOfNumbers) { // The Last Number Menu
     
-    cout << "Press 1 To Move Backwards\n"
-        << "Press 3 To Quit\n" << endl;
+    cout << "Press 1 To Move Backwards\n" 
+         << "\nPress 4 To Delete Current Value\n"
+         << "Press 5 To Change Current Value\n"
+         << "\nPress 3 To Quit\n" << endl;
 
   }
 
   else { // The Middle Numbers Menu
 
   cout << "Press 1 To Move Backwards\n" 
-      << "Press 2 To Move Forwards\n" 
-      << "Press 3 To Quit\n" << endl;
-
+       << "Press 2 To Move Forwards\n" 
+       << "\nPress 4 To Delete Current Value\n"
+       << "Press 5 To Change Current Value\n"
+       << "\nPress 3 To Quit\n" << endl;
 }
 
 
@@ -610,7 +711,7 @@ int main () {
 
   }    
   
-  Matrix MatrixInstance(ArrayAmount, ArraySize); // Create a "Matrix" Object
+  Matrix *MatrixInstance = new Matrix(ArrayAmount, ArraySize); // Create a "Matrix" Object
 
   while (true) {
 
@@ -640,32 +741,32 @@ int main () {
     switch (UCAction) { // Martix Interaction Possibilities
 
       case 1:
-      MatrixInstance.PrintOutMatrix(MatrixInstance);
+      MatrixInstance->PrintOutMatrix(*MatrixInstance);
       this_thread::sleep_for(chrono::seconds(4));
       break;
 
       case 2:
-      MatrixInstance.AddArraysTogether(MatrixInstance);
+      MatrixInstance->AddArraysTogether(*MatrixInstance);
       this_thread::sleep_for(chrono::seconds(6));
       break;
 
       case 3:
-      MatrixInstance.MultiplyArrays(MatrixInstance);
+      MatrixInstance->MultiplyArrays(*MatrixInstance);
       this_thread::sleep_for(chrono::seconds(6));
       break;
 
       case 4:
-      MatrixInstance.RemoveElement(MatrixInstance);
+      MatrixInstance->RemoveElement(*MatrixInstance);
       this_thread::sleep_for(chrono::seconds(2));
       break;
 
       case 5:
-      MatrixInstance.AddElement(MatrixInstance);
+      MatrixInstance->AddElement(*MatrixInstance);
       this_thread::sleep_for(chrono::seconds(2));
       break;
 
       case 6:
-      MatrixInstance.LinearTraverse(MatrixInstance);
+      MatrixInstance->LinearTraverse(*MatrixInstance);
       break;
 
       default:
@@ -679,5 +780,6 @@ int main () {
 
   }
 
+  delete MatrixInstance;
   return 0;  
 }
