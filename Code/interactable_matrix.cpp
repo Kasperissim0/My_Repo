@@ -13,13 +13,9 @@ using namespace std;
 
 int GenerateRandomNumber (); // Define For Use in the Matrix Stucture
 
-void ClearInputRead () { // For Speed
+void ClearInputRead (); // Define For Use in the Matrix Stucture
 
-  cin.clear();
-  cin.ignore(numeric_limits<int>::max(), '\n');
-  cin.clear();
-
-}
+void ShowTravelOptions (const int& CurrentIndex, const int& AmountOfNumbers); // Define For Use in the Matrix Stucture
 
 struct Matrix { // Define the Martix Structure
 
@@ -51,21 +47,23 @@ struct Matrix { // Define the Martix Structure
 
         TheMatrix[a][b] = GenerateRandomNumber(); // Set a random number to the current cell
 
-        if (b == ArraySize - 1 && a != ArrayAmount - 1) { // Last Cell in an Array Points to the Next Array
+        if (a == ArrayAmount - 1 && b == ArraySize - 1) { // Last Value doesn't point forward
 
-          ForwardPointer[a][b] = &TheMatrix[a + 1][0];
+          ForwardPointer[a][b] = nullptr;
 
         }
 
-        else if (a == ArrayAmount - 1 && b == ArraySize - 1) { // Last Value doesn't point forward
+        else if (b == ArraySize - 1) { // Last Value of each array points to the beginning of the next one
 
-          ForwardPointer[a][b] = nullptr;
+          ForwardPointer[a][b] = &TheMatrix[a + 1][0];
+          //cout << ForwardPointer[a][b] << endl; //! DEBUGGING
 
         }
 
         else { // Point to the next value
 
           ForwardPointer[a][b] = &TheMatrix[a][b + 1];
+          //cout << ForwardPointer[a][b] << endl; //! DEBUGGING
 
         }
 
@@ -90,6 +88,8 @@ struct Matrix { // Define the Martix Structure
   }
 
   void PrintOutMatrix (Matrix& SampleMatrix) { // Print All Arrays Of The Matrix
+
+    system("clear");
 
     cout << endl;
 
@@ -270,13 +270,23 @@ struct Matrix { // Define the Martix Structure
 
     for (int i = 0; i < SampleMatrix.ArraySize; i++) { // Print the Chosen Array
 
-      cout << SampleMatrix.TheMatrix[UCArray][i] << " ";
+      if (SampleMatrix.TheMatrix[UCArray][i] == 19283) { // Print A Blank Instead Of  Normal Numbers, when needed
+
+        cout << " ";
+
+      }
+
+      else { // Print Normal Numbers
+
+        cout << SampleMatrix.TheMatrix[UCArray][i] << " ";
+
+      }
 
     }
 
     cout << "\nChoose A Number:   ";
 
-    for (int i = 1; i <= SampleMatrix.ArraySize; i++) { 
+    for (int i = 1; i <= SampleMatrix.ArraySize; i++) {  // Print An Index Below The Numbers
 
       cout << i << "  ";
 
@@ -334,13 +344,23 @@ struct Matrix { // Define the Martix Structure
 
     for (int i = 0; i < SampleMatrix.ArraySize; i++) { // Print the Chosen Array
 
-      cout << SampleMatrix.TheMatrix[UCArray][i] << " ";
+      if (SampleMatrix.TheMatrix[UCArray][i] == 19283) { // Print A Blank Instead Of  Normal Numbers, when needed
+
+        cout << " ";
+
+      }
+
+      else { // Print Normal Numbers
+
+        cout << SampleMatrix.TheMatrix[UCArray][i] << " ";
+
+      }
 
     }
 
     cout << "\nChoose A Number:   ";
 
-    for (int i = 1; i <= SampleMatrix.ArraySize; i++) { 
+    for (int i = 1; i <= SampleMatrix.ArraySize; i++) {  // Print An Index Below The Numbers
 
       cout << i << "  ";
 
@@ -369,7 +389,119 @@ struct Matrix { // Define the Martix Structure
 
   }
 
-  
+  void LinearTraverse (Matrix& SampleMartix) { // Traverse The Matrix
+
+    bool WantToLeave = false;
+    string CurrentPath;
+
+    int CurrentIndex = 1;
+    int *AdjustedIndex = new int(0);
+    int AmountOfNumbers = SampleMartix.ArrayAmount * SampleMartix.ArraySize;
+    int **CurrentPointer = new int*[AmountOfNumbers]();
+
+    int UserChoice;
+    int FirstNumber = SampleMartix.TheMatrix[0][0];
+
+    CurrentPointer[*AdjustedIndex] = SampleMartix.ForwardPointer[*AdjustedIndex][*AdjustedIndex]; // The First + Current Pointer ( to the 2nd number)
+    CurrentPath = to_string(FirstNumber);
+    
+    while(!WantToLeave) {
+
+      ShowTravelOptions(CurrentIndex, AmountOfNumbers); // Print the menu
+
+      cout << "\nCurrent path: \n\n" << CurrentPath << endl << endl; // Print the full path
+
+      cin >> UserChoice; // Get User Choice
+
+      if ((UserChoice <= 0 || UserChoice > 3 || cin.fail()) || (UserChoice == 1 && CurrentIndex == 1) || (UserChoice == 2 && CurrentIndex == AmountOfNumbers)) { // Handle Invalid Inputs
+
+        system("clear");
+
+        this_thread::sleep_for(chrono::seconds(1));
+        cout << "Invalid Input" << endl;
+        this_thread::sleep_for(chrono::seconds(2));
+
+        ClearInputRead();
+        continue;
+
+      }
+
+      else if (UserChoice == 1 && CurrentIndex > 1) { // Go BACKWARDS
+
+        system("clear");
+
+        size_t LastArrowLocation = CurrentPath.rfind(" -> ");
+
+        if (LastArrowLocation != string::npos) { // find the last arrow and erase
+        
+          CurrentPath.erase(LastArrowLocation, numeric_limits<int>::max()); // delete everything after the last arrow
+
+        }
+
+        CurrentIndex--;
+        --(*AdjustedIndex);
+        continue;
+
+      }
+
+      else if (UserChoice == 2) { // Go FORWARDS
+        
+        system("clear");
+
+        int CurrentArrayPosition = *AdjustedIndex / SampleMartix.ArraySize; // Use the General Index divided by Array Size and rounded down to find correct Array.
+        int CurrentIndexPosition = *AdjustedIndex % SampleMartix.ArraySize; // Use the General Index modulated by Array Size to find the correct Index.
+
+        CurrentPointer[*AdjustedIndex] = SampleMartix.ForwardPointer[CurrentArrayPosition][CurrentIndexPosition]; // Set Next Pointer to the next Value
+    
+        //cout << "CurrentPointer[" << *AdjustedIndex << "]: " << CurrentPointer[*AdjustedIndex] << endl; //! DEBUGGING
+    
+        if (CurrentPointer[*AdjustedIndex] != nullptr) { // check for validity //! DEBUGGING
+
+          if (*CurrentPointer[*AdjustedIndex] == 19283) { // Special Number For deleted numbers
+
+            CurrentPath += " ->  "; // Add a blank instead of a number
+
+          }
+          
+          else {
+
+            CurrentPath += " -> " + to_string(*CurrentPointer[*AdjustedIndex]); // Append the new value to the string
+
+          }
+
+          CurrentIndex++;
+          ++(*AdjustedIndex);
+          
+        } 
+        
+        else { //! DEBUGGING
+
+          cout << "There Has Been An Error" << endl;
+          this_thread::sleep_for(chrono::seconds(5));
+          WantToLeave = true;
+          break;
+
+        }
+
+        continue;
+
+      }
+
+      else if (UserChoice == 3) { // Free Memory + Leave
+
+        system("clear");
+
+        delete[] CurrentPointer;
+        delete AdjustedIndex;
+
+        WantToLeave = true;
+        break;
+
+        }
+
+    }
+
+  }
 
 };
 
@@ -387,6 +519,44 @@ int GenerateRandomNumber() { // To fill the arrays
 
 }
 
+void ClearInputRead () { // For Speedy and Clean Code
+
+  cin.clear();
+  cin.ignore(numeric_limits<int>::max(), '\n');
+  cin.clear();
+
+}
+
+void ShowTravelOptions (const int& CurrentIndex, const int& AmountOfNumbers) { // For Showing The Correct Menu
+
+  system("clear");
+
+  if (CurrentIndex == 1) { // The First Number Menu 
+    
+    cout << "Press 2 To Move Forwards\n" 
+        << "Press 3 To Quit\n" << endl;
+
+  }
+
+  else if (CurrentIndex == AmountOfNumbers) { // The Last Number Menu
+    
+    cout << "Press 1 To Move Backwards\n"
+        << "Press 3 To Quit\n" << endl;
+
+  }
+
+  else { // The Middle Numbers Menu
+
+  cout << "Press 1 To Move Backwards\n" 
+      << "Press 2 To Move Forwards\n" 
+      << "Press 3 To Quit\n" << endl;
+
+}
+
+
+}
+
+
 int main () {
 
  system("clear");
@@ -394,12 +564,52 @@ int main () {
   int ArrayAmount;
   int ArraySize;
 
-  cout << "Insert Amount Of Arrays: " << endl;
-  cin >> ArrayAmount;
+  while (true) {
 
-  cout << "\nInsert Size Of Arrays: " << endl;
-  cin >> ArraySize;
+    system("clear");
 
+    cout << "Insert Amount Of Arrays: " << endl;
+    cin >> ArrayAmount;
+
+    if (ArrayAmount <= 0 || cin.fail()) { // Handle Errors + Invalid Inputs
+
+      ClearInputRead();
+      continue;
+
+    }
+
+    else { // When A Valid Input Is Entered Exit The Loop
+
+      break;
+
+    }
+
+  }
+  
+  while (true) {
+
+    system("clear");
+
+    cout << "Insert Amount Of Arrays: " << endl << ArrayAmount; // Maintain The Same Input View
+
+    cout << "\nInsert Size Of Arrays: " << endl;
+    cin >> ArraySize;
+
+    if (ArraySize <= 0 || cin.fail()) { // Handle Errors + Invalid Inputs
+
+      ClearInputRead();
+      continue;
+
+    }
+
+    else { // When A Valid Input Is Entered Exit The Loop
+
+      break;
+
+    }
+
+  }    
+  
   Matrix MatrixInstance(ArrayAmount, ArraySize); // Create a "Matrix" Object
 
   while (true) {
@@ -414,12 +624,13 @@ int main () {
     cout << "3. Multiply Arrays\n\n";
     cout << "4. Remove an Element\n\n";
     cout << "5. Add an Element\n\n";
-    cout << "6. Exit\n\n";
+    cout << "6. Traverse The Matrix\n\n";
+    cout << "7. Exit\n\n";
     cout << "\nChoose an option: ";
 
     cin >> UCAction;
 
-    if (UCAction < 0 || UCAction > 7|| cin.fail()) { // Catch Invalid Inputs
+    if (UCAction < 0 || UCAction > 8|| cin.fail()) { // Catch Invalid Inputs
 
       ClearInputRead();
       continue;
@@ -453,27 +664,20 @@ int main () {
       this_thread::sleep_for(chrono::seconds(2));
       break;
 
+      case 6:
+      MatrixInstance.LinearTraverse(MatrixInstance);
+      break;
+
       default:
       break;
 
     }
 
-    if (UCAction == 6) break;
+    if (UCAction == 7) break;
 
     continue;
 
   }
-
-  /*
-  
-    0.[x] Array Multiplication
-
-    1.[x] Adding Elements
-    2.[x] Removing Elements
-    3.[x] Acessing Elements
-    4.[x] Modifing Elements
-    
-    */
 
   return 0;  
 }
