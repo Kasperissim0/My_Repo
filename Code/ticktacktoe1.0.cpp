@@ -37,11 +37,22 @@ struct Game {
 
       for (int b = 0; b < 3; b++) {
 
-        PlacedCharachterIndex[a][b] = "___";
+        PlacedCharachterIndex[a][b] = "___"; // insert value
+
+        PlacedCharachterIndex[a][b] = HorizontalIndex[a][b]; // copy to the Horizontal
+
+        HorizontalSlice[a][b] = VerticalSlice[b][a]; // flip to fit in the Vertical
 
       }
 
     }
+
+    DiagonalSlice[0][0] = PlacedCharachterIndex[0][0];
+    DiagonalSlice[0][1] = PlacedCharachterIndex[1][1];
+    DiagonalSlice[0][2] = PlacedCharachterIndex[2][2];
+    DiagonalSlice[1][0] = PlacedCharachterIndex[0][2];
+    DiagonalSlice[1][0] = PlacedCharachterIndex[1][1];
+    DiagonalSlice[1][2] = PlacedCharachterIndex[2][0];
 
     TheBoard = " A  B  C\n  _____________\n1 |" 
               + PlacedCharachterIndex[0][0]
@@ -139,8 +150,69 @@ struct Game {
   }
   
   bool CheckIfTheGameIsOver () {
-  
-    " X "  OR " O ";
+
+    for (int i = 0; i < 2; i++) {
+
+      string CheckTheSentence[2];
+      CheckTheSentence[0] = "";
+      CheckTheSentence[1] = "";
+      
+      CheckTheSentence[0] += PlacedCharachterIndex[i][i];
+
+      CheckTheSentence[1] += PlacedCharachterIndex[0][2];
+      CheckTheSentence[1] += PlacedCharachterIndex[1][1];
+      CheckTheSentence[1] += PlacedCharachterIndex[2][0];
+
+      if (CheckTheSentence[0] == "XXX" || CheckTheSentence[1] == "XXX") { // Check For A Win On The Diagonal Axis
+
+        cout << "X won";
+        this_thread::sleep_for(chrono::seconds(2));
+        
+        return GameIsOver = true;
+
+      }
+
+      else if (CheckTheSentence[0] == "OOO" || CheckTheSentence[1] == "OOO") { // Check For A Win On The Diagonal Axis
+
+        cout << "O won";
+        this_thread::sleep_for(chrono::seconds(2));
+        
+        return GameIsOver = true;
+
+      }
+    
+    }
+
+    
+
+    else if () { // Check For A Win On The Horizontal Axis
+
+      string CheckTheSentence[3];
+
+      for (int a = 0; a < 3; a++) {
+
+        for (int b = 0; b < 3; b++) {
+
+          CheckTheSentence[a] = "";
+          CheckTheSentence[a] += PlacedCharachterIndex[a][b];
+
+        }
+
+      }
+
+    }
+
+    else if () { // Check For A Win On The Vertical Axis
+
+      
+
+    }
+
+    else {
+
+
+
+    }
 
     return GameIsOver = true;
     return GameIsOver = false;
@@ -186,7 +258,7 @@ int main () {
 
   system("clear"); 
 
-  cout << " The Game Is Over"
+  cout << " The Game Is Over";
   this_thread::sleep_for(chrono::seconds(2));
  
 
