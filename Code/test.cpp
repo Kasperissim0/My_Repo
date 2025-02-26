@@ -9,16 +9,16 @@
 #include <cmath> // For mathematical calculations
 #include <random> // For generating random numbers
 
-
 using namespace std;
 
 int main () {
 
- system("clear");
+  system("clear");
 
 
- // here
- 
+  // here
+  
 
-  return 0;  
+  return 0;
+
 }
