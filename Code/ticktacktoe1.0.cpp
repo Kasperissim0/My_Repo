@@ -16,9 +16,6 @@ struct Game {
   bool GameIsOver;
 
   int HorizontalAim;
-  char VerticalAim;
-
-  int HorizontalIndex;
   int VerticalIndex;
 
   char SavedSymbol;
@@ -26,10 +23,6 @@ struct Game {
   string TheBoard;
 
   string PlacedCharachterIndex[3][3];
-
-  string HorizontalSlice[3][3];
-  string VerticalSlice[3][3];
-  string DiagonalSlice[2][3];
 
   Game() { // Constructor
 
