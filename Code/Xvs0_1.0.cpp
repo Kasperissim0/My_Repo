@@ -183,6 +183,9 @@ int main () {
 
     // TODO ADD Input Verification here
 
+    system("clear");
+    BoardInstance.DisplayBoard();
+
     cout << "Choose A Column You Want To Your Mark On:\n" << endl
     << " For Column A               Press 1\n"
     << " For Column B               Press 2\n"
@@ -206,6 +209,10 @@ int main () {
     MoveCounterTRUE++;
 
   }
+
+  system("clear");
+  BoardInstance.DisplayBoard();
+  this_thread::sleep_for(chrono::seconds(1));
 
   if (BoardInstance.VictoriousSide == 'X') {
 
