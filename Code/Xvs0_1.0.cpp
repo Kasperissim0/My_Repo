@@ -149,7 +149,7 @@ int main () {
 
   PlayBoard BoardInstance;
 
-  int MoveCounterFALSE = GetRandomNumber();
+  int MoveTracker = GetRandomNumber();
   int MoveCounterTRUE = 0;
   int UCRow;
   int UCColumn;
@@ -158,20 +158,19 @@ int main () {
 
   while (!BoardInstance.VictoryAchieved) {
 
-    if (MoveCounterFALSE % 2 == 0) {
+    if (MoveTracker % 2 == 0) { // Create A Random Starting Sign
 
       TempCurrentSign = 'X';
   
     }
   
-    else {
+    else { // Create A Random Starting Sign
   
       TempCurrentSign = 'O';
       
     }
 
     system("clear");
-
     BoardInstance.DisplayBoard();
 
     cout << "Choose A Row You Want To Your Mark On:\n" << endl
@@ -205,7 +204,7 @@ int main () {
 
     }
 
-    MoveCounterFALSE++;
+    MoveTracker++;
     MoveCounterTRUE++;
 
   }
