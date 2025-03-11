@@ -11,7 +11,36 @@
 
 using namespace std;
 
-int GetRandomNumber();
+bool GetRandomNumber(const int& BottomOfRange = 1, const int& TopOfRange = 2) {
+
+  random_device RandomSeed;
+  mt19937 GenerateSUPERRandomNumber(RandomSeed());
+  uniform_int_distribution<int> NumberInACertainRange(BottomOfRange, TopOfRange);
+
+  return NumberInACertainRange(GenerateSUPERRandomNumber);
+
+}
+
+bool ValidateInput(const int& UserInput, const int& MinimumInput = 1, const int& MaximumInput = 2) {
+
+  if (UserInput < MinimumInput || UserInput > MaximumInput || UserInput == 0 || cin.fail()) {
+
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.clear();
+
+    return false;
+
+  }
+
+  else {
+
+    return true;
+
+  }
+
+}
+
 
 struct PlayBoard {
 
@@ -133,30 +162,71 @@ struct PlayBoard {
 
   }
 
+  bool PlayMultiplayerMode() { // User Choice to play multiplayer or vs random moves
+
+    bool ValidUserInput = false;
+    int UserChoice;
+
+    while (!ValidUserInput) {
+    
+      system("clear");
+
+      cout << setw(40) << "\nWhat Mode Do You Want To Play ?\n" << endl;
+
+      cout << "If You Want To Play Against A Person";
+      cout << setw(20) << "Press 1" << endl;
+      cout << "If You Want To Play Against A Bot";
+      cout << setw(20) << "Press 2" << endl;
+
+      cin >> UserChoice;
+      
+      ValidUserInput = ValidateInput(UserChoice, 1, 2);
+
+    }
+
+    if (UserChoice == 1) {
+
+      return true;
+
+    }
+
+    else {
+
+      return false;
+
+    }
+
+  }
+
+  int GetRandomLegalMove() {
+
+    // TODO take the 2d array as input, and generate a random, but legal move. RETURN IT AS 12 == [1][2], 2 == [0][2], ...
+
+
+
+  }
+
 };
 
-int GetRandomNumber() {
-
-  random_device RandomSeed;
-  mt19937 GenerateSUPERRandomNumber(RandomSeed());
-  uniform_int_distribution<int> NumberInACertainRange(1, 2);
-
-  return NumberInACertainRange(GenerateSUPERRandomNumber);
-
-}
 
 int main () {
 
   PlayBoard BoardInstance;
+
+  bool MultiplayerMode = BoardInstance.PlayMultiplayerMode();
+  bool ValidRowInput = false;
+  bool ValidColumnInput = false;
+  
+  char TempCurrentSign;
 
   int MoveTracker = GetRandomNumber();
   int MoveCounterTRUE = 0;
   int UCRow;
   int UCColumn;
 
-  char TempCurrentSign;
+  if (MultiplayerMode) { // Play In MultiPlayer Mode
 
-  while (!BoardInstance.VictoryAchieved) {
+    while (!BoardInstance.VictoryAchieved) {
 
     if (MoveTracker % 2 == 0) { // Create A Random Starting Sign
 
@@ -170,29 +240,41 @@ int main () {
       
     }
 
-    system("clear");
-    BoardInstance.DisplayBoard();
+    ValidRowInput = false; // make sure to reset the value
 
-    cout << "Choose A Row You Want To Your Mark On:\n" << endl
-        << " For Row 1               Press 1\n"
-        << " For Row 2               Press 2\n"
-        << " For Row 3               Press 3\n" << endl;
+    while (!ValidRowInput) { // get valid input
 
-    cin >> UCColumn;
+      system("clear");
+      BoardInstance.DisplayBoard();
 
-    // TODO ADD Input Verification here
+      cout << "Choose A Row You Want To Your Mark On:\n" << endl
+          << " For Row 1               Press 1\n"
+          << " For Row 2               Press 2\n"
+          << " For Row 3               Press 3\n" << endl;
 
-    system("clear");
-    BoardInstance.DisplayBoard();
+      cin >> UCRow;
 
-    cout << "Choose A Column You Want To Your Mark On:\n" << endl
-    << " For Column A               Press 1\n"
-    << " For Column B               Press 2\n"
-    << " For Column C               Press 3\n" << endl;
+      ValidRowInput = ValidateInput(UCRow, 1, 3);
 
-    cin >> UCRow;
+    }
 
-    // TODO ADD Input Verification here
+    ValidColumnInput = false; // make sure to reset the value
+
+    while (!ValidColumnInput) { // get valid input
+
+      system("clear");
+      BoardInstance.DisplayBoard();
+
+      cout << "Choose A Column You Want To Your Mark On:\n" << endl
+      << " For Column A               Press 1\n"
+      << " For Column B               Press 2\n"
+      << " For Column C               Press 3\n" << endl;
+
+      cin >> UCColumn;
+
+      ValidColumnInput = ValidateInput(UCColumn, 1, 3);
+
+    }
 
     BoardInstance.StoredTempCurrentSigns[UCColumn - 1][UCRow - 1] = TempCurrentSign;
 
@@ -209,6 +291,15 @@ int main () {
 
   }
 
+  }
+  
+  else {
+
+    // TODO Add the play mode vs the bot here
+
+  }
+
+  // Only Reached When Someone Wins
   system("clear");
   BoardInstance.DisplayBoard();
   this_thread::sleep_for(chrono::seconds(1));
@@ -234,3 +325,12 @@ int main () {
   return 0;
 
 }
+
+/*
+
+0. Fix Overriding Placed Signs
+
+1. Seperate The User Move Entry Into A Method
+2. 
+
+*/
