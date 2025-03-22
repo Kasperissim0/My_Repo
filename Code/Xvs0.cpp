@@ -56,10 +56,22 @@ struct PlayBoard {
 
   string StoredTempCurrentSigns[3][3]; // Here X and O will be stored, and checked
   string TheCompleteBoard; // The Complete Board with the Actual TempCurrentSigns
-  char VictoriousSide;
-  bool VictoryAchieved = false;
+  char VictoriousSide; // For Getting Win Information
+  bool VictoryAchieved = false; // For Getting Win Information
+  int TotalWinsX = 0; // For Keeping A Score + Replayability
+  int TotalWins0 = 0; // For Keeping A Score + Replayability
+  int TotalStalemates = 0; // For Keeping A Score + Replayability
 
   PlayBoard() { // Standard Constructor
+
+    WhipeTheBoard();
+
+  }
+
+  void WhipeTheBoard() { // Replace All Previously Stored Values With Blank Space
+
+    VictoriousSide = ' ';
+    VictoryAchieved = false;
 
     for (int a = 0; a < 3; a++) { // assign  Default Values to the Saved sign
 
@@ -72,9 +84,10 @@ struct PlayBoard {
     }
 
   }
-
+  
   void UpdateBoard() { // Reconstruct The Board, Updating the Saved TempCurrentSigns
 
+    string ScoreDisplayed = "\n                                       Total Games Played: " + to_string(TotalWinsX + TotalWins0 + TotalStalemates) + "\n                                         Wins By X: " + to_string(TotalWinsX) + "\n                                         Wins By O: " + to_string(TotalWins0) + '\n';
     string NavigationNumbers = "       A       B       C \n";
     string StandardLine = "   _________________________\n";
     string BoardTop = "1. |   " + StoredTempCurrentSigns[0][0] + "   |   " + StoredTempCurrentSigns[0][1] + "   |   " + StoredTempCurrentSigns[0][2] + "   |\n";
@@ -83,7 +96,7 @@ struct PlayBoard {
     string LineWithPipes = "   |_______|_______|_______|\n";
     string StandardPipes = "   |       |       |       |\n";
 
-    TheCompleteBoard = NavigationNumbers + StandardLine + StandardPipes
+    TheCompleteBoard = ScoreDisplayed + StandardLine + StandardPipes
                              + BoardTop + LineWithPipes + StandardPipes + BoardMiddle
                              + LineWithPipes + StandardPipes + BoardBottom + LineWithPipes;
 
@@ -97,7 +110,7 @@ struct PlayBoard {
 
   }
 
-  void CheckDiagonalWin() {
+  void CheckDiagonalWin() { // Subfunction To Be Called In The Main Win Check
 
     string DiagonalCheckLR = StoredTempCurrentSigns[0][0] + StoredTempCurrentSigns[1][1] + StoredTempCurrentSigns[2][2];
     string DiagonalCheckRL = StoredTempCurrentSigns[0][2] + StoredTempCurrentSigns[1][1] + StoredTempCurrentSigns[2][0];
@@ -106,6 +119,8 @@ struct PlayBoard {
 
       VictoryAchieved = true;
       VictoriousSide = 'X';
+      DiagonalCheckRL = " "; // Reset The Win Check String For Replayability
+      DiagonalCheckLR = " "; // Reset The Win Check String For Replayability
 
     }
 
@@ -113,6 +128,8 @@ struct PlayBoard {
 
       VictoryAchieved = true;
       VictoriousSide = 'O';
+      DiagonalCheckRL = " "; // Reset The Win Check String For Replayability
+      DiagonalCheckLR = " "; // Reset The Win Check String For Replayability
 
     }
 
@@ -124,7 +141,7 @@ struct PlayBoard {
 
   }
 
-  void CheckForWin() {
+  void CheckForWin() { // Check For All Possible Ways A Game Can End
 
     int SpaceCounter = 0;
 
@@ -141,7 +158,11 @@ struct PlayBoard {
 
       if (WonDiagonally == true) { // If there is a win, return true and end function
 
-      return;
+      TempStorageHorizontal = " ";
+      TempStorageVertical = " ";
+        return;
+
+      
 
     }
 
@@ -156,7 +177,13 @@ struct PlayBoard {
 
           VictoryAchieved = true;
           VictoriousSide = 'X'; 
+          TempStorageHorizontal = " "; // Reset The Win Check String For Replayability
+
+          TempStorageVertical = " "; // Reset The Win Check String For Replayability
+
           return;
+
+          
 
         }
 
@@ -164,7 +191,13 @@ struct PlayBoard {
 
           VictoryAchieved = true;
           VictoriousSide = 'O'; 
+          TempStorageHorizontal = " "; // Reset The Win Check String For Replayability
+
+          TempStorageVertical = " "; // Reset The Win Check String For Replayability
+
           return;
+
+          
 
         }
 
@@ -187,7 +220,13 @@ struct PlayBoard {
       if (SpaceCounter == 0) {
 
         VictoryAchieved = true;
+        TempStorageHorizontal = " "; // Reset The Win Check String For Replayability
+
+        TempStorageVertical = " "; // Reset The Win Check String For Replayability
+
         return;
+
+        
 
       }
     
@@ -212,10 +251,12 @@ struct PlayBoard {
       cout << setw(23) << "Press 2" << endl;
       cout << "\nIf You Want To Watch A Bot vs Bot Match";
       cout << setw(17) << "Press 3" << endl;
+      cout << "\nIf You Want To Leave";
+      cout << setw(36) << "Press 4" << endl;
 
       cin >> UserChoice;
       
-      ValidUserInput = ValidateInput(UserChoice, 1, 3);
+      ValidUserInput = ValidateInput(UserChoice, 1, 4);
 
     }
 
@@ -223,7 +264,7 @@ struct PlayBoard {
 
   }
 
-  void MakeAMove(const char& TempCurrentSign, int MoveTracker, const int& Press1ForMultiplayer = 987) {
+  void MakeAMove(const char& TempCurrentSign, int MoveTracker, const int& Press1ForMultiplayer = 987) { // Picking a Type Of Game
 
     bool ValidRowInput = false;
     bool ValidColumnInput = false;
@@ -431,7 +472,7 @@ struct PlayBoard {
 
   }
 
-  void WatchBotMatch(const char& TempCurrentSign) {
+  void WatchBotMatch(const char& TempCurrentSign) { // Picking a Type Of Game
 
     while (true) { // Major Loop To Avoid Overriding Placed Signs
 
@@ -476,94 +517,113 @@ int main () {
 
   PlayBoard BoardInstance;
 
-  int MultiplayerMode = BoardInstance.ChooseGameMode();
+  int MultiplayerMode = 0; 
+  int MoveTracker = 0;
+  int MoveCounterTRUE = 0;
   
   char TempCurrentSign;
 
-  int MoveTracker = GetRandomNumber();
-  int MoveCounterTRUE = 0;
+  while (true) { // Major Infinite Loop, Escape During Starting Choice Menu
 
-  while (!BoardInstance.VictoryAchieved) {
+   MultiplayerMode = BoardInstance.ChooseGameMode(); // TODO Add the option to quit ( number 4 )
+   BoardInstance.WhipeTheBoard();
+   MoveTracker = GetRandomNumber();
+   MoveCounterTRUE = 0;
 
-    if (MoveTracker % 2 == 0) { // Create A Random Starting Sign
+    while (!BoardInstance.VictoryAchieved) {
 
-      TempCurrentSign = 'X';
+      if (MoveTracker % 2 == 0) { // Create A Random Starting Sign
 
-    }
+        TempCurrentSign = 'X';
 
-    else { // Create A Random Starting Sign
+      }
 
-      TempCurrentSign = 'O';
+      else { // Create A Random Starting Sign
+
+        TempCurrentSign = 'O';
+        
+      }
+
+      if (MultiplayerMode == 1) { // If this User Chose Multiplayer
+
+        BoardInstance.MakeAMove(TempCurrentSign, MoveTracker, 1);
+
+      }
+
+      else if (MultiplayerMode == 2) { // Play Against a Bot Playing random moves
+
+        BoardInstance.MakeAMove(TempCurrentSign, MoveTracker);
+
+      }
+
+      else if (MultiplayerMode == 3) { // Watch A Bot vs Bot Match
+
+        BoardInstance.WatchBotMatch(TempCurrentSign);
+
+      }
+
+      else if (MultiplayerMode == 4) { // Quit The Game
       
-    }
+        system("clear");
+        return 0; // Escape The Major Loop And End The Game
+      
+      }
 
-    if (MultiplayerMode == 1) { // If this User Chose Multiplayer
+      BoardInstance.CheckForWin();
 
-      BoardInstance.MakeAMove(TempCurrentSign, MoveTracker, 1);
+      if (BoardInstance.VictoryAchieved == true) {
 
-    }
+        break;
 
-    else if (MultiplayerMode == 2) { // Play Against a Bot Playind random moves
+      }
 
-      BoardInstance.MakeAMove(TempCurrentSign, MoveTracker);
-
-    }
-
-    else if (MultiplayerMode == 3) { // Watch A Bot vs Bot Match
-
-      BoardInstance.WatchBotMatch(TempCurrentSign);
+      MoveTracker++;
+      MoveCounterTRUE++;
 
     }
 
-    BoardInstance.CheckForWin();
-
-    if (BoardInstance.VictoryAchieved == true) {
-
-      break;
-
-    }
-
-    MoveTracker++;
-    MoveCounterTRUE++;
-
-  }
-
-  // Only Reached When the game is over
-  system("clear");
-  BoardInstance.DisplayBoard();
-  this_thread::sleep_for(chrono::seconds(1));
-
-  if (BoardInstance.VictoriousSide == 'X') { // If the X has won
-
+    // Only Reached When the game is over
     system("clear");
+    BoardInstance.DisplayBoard();
+    this_thread::sleep_for(chrono::seconds(1));
 
-    cout << "Congratulations, The X Side Has Won" << endl;
-    cout << "🎉🎉🎉" << endl;
+    if (BoardInstance.VictoriousSide == 'X') { // If the X has won
+
+      system("clear");
+
+      cout << "Congratulations, The X Side Has Won" << endl;
+      cout << "🎉🎉🎉" << endl;
+
+      BoardInstance.TotalWinsX++;
+
+    }
+
+    else if (BoardInstance.VictoriousSide == 'O') { // If the O has won
+
+      system("clear");
+
+      cout << "Congratulations, The O Side Has Won" << endl;
+      cout << "🎉🎉🎉" << endl;
+
+      BoardInstance.TotalWins0++;
+
+    }
+
+    else { // If there is a stalemate
+
+      system("clear");
+
+      cout << "You Have Reached A Stalemate" << endl;
+      cout << "😭😭😭" << endl;
+
+      BoardInstance.TotalStalemates++;
+
+    }
+
+    this_thread::sleep_for(chrono::seconds(2));
+    continue;
 
   }
-
-  else if (BoardInstance.VictoriousSide == 'O') { // If the O has won
-
-    system("clear");
-
-    cout << "Congratulations, The O Side Has Won" << endl;
-    cout << "🎉🎉🎉" << endl;
-
-  }
-
-  else { // If there is a stalemate
-
-    system("clear");
-
-    cout << "You Have Reached A Stalemate" << endl;
-
-    cout << "😭😭😭" << endl;
-
-  }
-
-  cout << endl; 
-
-  return 0;
 
 }
 
@@ -574,6 +634,6 @@ int main () {
 1. ✅ Seperate The User Move Entry Into A Method
 2. ✅ Introduce A Stalemate, when there are no more moves
 3. ✅ Fix the Person vs Bot Game Mode
-4. ⏳ Add A Win Score + Replayability
+4. ✅ Add A Win Score + Replayability
 
 */
