@@ -54,7 +54,9 @@ bool ValidateInput(const int& UserInput, const int& MinimumInput = 1, const int&
 
 struct PlayBoard {
 
-  string StoredTempCurrentSigns[3][3]; // Here X and O will be stored, and checked
+  static const int BOARD_SIZE = 3;
+
+  string StoredTempCurrentSigns[BOARD_SIZE][BOARD_SIZE]; // Here X and O will be stored, and checked
   string TheCompleteBoard; // The Complete Board with the Actual TempCurrentSigns
   char VictoriousSide; // For Getting Win Information
   bool VictoryAchieved = false; // For Getting Win Information
@@ -73,9 +75,9 @@ struct PlayBoard {
     VictoriousSide = ' ';
     VictoryAchieved = false;
 
-    for (int a = 0; a < 3; a++) { // assign  Default Values to the Saved sign
+    for (int a = 0; a < BOARD_SIZE; a++) { // assign  Default Values to the Saved sign
 
-      for (int b = 0; b < 3; b++) {
+      for (int b = 0; b < BOARD_SIZE; b++) {
 
         StoredTempCurrentSigns[a][b] = " ";
  
@@ -203,9 +205,9 @@ struct PlayBoard {
 
       }
 
-      for (int a = 0; a < 3; a++) {
+      for (int a = 0; a < BOARD_SIZE; a++) {
 
-        for (int b = 0; b < 3; b++) {
+        for (int b = 0; b < BOARD_SIZE; b++) {
 
           if (StoredTempCurrentSigns[a][b] == " ") {
 
@@ -310,7 +312,7 @@ struct PlayBoard {
 
           cin >> UCColumn;
 
-          ValidColumnInput = ValidateInput(UCColumn, 1, 3);
+          ValidColumnInput = ValidateInput(UCColumn, 1, BOARD_SIZE);
 
         }
 
@@ -371,7 +373,7 @@ struct PlayBoard {
 
           cin >> UCRow;
 
-          ValidRowInput = ValidateInput(UCRow, 1, 3);
+          ValidRowInput = ValidateInput(UCRow, 1, BOARD_SIZE);
 
         }
 
@@ -389,7 +391,7 @@ struct PlayBoard {
 
           cin >> UCColumn;
 
-          ValidColumnInput = ValidateInput(UCColumn, 1, 3);
+          ValidColumnInput = ValidateInput(UCColumn, 1, BOARD_SIZE);
 
         }
 
