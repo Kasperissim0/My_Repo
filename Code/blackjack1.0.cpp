@@ -33,12 +33,9 @@ struct Card { // A Useful Way Of Storing Data
 
 };
 
-struct Deck {
+struct Deck { // Manipulate The Deck
 
   Card TheDeck[AMOUNT_OF_CARDS * AMOUNT_OF_SUITS];
-
-  vector<Card> YourHand; // TODO Expand On This
-
 
   Deck() { // Constructor, Create Deck + Shuffle Cards
 
@@ -74,6 +71,15 @@ struct Deck {
 
 
 };
+
+struct Player { // Not Sure If This Struct Is Needed
+
+  int MyMoney = 500; // Expand On This LATER
+
+  vector<Card> MyHand; // TODO Expand On This
+  Deck PlayingDeck;
+
+}
 
 int main () {
 
