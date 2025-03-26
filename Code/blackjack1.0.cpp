@@ -95,11 +95,13 @@ int main () {
 
 /*
 
+  -1. Read The Rules For Blackjack
+
   0. ⏳ Create A Way To Randomly Shuffle The Deck
   1. ❌ Create A User Interface For Playing
   2. ❌ Add Multiplayer ( Playing Against Yourself )
   3. ❌ Add Playing Against The Dealer ( Random Moves )
-    - 1 Game
+    - 1 Game, Many Terms
     - You Take Or Don't
     - Want To Get To 21
     - Lose If Opp. Get's More, Or If You Get Above 21
