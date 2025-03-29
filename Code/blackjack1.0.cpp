@@ -35,7 +35,7 @@ struct Card { // A Useful Way Of Storing Data
 
   string CardValue;
   string CardSuit;
-  int CardStrength; // TODO Add this to the constructor
+  int CardStrength; // TODO Add this to the Deck constructor
 
 };
 
@@ -96,20 +96,13 @@ class Player {
 
     }
 
-    void TakeACard() {
+    void TakeACard() { // Adds A Random Card Object Into The MyHand Vector
 
       MyHand.push_back(PlayingDeck.GetCard());
 
     }
 
-    void GetStartingHand() {
-
-      TakeACard();
-      TakeACard();
-
-    }
-
-    void DisplayHand() {
+    void DisplayHand() { // Display All Data About All Card Objects In The MyHand Vector
 
       int TempIndex = 0;
 
@@ -128,6 +121,13 @@ class Player {
     int CurrentWins = 0;
     int TotalGames = 0;
 
+    void GetStartingHand() { // Adds 2 Random Card Objects Into The MyHand Vector ( used for the constructor )
+
+      TakeACard();
+      TakeACard();
+
+    }
+
 
 };
 
@@ -139,6 +139,7 @@ int main () {
 
   while(true) { // Infinite Game Loop
 
+    // Testing Out Game Logic
     cout << right << setw(50) << "YOUR OPPONENT'S HAND:" << endl;
     TheDealer.DisplayHand();
     cout << endl << endl;
@@ -173,5 +174,5 @@ int main () {
   6. ❌ Improve Dealer's Strategy ( Make The Dealer Play OPTIMALLY )
   7. ❌ Improve User Interface
 
-  99. Create A Way To Randomly Shuffle The Deck ( just for the challenge )
+  99. ⛔︎ Create A Way To Randomly Shuffle The Deck ( just for the challenge )
 */
