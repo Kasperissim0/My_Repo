@@ -87,25 +87,31 @@ struct Player { // Not Sure If This Struct Is Needed
 
   int MyMoney = 500; // Expand On This LATER
 
-  vector<Card> MyHand; // TODO Expand On This
   Deck PlayingDeck;
+  vector<Card> MyHand; // TODO Expand On This
+
+  void TakeACard () {
+
+    MyHand.push_back(PlayingDeck.GetCard());
+
+  }
 
 };
 
 int main () {
   system("clear");
   
-  Deck DeckInstance;
-  Card CardInstance = DeckInstance.GetCard();
+  Player John;
+  John.TakeACard();
 
-  cout << CardInstance.CardValue << " of " << CardInstance.CardSuit << endl;
+  cout << John.MyHand[0].CardValue << " of " << John.MyHand[0].CardSuit << endl;
 
   return 0;
 }
 
 /*
 
-  -1. Read The Rules For Blackjack
+  -1. ✅ Read The Rules For Blackjack
 
   1. 🚧 Create A User Interface For Playing
   2. ❌ Add Multiplayer ( Playing Against Yourself )
