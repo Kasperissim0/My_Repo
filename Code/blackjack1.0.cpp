@@ -35,6 +35,7 @@ struct Card { // A Useful Way Of Storing Data
 
   string CardValue;
   string CardSuit;
+  int CardStrength; // TODO Add this to the constructor
 
 };
 
@@ -83,47 +84,94 @@ struct Deck { // Manipulate The Deck
 
 };
 
-struct Player { // Not Sure If This Struct Is Needed
+class Player {
 
-  int MyMoney = 500; // Expand On This LATER
+  public:
+    vector<Card> MyHand;
+    int AvaliableCapital = 0; // TODO Expand On This LATER
 
-  Deck PlayingDeck;
-  vector<Card> MyHand; // TODO Expand On This
+    Player() {
 
-  void TakeACard () {
+      GetStartingHand(); // Automatically Get A Hand;
 
-    MyHand.push_back(PlayingDeck.GetCard());
+    }
 
-  }
+    void TakeACard() {
+
+      MyHand.push_back(PlayingDeck.GetCard());
+
+    }
+
+    void GetStartingHand() {
+
+      TakeACard();
+      TakeACard();
+
+    }
+
+    void DisplayHand() {
+
+      int TempIndex = 0;
+
+      for (Card card: MyHand) {
+
+        cout << MyHand[TempIndex].CardValue << " of " << MyHand[TempIndex].CardSuit << endl;
+
+        TempIndex++;
+
+      }
+
+    }
+
+  private:
+    Deck PlayingDeck;
+    int CurrentWins = 0;
+    int TotalGames = 0;
+
 
 };
 
 int main () {
   system("clear");
   
-  Player John;
-  John.TakeACard();
+  Player Bob;
+  Player TheDealer;
 
-  cout << John.MyHand[0].CardValue << " of " << John.MyHand[0].CardSuit << endl;
+  while(true) { // Infinite Game Loop
+
+    cout << right << setw(50) << "YOUR OPPONENT'S HAND:" << endl;
+    TheDealer.DisplayHand();
+    cout << endl << endl;
+
+    cout << right << setw(39) << "YOUR HAND:" << endl;
+    Bob.DisplayHand();
+    cout << endl << endl;
+
+    break;
+
+  }
 
   return 0;
 }
 
 /*
 
-  -1. ✅ Read The Rules For Blackjack
+  1. ✅ Read The Rules For Blackjack
+    1.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
+    1.2. ❌ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
 
   1. 🚧 Create A User Interface For Playing
-  2. ❌ Add Multiplayer ( Playing Against Yourself )
-  3. ❌ Add Playing Against The Dealer ( Random Moves )
-    - 1 Game, Many Terms
+  2. ❌ Add Playing Against The Dealer ( Random Moves )
+    - 1 Game, Many Turns
+    - Start With 2 Cards
     - You Take Or Don't
     - Want To Get To 21
     - Lose If Opp. Get's More, Or If You Get Above 21
+  3. ❌ Add Multiplayer ( Playing Against Yourself )
   4. ❌ Add Replayability ( A Score Of Wins And Total Games )
   5. ❌ Add Bets
-  6. ❌ Improve User Interface
-  6. ❌ Improve Dealer's Strategy
+  6. ❌ Improve Dealer's Strategy ( Make The Dealer Play OPTIMALLY )
+  7. ❌ Improve User Interface
 
   99. Create A Way To Randomly Shuffle The Deck ( just for the challenge )
 */
