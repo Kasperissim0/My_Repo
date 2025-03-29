@@ -1,5 +1,4 @@
 #include <random>
-#include "random_number.h"
 
 int RandomNumber() {
   std::random_device RandomSeed; // Get a Random Number to use as a Seed

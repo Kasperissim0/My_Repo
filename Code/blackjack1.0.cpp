@@ -22,7 +22,12 @@ int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0) {
 
   }
 
-  // TODO Recreate A Random Number Generator From Scratch
+  random_device RandomSeed;
+  mt19937 GenerateNumber(RandomSeed());
+  uniform_int_distribution<int> DistributionRange(MinNumber, MaxNumber);
+
+  return DistributionRange(GenerateNumber);
+
 
 }
 
@@ -37,19 +42,7 @@ struct Deck { // Manipulate The Deck
 
   Card TheDeck[AMOUNT_OF_CARDS * AMOUNT_OF_SUITS];
 
-  Deck() { // Constructor, Create Deck + Shuffle Cards
-
-    ShuffleDeck();
-
-  }
-
-  Card GetCard() { // Get Random Card
-
-    return TheDeck[(AMOUNT_OF_CARDS * AMOUNT_OF_SUITS) - 1];
-
-  }
-
-  void ShuffleDeck() {
+  Deck() { // Constructor, Create Deck + Insert Cards
 
     int TempIndex = 0;
 
@@ -65,7 +58,25 @@ struct Deck { // Manipulate The Deck
 
     };
 
-    // TODO Create A Way To Randomly Shuffle The Deck, Using All Cards And Suits
+    for (string suit: PossibleSuits) {  // Change suit
+
+      for (string value: PossibleValues) { // Insert All cards in one suit
+
+        TheDeck[TempIndex].CardSuit = suit;
+        TheDeck[TempIndex].CardValue = value;
+
+        TempIndex++;
+
+      }
+
+    }
+
+
+  }
+
+  Card GetCard() { // Get Random Card
+
+    return TheDeck[GetRandomNumber((AMOUNT_OF_CARDS * AMOUNT_OF_SUITS) - 1)];
 
   }
 
@@ -79,26 +90,24 @@ struct Player { // Not Sure If This Struct Is Needed
   vector<Card> MyHand; // TODO Expand On This
   Deck PlayingDeck;
 
-}
+};
 
 int main () {
-
   system("clear");
-
-
-  // here
   
+  Deck DeckInstance;
+  Card CardInstance = DeckInstance.GetCard();
+
+  cout << CardInstance.CardValue << " of " << CardInstance.CardSuit << endl;
 
   return 0;
-
 }
 
 /*
 
   -1. Read The Rules For Blackjack
 
-  0. ⏳ Create A Way To Randomly Shuffle The Deck
-  1. ❌ Create A User Interface For Playing
+  1. 🚧 Create A User Interface For Playing
   2. ❌ Add Multiplayer ( Playing Against Yourself )
   3. ❌ Add Playing Against The Dealer ( Random Moves )
     - 1 Game, Many Terms
@@ -110,4 +119,5 @@ int main () {
   6. ❌ Improve User Interface
   6. ❌ Improve Dealer's Strategy
 
+  99. Create A Way To Randomly Shuffle The Deck ( just for the challenge )
 */
