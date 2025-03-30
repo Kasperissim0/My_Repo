@@ -123,6 +123,12 @@ class Player {
 
       }
 
+      else { // Should Never Be Reached 
+      
+        cout << "\nERROR OCCURED WHILE TRYING TO MANIPULATE CHIPS" << endl;
+      
+      }
+
     }
 
     void ManipulateChips (const string& OperationCode, const int& ChangeByAmount) { // Press 1 For Addition, 2 For Substraction
@@ -141,7 +147,7 @@ class Player {
 
       else { // Should Never Be Reached 
 
-        cout << "\nERROR OCCURED WHILE TRYING TO MANIPULATE CHIPS" << endl;
+        cout << "\nERROR OCCURED WHILE TRYING TO DISPLAY HAND" << endl;
 
       }
 
@@ -217,8 +223,6 @@ class Player {
       int UCChoice;
     
       while (true) {
-        
-        system("clear");
     
         cout << left << setw(15) << "1. Take Another Card" << endl;
         cout << left << setw(15) << "2. Keep Current Hand\n\n" << endl;
@@ -309,7 +313,7 @@ int main () {
 
   int UCStart;
   int UCMove;
-  int ThePot;
+  int ThePot = 0;
 
   bool EndTheRound = false;
 
@@ -336,10 +340,13 @@ int main () {
 
           DisplayRound(TheDealer, Bob, ThePot);
 
+          // ! ADD COMPARSION OF HAND STRENGTH HERE ( immediate 21 )
+
           UCMove = Bob.MakeAMove();
 
           if (UCMove == 1) { // Another Card
 
+            // ! ADD COMPARSION OF HAND STRENGTH HERE ( "bust" or having 21+ in total )
             Bob.TakeACard();
             continue;
 
@@ -356,6 +363,10 @@ int main () {
 
         DisplayRound(TheDealer, Bob, ThePot, true);
 
+        this_thread::sleep_for(chrono::seconds(2));
+
+        // ! ADD FINAL COMPARSION OF HAND STRENGTH HERE
+        // TODO Add Pot To Your Chips If You Win
 
         break;
 
@@ -364,9 +375,12 @@ int main () {
         return 0;
 
       default:
-        continue; // By Default Restart The Game Loop
+      cout << "\nERROR OCCURED WITH THE SWITCH CASE ( int main )" << endl;
+        continue; // By Default Restart The Game Loop ( should never be reached )
 
     }
+
+    // ! RESET PLAYER + DEALER'S HANDS HERE
 
     continue;
 
@@ -381,7 +395,7 @@ int main () {
     1.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
     1.2. ❌ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
 
-  1. 🚧 Create A User Interface For Playing
+  1. ✅ Create A User Interface For Playing
   2. ❌ Add Playing Against The Dealer ( Random Moves )
     - 1 Game, Many Turns
     - Start With 2 Cards
