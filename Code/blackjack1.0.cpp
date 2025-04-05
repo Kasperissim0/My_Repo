@@ -9,8 +9,8 @@
 #include <cmath> // For mathematical calculations
 #include <random> // For generating random numbers
 
-const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits  in the Deck
-const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards in the Deck
+static const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits  in the Deck
+static const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards in the Deck
 
 using namespace std;
 
@@ -32,24 +32,30 @@ struct Deck { // Manipulate The Deck
 
     int TempIndex = 0;
 
-    vector<string> PossibleSuits = {
+    string PossibleSuits[] = {
 
       "Hearts", "Clubs", "Diamonds", "Spades"
 
     };
-    vector<string> PossibleValues = {
+    string PossibleValues[] = {
 
       "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", 
       "Jack", "Queen", "King", "Ace"
 
     };
+    int PossibleStrengths[] = {
 
-    for (string suit: PossibleSuits) {  // Change suit
+      2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11
 
-      for (string value: PossibleValues) { // Insert All cards in one suit
+    };
+
+    for (string suit: PossibleSuits) { // The Major Loop, Runs 4 Times
+      
+      for (int i = 0; i < AMOUNT_OF_CARDS; i++) { // Minor Loop, Runs 13 Times
 
         TheDeck[TempIndex].CardSuit = suit;
-        TheDeck[TempIndex].CardValue = value;
+        TheDeck[TempIndex].CardValue = PossibleValues[i];
+        TheDeck[TempIndex].CardStrength = PossibleStrengths[i];
 
         TempIndex++;
 
@@ -87,17 +93,58 @@ class Player {
 
     }
 
-    void DisplayHand(const string& PlayerType = "Normal", const bool& RevealHand = false) { // Display All Data About All Card Objects In The MyHand Vector
+    int DisplayHand(const string& PlayerType = "Normal", const bool& RevealHand = false, const bool& ShowText = true) { // Display All Data About All Card Objects In The MyHand Vector
 
-      int TempIndex = 0;
+      int HandStrength = 0;
+      int TheHiddenCard = MyHand.size() - 1;
+      bool AceInHand = false;
+
+      bool AdjustedHand = false; // Flags To Decide Return Value
+      bool OriginalHand = false; // Flags To Decide Return Value
 
       if (PlayerType == "Normal" || RevealHand == true) {
 
         for (Card card: MyHand) {
 
-          cout << MyHand[TempIndex].CardValue << " of " << MyHand[TempIndex].CardSuit << endl;
+          if (ShowText) cout << card.CardValue << " of " << card.CardSuit << endl;
 
-          TempIndex++;
+          if(card.CardValue == "Ace") { // For The Ace
+
+            AceInHand = true;
+
+          }
+
+          HandStrength+= card.CardStrength;
+
+        }
+
+        cout << endl; // Make Space For The Hand Strength Rating
+
+        if (HandStrength > 21 && AceInHand) { // If the Ace cannot be 11, automatically revert to 1
+
+          if (ShowText) cout << "You Hand Strength Is " << (HandStrength - 10) << "/21"; // Here Representing The Ace As 1 ( 11 - 10 )
+          AdjustedHand = true;
+
+        }
+
+        else if (HandStrength < 21 && AceInHand) {
+
+          if (ShowText) cout << "You Hand Strength Is " << HandStrength << "/21"; // If There Is No Overflow, Display Largest Hand
+          OriginalHand = true;
+
+        }
+
+        else if (AceInHand) {
+
+          if (ShowText) cout << "You Hand Strength Is " << HandStrength << "/21 OR " << (HandStrength - 10) << "/21";
+          OriginalHand = true;
+
+        }
+
+        else { // No Ace, Or Ace And No Ovelflow
+
+          if (ShowText) cout << "You Hand Strength Is " << HandStrength << "/21";
+          OriginalHand = true;
 
         }
 
@@ -107,17 +154,42 @@ class Player {
 
         for (int i = 0; i < MyHand.size(); i++) {
 
-          if (i == (MyHand.size() - 1)) {
+          if (i == TheHiddenCard) { // Do Not Show Second Card After Dealing Hand
 
-            cout << "HIDDEN CARD" << endl;
+            if (ShowText) cout << "HIDDEN CARD" << endl;
+            HandStrength-= MyHand[i].CardStrength; // Remove The Last Card's Strengts From The Total
 
           }
 
           else {
 
-            cout << MyHand[i].CardValue << " of " << MyHand[i].CardSuit << endl;
+            if (ShowText)cout << MyHand[i].CardValue << " of " << MyHand[i].CardSuit << endl;
 
           }
+
+          if(MyHand[i].CardValue == "Ace") { // For The Ace
+
+            AceInHand = true;
+
+          }
+
+          HandStrength+= MyHand[i].CardStrength;
+
+        }
+
+        if (ShowText) cout << endl; // Make Space For The Hand Strength Rating
+
+        if (HandStrength > 21 && AceInHand) { // If the Ace cannot be 11, automatically revert to 1
+
+          if (ShowText) cout << "Hand Strength Is At Least" << (HandStrength - 10) << "/21"; // Here Representing The Ace As 1 ( 11 - 10 )
+          AdjustedHand = true;
+
+        }
+
+        else { // No Ace
+
+          if (ShowText) cout << "Hand Strength Is At Least " << HandStrength << "/21";
+          OriginalHand = true;
 
         }
 
@@ -126,9 +198,23 @@ class Player {
       else { // Should Never Be Reached 
       
         cout << "\nERROR OCCURED WHILE TRYING TO MANIPULATE CHIPS" << endl;
+        return 0;
       
       }
+      
+      if (AdjustedHand) {
 
+        return (HandStrength - 10);
+
+      }
+
+      else if (OriginalHand) {
+
+        return HandStrength;
+
+      }
+
+      return 0;
     }
 
     void ManipulateChips (const string& OperationCode, const int& ChangeByAmount) { // Press 1 For Addition, 2 For Substraction
@@ -156,6 +242,7 @@ class Player {
     int StartGame() {
 
       int UCChoice;
+      TotalGames++;
     
       while (true) {
         
@@ -247,6 +334,20 @@ class Player {
 
     }
 
+    void StartNewRound() {
+
+      MyHand.clear();
+      GetStartingHand();
+
+    }
+
+    void WonAGame() {
+
+      TotalWins++;
+
+      // TODO Add the amount of chips won, and a Congratulations Message
+
+    }
 
   private:
     Deck PlayingDeck;
@@ -315,10 +416,11 @@ int main () {
   int UCMove;
   int ThePot = 0;
 
-  bool EndTheRound = false;
+  bool EndTheRound;
 
   while(true) { // Infinite Game Loop
 
+    EndTheRound = false;
     UCStart = Bob.StartGame();
 
     switch(UCStart) {
@@ -340,13 +442,18 @@ int main () {
 
           DisplayRound(TheDealer, Bob, ThePot);
 
-          // ! ADD COMPARSION OF HAND STRENGTH HERE ( immediate 21 )
+          if (Bob.DisplayHand("Normal", false, false) == 21) cout << "YOU WIN";
+          Bob.WonAGame();
+          if (TheDealer.DisplayHand("Dealer", false, false) == 21) cout << "YOU WIN";
+
 
           UCMove = Bob.MakeAMove();
 
           if (UCMove == 1) { // Another Card
 
-            // ! ADD COMPARSION OF HAND STRENGTH HERE ( "bust" or having 21+ in total )
+            if (Bob.DisplayHand("Normal", false, false) > 21) cout << "YOU LOSE";
+            //! Refine Here ⬆️
+
             Bob.TakeACard();
             continue;
 
@@ -354,21 +461,23 @@ int main () {
 
           else { // End The Round
 
-            EndTheRound = true;
-            break;
+            EndTheRound = true; // escape the round
 
           }
 
         }
 
+        system("clear");
         DisplayRound(TheDealer, Bob, ThePot, true);
+        ThePot = 0; // reset the pot
 
         this_thread::sleep_for(chrono::seconds(2));
 
         // ! ADD FINAL COMPARSION OF HAND STRENGTH HERE
         // TODO Add Pot To Your Chips If You Win
+        // TODO Add GamesWon++ If You Win
 
-        break;
+        break; // Necessary For THe Switch Statement
 
       case 2: // The Player Leaves The Table
         Bob.LeaveGame();
@@ -380,20 +489,23 @@ int main () {
 
     }
 
-    // ! RESET PLAYER + DEALER'S HANDS HERE
+   // Reset Players For A New Round
+   Bob.StartNewRound();
+   TheDealer.StartNewRound();
 
     continue;
 
   }
 
   return 0;
+
 }
 
 /*
 
-  1. ✅ Read The Rules For Blackjack
-    1.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
-    1.2. ❌ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
+  0. ✅ Read The Rules For Blackjack
+    0.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
+    0.2. ❌ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
 
   1. ✅ Create A User Interface For Playing
   2. ❌ Add Playing Against The Dealer ( Random Moves )
@@ -407,6 +519,11 @@ int main () {
   5. ❌ Add Bets
   6. ❌ Improve Dealer's Strategy ( Make The Dealer Play OPTIMALLY )
   7. ❌ Improve User Interface
+  8. ❌ Refactor Code
+    - ❌ More Readable
+      - ❌ Remove The Switch Statement In int main()
+    - ❌ Functions For Repetitions 
+      - ❌ Counting + Displaying The Worth Of Cards
 
   99. ⛔︎ Create A Way To Randomly Shuffle The Deck ( just for the challenge )
 */
