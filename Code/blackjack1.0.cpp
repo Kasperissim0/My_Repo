@@ -9,12 +9,20 @@
 #include <cmath> // For mathematical calculations
 #include <random> // For generating random numbers
 
-static const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits  in the Deck
-static const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards in the Deck
+//!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 using namespace std;
 
-int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // For Use In The Classes
+static const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits  in the Deck
+static const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards in the Deck
+
+class Player; // Declaration For Use, Definition Below ⬇️
+
+void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll = false); // Declaration For Use, Definition Below ⬇️
+int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // Declaration For Use, Definition Below ⬇️
+void CheckForLostGame(const int& YourScore, const int& OppsScore = 123); // Declaration For Use, Definition Below ⬇️
+
+//!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 struct Card { // A Useful Way Of Storing Data
 
@@ -75,7 +83,7 @@ struct Deck { // Manipulate The Deck
 
 };
 
-class Player {
+class Player { // The Main Structure
 
   public:
     vector<Card> MyHand;
@@ -341,7 +349,13 @@ class Player {
 
     }
 
-    void WonAGame() {
+    void CheckForEndOfGame(Player& YourOpponent) {
+
+      //! If You Lost
+
+      CheckForLostGame(DisplayHand("Normal", false, false),YourOpponent.DisplayHand("Dealer", false, false));
+
+      //! If You Won
 
       TotalWins++;
 
@@ -364,7 +378,9 @@ class Player {
 
 };
 
-void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll = false) {
+//!------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll) { // Display Cards Of All Players, + The Pot
 
   cout << right << setw(100) << "The Current Pot Is: " << ThePot << " Chips\n" << endl;
 
@@ -390,7 +406,7 @@ void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bo
 
 }
 
-int GetRandomNumber(const int& MaxNumber, const int& MinNumber) {
+int GetRandomNumber(const int& MaxNumber, const int& MinNumber) { // For Getting A Random Card
 
   if (MaxNumber == MinNumber) {
 
@@ -406,7 +422,37 @@ int GetRandomNumber(const int& MaxNumber, const int& MinNumber) {
 
 }
 
-int main () {
+void CheckForLostGame(const int& YourScore, const int& OppsScore) { // Different Text Based On Different Loss Type
+
+  system("clear");
+
+  cout << setw(35) << "You LOST\n" << endl;
+
+  if (OppsScore == 123 && YourScore > 21) { // Random Default Value => Your Hand Exceeded 21
+
+    cout << "The Score Of Your Hand Is To Large " << YourScore << " Is Larger Than 21" << endl;;
+
+  }
+
+  else if (OppsScore > YourScore) {
+
+    cout << "You Hand ( Total Of " << YourScore << " ) Was Beat By The Opponent's Hand " << OppsScore << endl;
+
+  }
+
+  else { // Should Not Be Reached
+
+    cout << "ERROR IN THE LostAGame FUNCTION" << endl;
+
+  }
+
+  this_thread::sleep_for(chrono::seconds(1));
+
+}
+
+//!------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+int main () { // The Actual Game
   system("clear");
   
   Player Bob;
@@ -443,7 +489,6 @@ int main () {
           DisplayRound(TheDealer, Bob, ThePot);
 
           if (Bob.DisplayHand("Normal", false, false) == 21) cout << "YOU WIN";
-          Bob.WonAGame();
           if (TheDealer.DisplayHand("Dealer", false, false) == 21) cout << "YOU WIN";
 
 
@@ -501,29 +546,34 @@ int main () {
 
 }
 
+//!------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 /*
 
   0. ✅ Read The Rules For Blackjack
     0.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
-    0.2. ❌ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
+    0.2. ✅ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
 
   1. ✅ Create A User Interface For Playing
-  2. ❌ Add Playing Against The Dealer ( Random Moves )
+  2. 🚧 Add Playing Against The Dealer ( Random Moves )
     - 1 Game, Many Turns
     - Start With 2 Cards
     - You Take Or Don't
     - Want To Get To 21
     - Lose If Opp. Get's More, Or If You Get Above 21
   3. ❌ Add Multiplayer ( Playing Against Yourself )
-  4. ❌ Add Replayability ( A Score Of Wins And Total Games )
-  5. ❌ Add Bets
+  4. 🚧 Add Replayability ( A Score Of Wins And Total Games )
+  5. 🚧 Add Bets
   6. ❌ Improve Dealer's Strategy ( Make The Dealer Play OPTIMALLY )
-  7. ❌ Improve User Interface
-  8. ❌ Refactor Code
-    - ❌ More Readable
-      - ❌ Remove The Switch Statement In int main()
-    - ❌ Functions For Repetitions 
-      - ❌ Counting + Displaying The Worth Of Cards
+  7. ❌ Refactor Code
+    - 7.1. ❌ More Readable
+      - 7.1.1.❌ Remove The Switch Statement In int main()
+    - 7.2. ❌ Functions For Repetitions 
+      - 7.2.1. ❌ Counting + Displaying The Worth Of Cards
+  8. 
+  
 
+  98. ⛔︎ Improve User Interface ( ADD GRAPHICS )
   99. ⛔︎ Create A Way To Randomly Shuffle The Deck ( just for the challenge )
+  
 */
