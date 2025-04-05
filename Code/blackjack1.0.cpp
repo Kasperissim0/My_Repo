@@ -20,7 +20,7 @@ class Player; // Declaration For Use, Definition Below ⬇️
 
 void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll = false); // Declaration For Use, Definition Below ⬇️
 int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // Declaration For Use, Definition Below ⬇️
-void CheckForLostGame(const int& YourScore, const int& OppsScore = 123); // Declaration For Use, Definition Below ⬇️
+void DeclareLostGame(const int& YourScore, const int& OppsScore = 123); // Declaration For Use, Definition Below ⬇️
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -89,7 +89,7 @@ class Player { // The Main Structure
     vector<Card> MyHand;
     int AvaliableChips = 100;
 
-    Player() {
+    Player() { // Constructor ( Get A Deck + Get A Randomly Dealt Hand )
 
       GetStartingHand(); // Automatically Get A Hand;
 
@@ -247,7 +247,7 @@ class Player { // The Main Structure
 
     }
 
-    int StartGame() {
+    int StartGame() { // Some Text Walkthrough With Options For Entering A Round Of Play
 
       int UCChoice;
       TotalGames++;
@@ -282,7 +282,7 @@ class Player { // The Main Structure
     
     }
 
-    void LeaveGame() {
+    void LeaveGame() { // Shows The Stats ( Games Played, Games Won + Chips Left)
 
       system("clear");
 
@@ -300,7 +300,7 @@ class Player { // The Main Structure
 
       else {
 
-        cout << "You Have " << AvaliableChips << " Chips Left 😮\n" << endl;
+        cout << "You Had " << AvaliableChips << " Chips Left 😮\n" << endl;
 
       }
 
@@ -313,7 +313,7 @@ class Player { // The Main Structure
 
     }
 
-    int MakeAMove() {
+    int MakeAMove() { // Some Text Walkthrough With Options During The Round Of Play
 
       int UCChoice;
     
@@ -342,24 +342,43 @@ class Player { // The Main Structure
 
     }
 
-    void StartNewRound() {
+    void StartNewRound() { // Remove Your Old Hand, And Get A New One
 
       MyHand.clear();
       GetStartingHand();
 
     }
 
-    void CheckForEndOfGame(Player& YourOpponent) {
+    void RoundFinished(Player& YourOpponent, int& ThePot) { // Check If The Game Is Over, React Accordingly
 
-      //! If You Lost
+      int YourHandStrength = DisplayHand("Normal", false, false);
+      int OpponentsHandStrength = YourOpponent.DisplayHand("Dealer", true, false);
 
-      CheckForLostGame(DisplayHand("Normal", false, false),YourOpponent.DisplayHand("Dealer", false, false));
+      system("clear");
 
-      //! If You Won
+      if (YourHandStrength == 21 || YourHandStrength > OpponentsHandStrength || OpponentsHandStrength > 21) { 
 
-      TotalWins++;
+        //! If You Won
+        TotalWins++;
+        AvaliableChips+= ThePot;
 
-      // TODO Add the amount of chips won, and a Congratulations Message
+        cout << "Congratulations, You WON 🎉🎉🎉" << endl;
+        this_thread::sleep_for(chrono::seconds(1));
+
+      }
+
+      else if (OpponentsHandStrength == 21 || OpponentsHandStrength > YourHandStrength || YourHandStrength > 21) {
+
+        //! If You Lost
+        DeclareLostGame(YourHandStrength, OpponentsHandStrength);
+
+      }
+
+      else {
+
+        cout << "ERROR IN THE RoundFinished FUNCTION" << endl;
+
+      }
 
     }
 
@@ -422,7 +441,7 @@ int GetRandomNumber(const int& MaxNumber, const int& MinNumber) { // For Getting
 
 }
 
-void CheckForLostGame(const int& YourScore, const int& OppsScore) { // Different Text Based On Different Loss Type
+void DeclareLostGame(const int& YourScore, const int& OppsScore) { // Different Text Based On Different Loss Type
 
   system("clear");
 
@@ -488,16 +507,19 @@ int main () { // The Actual Game
 
           DisplayRound(TheDealer, Bob, ThePot);
 
-          if (Bob.DisplayHand("Normal", false, false) == 21) cout << "YOU WIN";
-          if (TheDealer.DisplayHand("Dealer", false, false) == 21) cout << "YOU WIN";
-
+          //! ⬇️ THIS IS PROBABLY WRONG ⬇️
+          if (Bob.DisplayHand("Normal", false, false) == 21) Bob.RoundFinished(TheDealer, ThePot); // Exactly 21 = Win
+          if (TheDealer.DisplayHand("Dealer", true, false) == 21) TheDealer.RoundFinished(Bob, ThePot); // Exactly 21 = Win
+          //! ⬆️ THIS IS PROBABLY WRONG ⬆️
 
           UCMove = Bob.MakeAMove();
 
           if (UCMove == 1) { // Another Card
 
-            if (Bob.DisplayHand("Normal", false, false) > 21) cout << "YOU LOSE";
-            //! Refine Here ⬆️
+            //! ⬇️ THIS IS PROBABLY WRONG ⬇️
+            if (Bob.DisplayHand("Normal", false, false) > 21) Bob.RoundFinished(TheDealer, ThePot); // Overflow = Loss 
+            if (Bob.DisplayHand("Normal", false, false) == 21) Bob.RoundFinished(TheDealer, ThePot); // Exactly 21 = Win
+            //! ⬆️ THIS IS PROBABLY WRONG ⬆️
 
             Bob.TakeACard();
             continue;
@@ -521,6 +543,7 @@ int main () { // The Actual Game
         // ! ADD FINAL COMPARSION OF HAND STRENGTH HERE
         // TODO Add Pot To Your Chips If You Win
         // TODO Add GamesWon++ If You Win
+        Bob.RoundFinished(TheDealer, ThePot);
 
         break; // Necessary For THe Switch Statement
 
@@ -548,7 +571,7 @@ int main () { // The Actual Game
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-/*
+/* // The Roadmap For This Project
 
   0. ✅ Read The Rules For Blackjack
     0.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
@@ -562,7 +585,7 @@ int main () { // The Actual Game
     - Want To Get To 21
     - Lose If Opp. Get's More, Or If You Get Above 21
   3. ❌ Add Multiplayer ( Playing Against Yourself )
-  4. 🚧 Add Replayability ( A Score Of Wins And Total Games )
+  4. ✅ Add Replayability ( A Score Of Wins And Total Games )
   5. 🚧 Add Bets
   6. ❌ Improve Dealer's Strategy ( Make The Dealer Play OPTIMALLY )
   7. ❌ Refactor Code
@@ -573,7 +596,7 @@ int main () { // The Actual Game
   8. 
   
 
-  98. ⛔︎ Improve User Interface ( ADD GRAPHICS )
+  98. ⛔︎ Improve User Interface ( ADD ACTUAL GRAPHICS )
   99. ⛔︎ Create A Way To Randomly Shuffle The Deck ( just for the challenge )
-  
+
 */
