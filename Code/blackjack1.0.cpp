@@ -13,8 +13,8 @@
 
 using namespace std;
 
-static const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits  in the Deck
-static const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards in the Deck
+static const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits In The Deck
+static const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards In The Deck
 
 class Player; // Declaration For Use, Definition Below ⬇️
 
@@ -28,11 +28,11 @@ struct Card { // A Useful Way Of Storing Data
 
   string CardValue;
   string CardSuit;
-  int CardStrength; // TODO Add this to the Deck constructor
+  int CardStrength;
 
 };
 
-struct Deck { // Manipulate The Deck
+struct Deck { // Manipulate The Deck, Store Cards
 
   Card TheDeck[AMOUNT_OF_CARDS * AMOUNT_OF_SUITS];
 
@@ -83,7 +83,7 @@ struct Deck { // Manipulate The Deck
 
 };
 
-class Player { // The Main Structure
+class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
 
   public:
     vector<Card> MyHand;
@@ -399,7 +399,7 @@ class Player { // The Main Structure
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll) { // Display Cards Of All Players, + The Pot
+void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll) { // Display Cards Of All Players + The Pot
 
   cout << right << setw(100) << "The Current Pot Is: " << ThePot << " Chips\n" << endl;
 
