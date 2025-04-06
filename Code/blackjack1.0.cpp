@@ -16,13 +16,15 @@ using namespace std;
 static const int AMOUNT_OF_SUITS = 4; // The Amount Of Suits In The Deck
 static const int AMOUNT_OF_CARDS = 13; // The Amount Of Cards In The Deck
 static const int BLACKJACK = 21; // The Number Required To Win In Blackjack
+static const int BUY_IN = 20; // The Current Buy In Rate
 
 class Player; // Declaration For Use, Definition Below ⬇️
 
 void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll = false); // Declaration For Use, Definition Below ⬇️
 int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // Declaration For Use, Definition Below ⬇️
-void DeclareLostGame(const int& YourScore, const int& OppsScore = 123); // Declaration For Use, Definition Below ⬇️
-void PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot); // Declaration For Use, Definition Below ⬇️
+void DeclareFinishedRound(const int& YourScore, const int& OppsScore, bool GameWon); // Declaration For Use, Definition Below ⬇️
+bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot); // Declaration For Use, Definition Below ⬇️
+void CalculateHandStrengths(Player& ThePlayer, Player& TheDealer, int& PlayerHandStrength, int& DealerHandStrength); // Declaration For Use, Definition Below ⬇️
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -146,7 +148,7 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
 
         else if (AceInHand) {
 
-          if (ShowText) cout << "You Hand Strength Is " << HandStrength << "/" << BLACKJACK << "OR " << (HandStrength - 10) << "/" << BLACKJACK;
+          if (ShowText) cout << "You Hand Strength Is " << HandStrength << "/" << BLACKJACK << " OR " << (HandStrength - 10) << "/" << BLACKJACK;
           OriginalHand = true;
 
         }
@@ -261,7 +263,7 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
         cout << right << setw(130) << "You Currently Have " << AvaliableChips << " Chips At Your Disposal" << endl;
         
         cout << right << setw(80) << "Welcome to the Casino!" << endl; // Centered title
-        cout << left << setw(15) << "1. Start A Game ( Buy In Costs 20 Chips )" << endl;
+        cout << left << setw(15) << "1. Start A Game ( Buy In Costs " << BUY_IN << " Chips )" << endl;
         cout << left << setw(23) << "2. Exit\n\n" << endl;
         cout << "Enter your choice >>> ";
     
@@ -288,27 +290,27 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
 
       system("clear");
 
-      if (AvaliableChips <= 0) {
+      if (AvaliableChips <= 0) { // Negative or 0 Chips
 
         cout << "You Have Lost, Your Balance Currently Has " << AvaliableChips << " Chips Left 😭\n" << endl;
 
       }
 
-      else if (AvaliableChips > 0 && AvaliableChips < 20) {
+      else if (AvaliableChips > 0 && AvaliableChips < BUY_IN) { // Can't Afford The Buy-In
 
         cout << "You Cannot Affort The Buy-In, Your Balance Currently Has " << AvaliableChips << " Chips Left 😭\n" << endl;
 
       }
 
-      else {
+      else { // Left The Game With Chips
 
         cout << "You Had " << AvaliableChips << " Chips Left 😮\n" << endl;
 
       }
 
       
-      cout << "You Have Played " << TotalGames << " Games\n" << endl;
-      cout << "Of Which You Won " << TotalWins << endl;
+      cout << "You Have Played " << TotalGames << " Games." << endl;
+      cout << "Of Which You Won " << TotalWins << "." << endl;
 
       cout << endl << "\nWell Played, And Farewell 👋 \n\n" << endl;
       this_thread::sleep_for(chrono::seconds(2));
@@ -360,28 +362,31 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
 
       if (YourHandStrength == OpponentsHandStrength) { //* If There Is A Draw
 
-        AvaliableChips+= (ThePot / 2);
+        AvaliableChips+= (ThePot / 2); // Get Half Of The Pot
+
+        cout << "A DRAW Has Occured 😐😐😐\n" << endl
+             << " You Get 1/2 The Pot" << endl;
 
       }
 
       else if (YourHandStrength == BLACKJACK || YourHandStrength > OpponentsHandStrength || OpponentsHandStrength > BLACKJACK) { //* If You Won
 
-        
+        DeclareFinishedRound(YourHandStrength, OpponentsHandStrength, true); // Show Appropriate Round End Text
+
+        // Enjoy The Spoils Of War 😉
         TotalWins++;
         AvaliableChips+= ThePot;
-
-        cout << "Congratulations, You WON 🎉🎉🎉" << endl;
-        this_thread::sleep_for(chrono::seconds(1));
+        
 
       }
 
       else if (OpponentsHandStrength == BLACKJACK || OpponentsHandStrength > YourHandStrength || YourHandStrength > BLACKJACK) { //* If You Lost
 
-        DeclareLostGame(YourHandStrength, OpponentsHandStrength);
+        DeclareFinishedRound(YourHandStrength, OpponentsHandStrength, false); // Show Appropriate Round End Text
 
       }
 
-      else {
+      else { // Should Not Be Reached
 
         cout << "ERROR IN THE RoundFinished FUNCTION ( ROUND SHOULD NOT BE OVER )" << endl;
 
@@ -448,31 +453,59 @@ int GetRandomNumber(const int& MaxNumber, const int& MinNumber) { // For Getting
 
 }
 
-void DeclareLostGame(const int& YourScore, const int& OppsScore) { // Different Text Based On Different Loss Type
+void DeclareFinishedRound(const int& YourScore, const int& OppsScore, bool GameWon) { // Different Text Based On Different Loss Type
 
   system("clear");
 
-  cout << setw(35) << "You LOST\n" << endl;
+  if (GameWon) { // If You Won
 
-  if (OppsScore == 123 && YourScore > BLACKJACK) { // Random Default Value => Your Hand Exceeded 21
+    cout << setw(35) << "Congratulations, You WON 🎉🎉🎉\n" << endl;
 
-    cout << "The Score Of Your Hand Is To Large " << YourScore << " Is Larger Than " << BLACKJACK << endl;;
+    if (YourScore == BLACKJACK) { // Your Equals 21
+
+      cout << "In Fact, You Hit The BLACKJACK 🤯🤯🤯" << endl;;
+
+    }
+
+    else if (YourScore > OppsScore) { // Your Hand Is Larger
+
+      cout << "You Hand ( Total Of " << YourScore << " ) Beat Your Opponent's Hand " << OppsScore << endl;
+
+    }
+
+    else { // Should Not Be Reached
+
+      cout << "ERROR IN THE DeclareLostGame FUNCTION ( Game Was Not Won )" << endl;
+
+    }
 
   }
 
-  else if (OppsScore > YourScore) {
+  else { // If You Lost
 
-    cout << "You Hand ( Total Of " << YourScore << " ) Was Beat By The Opponent's Hand " << OppsScore << endl;
+    cout << setw(35) << "You LOST 😭😭😭\n" << endl;
+
+    if (YourScore > BLACKJACK) { // Your Hand Exceeded 21
+
+      cout << "The Score Of Your Hand Is To Large " << YourScore << " Is Larger Than " << BLACKJACK << endl;;
+
+    }
+
+    else if (OppsScore > YourScore) { // Your Hand Is Smaller
+
+      cout << "You Hand ( Total Of " << YourScore << " ) Was Beat By Your Opponent's Hand " << OppsScore << endl;
+
+    }
+
+    else { // Should Not Be Reached
+
+      cout << "ERROR IN THE DeclareLostGame FUNCTION ( Game Was Not Lost )" << endl;
+
+    }
 
   }
 
-  else { // Should Not Be Reached
-
-    cout << "ERROR IN THE LostAGame FUNCTION" << endl;
-
-  }
-
-  this_thread::sleep_for(chrono::seconds(1));
+  this_thread::sleep_for(chrono::seconds(4)); // Read The Result
 
 }
 
@@ -481,79 +514,72 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
   int PlayerHandStrength;
   int DealerHandStrength;
 
-  PlayerHandStrength = Bob.DisplayHand("Normal", true, false); // The Second Boolean Value Does Not Actually Matter For The Player
-  DealerHandStrength = TheDealer.DisplayHand("Dealer", true, false); // It Does , However, Matter To The Dealer
-  DealerVisibleHandStrength = TheDealer.DisplayHand("Dealer", false, false); // It Does , However, Matter To The Dealer
-  
-  //! Logging // TODO Remove Later
-  cout << endl << "Dealer Hand Strength: " << TheDealer.DisplayHand("Dealer", false, false) << endl;
-  cout << endl << "Dealer Hand Strength: " << TheDealer.DisplayHand("Dealer", true, false) << endl;
-  cout << endl << "Player Hand Strength: " << Bob.DisplayHand("Normal", false, false) << endl;
-  cout << endl << "Player Hand Strength: " << Bob.DisplayHand("Normal", true, false) << endl;
-  this_thread::sleep_for(chrono::seconds(5));
+  bool EndTheRound = false;
+
+  CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
 
   // Check If You Can Play
-  if (ThePlayer.AvaliableChips < 20) { // If You Cannot Afford To Play
+  if (ThePlayer.AvaliableChips < BUY_IN) { // If You Cannot Afford To Play
 
     ThePlayer.LeaveGame();
-    return;
+    return true; // End The Game
 
   }
 
   // Pay The Buy In + Calculate The Pot
-  Bob.ManipulateChips("-", 20); // Buy In - 20 Chips // TODO Add Varying Bet Sizes
-  ThePot+= 40; // 20 from you and the dealer
+  ThePlayer.ManipulateChips("-", BUY_IN); // Buy In - 20 Chips // TODO Add Varying Bet Sizes
+  ThePot+= (BUY_IN * 2); // 20 from you and the dealer
 
   while (!EndTheRound) {
 
     system("clear");
-    DisplayRound(TheDealer, Bob, ThePot);
-    UCMove = Bob.MakeAMove();
+    DisplayRound(TheDealer, ThePlayer, ThePot);
+    int UCMove = TheDealer.MakeAMove(); // User Choice Variables Defined Separately
 
     //* Phase 1 ( 2 Cards )
     if (PlayerHandStrength == BLACKJACK && DealerHandStrength == BLACKJACK) { // Split The Pot ( Draw )
 
-      DisplayRound(TheDealer, Bob, ThePot, true);
-      Bob.RoundFinished(TheDealer, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function)
-      TheDealer.RoundFinished(Bob, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function)
+      DisplayRound(TheDealer, ThePlayer, ThePot, true);
+      ThePlayer.RoundFinished(TheDealer, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function )
 
     }
 
     else if (PlayerHandStrength == BLACKJACK) { // Check For Blackjack
 
-      Bob.RoundFinished(TheDealer, ThePot); 
+      ThePlayer.RoundFinished(TheDealer, ThePot); 
 
     }
 
-    if (UCMove == 1) { // Another Card ( "Hit" )
+    else if (UCMove == 1) { // Another Card ( "Hit" )
+
+      ThePlayer.TakeACard();
+      CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
 
       //* Phase 2 ( 2+ Cards )
       if (PlayerHandStrength == BLACKJACK && DealerHandStrength == BLACKJACK) { // Split The Pot ( Draw )
 
-        DisplayRound(TheDealer, Bob, ThePot, true);
-        Bob.RoundFinished(TheDealer, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function)
-        TheDealer.RoundFinished(Bob, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function)
+        DisplayRound(TheDealer, ThePlayer, ThePot, true);
+        ThePlayer.RoundFinished(TheDealer, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function )
 
       }
 
       else if (PlayerHandStrength == BLACKJACK) { // Check For Blackjack
 
-        Bob.RoundFinished(TheDealer, ThePot); 
+        ThePlayer.RoundFinished(TheDealer, ThePot); 
 
       }
 
-      else if (PlayerHandStrength < BLACKJACK) { // Oveflow ( 21+ Hand Strength)
+      else if (PlayerHandStrength > BLACKJACK) { // Check For Oveflow ( 21+ Hand Strength )
 
-        Bob.RoundFinished(TheDealer, ThePot);
+        ThePlayer.RoundFinished(TheDealer, ThePot);
 
       }
 
-      Bob.TakeACard();
       continue;
 
     }
 
-    else { // End The Round ( "Stay" )
+    else { // No More Cards ( "Stay" )
 
       EndTheRound = true; // escape the round
 
@@ -561,28 +587,57 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
 
     // Display After The Round Is Over
     system("clear");
-    DisplayRound(TheDealer, Bob, ThePot, true);
+    DisplayRound(TheDealer, ThePlayer, ThePot, true);
+    CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
     this_thread::sleep_for(chrono::seconds(2));
 
     //* Phase 3 ( Compare Hands )
+    if (PlayerHandStrength == DealerHandStrength) { // Split The Pot ( Draw )
 
-    //? Check For Player BLACKJACK AND Dealer BLACKJACK => Draw (Split Pot)
-    //? Check For Player AND Dealer Same Hand => Draw (Split Pot)
+      DisplayRound(TheDealer, ThePlayer, ThePot, true);
+      ThePlayer.RoundFinished(TheDealer, ThePot); // Half For You, And Half For the Dealer ( Automaticall Divided In The Function )
 
-    //? Check For Dealer BLACKJACK => Win
-    //? Check For Dealer BLACKJACK+ => Loss
+    }
 
-    //? Check For SCENARIO 1
-      // Dealer's Hand > Player's Hand => Dealer Win
-    //? Check For SCENARIO 2
-      // Player's Hand > Dealer's Hand => Player Win
+    else if (DealerHandStrength == BLACKJACK) { // Check For Player's Blackjack
 
-    // TODO Add Pot To Your Chips If You Win
-    // TODO Add GamesWon++ If You Win
+      ThePlayer.RoundFinished(TheDealer, ThePot); 
 
-    Bob.RoundFinished(TheDealer, ThePot);
+    }
+
+    else if (DealerHandStrength > BLACKJACK) { // Check For Player's Oveflow ( 21+ Hand Strength )
+
+      ThePlayer.RoundFinished(TheDealer, ThePot);
+
+    }
+
+    else if (DealerHandStrength > PlayerHandStrength) {
+
+      ThePlayer.RoundFinished(TheDealer, ThePot); 
+
+    }
+
+    else if (PlayerHandStrength > DealerHandStrength) {
+
+      ThePlayer.RoundFinished(TheDealer, ThePot); 
+
+    }
 
   }
+
+  return false;
+
+}
+
+void CalculateHandStrengths(Player& ThePlayer, Player& TheDealer, int& PlayerHandStrength, int& DealerHandStrength) { // Updates The Strength Of The Hands
+
+  PlayerHandStrength = ThePlayer.DisplayHand("Normal", true, false); // The Second Boolean Value Does Not Actually Matter For The Player
+  DealerHandStrength = TheDealer.DisplayHand("Dealer", true, false); // It Does , However, Matter To The Dealer
+  
+  //! Logging // TODO Remove Later
+  cout << endl << "Dealer Hand Strength: " << TheDealer.DisplayHand("Dealer", true, false) << endl;
+  cout << endl << "Player Hand Strength: " << ThePlayer.DisplayHand("Normal", true, false) << endl;
+  this_thread::sleep_for(chrono::seconds(5));
 
 }
 
@@ -591,30 +646,26 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
 int main () { // The Actual Game
 
   // Declare Variables
-  Player Bob;
   Player TheDealer;
-  bool EndGame = false;
+  Player Bob;
   int ThePot = 0;
-  int UCStart;
-  int UCMove;
-
+  bool EndGame = false;
+  
   while(!EndGame) { // The Game Loop
 
     system("clear");
-    UCStart = Bob.StartGame();
+    int UCStart = Bob.StartGame(); // User Choice Variables Defined Separately
 
     if (UCStart == 1) { // The Player Places A Bet, Play 1 Round
 
       if(PlayRound(Bob, TheDealer, ThePot) == true) EndGame = true;
 
-
     }
     
     else if (UCStart == 2) { // The Player Leaves The Table
 
-      Bob.LeaveGame();
       EndGame = true; // Break The Loop
-
+      
     }
 
     else { // Should Never Be Reached 
@@ -624,14 +675,14 @@ int main () { // The Actual Game
 
     }
 
-   // Reset Players For A New Round
-   Bob.StartNewRound();
+   // Reset For The Next Loop
    TheDealer.StartNewRound();
-   ThePot = 0; // Reset Pot For The Next Round
-
-    continue;
+   Bob.StartNewRound();
+   ThePot = 0;
 
   }
+
+  Bob.LeaveGame(); // Show Stats + Goodbye Screen
 
   return 0; // This Will Only Be Reached When The Above Loop Is Broken
 
