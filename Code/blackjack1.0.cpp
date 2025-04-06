@@ -472,100 +472,122 @@ void DeclareLostGame(const int& YourScore, const int& OppsScore) { // Different 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main () { // The Actual Game
-  system("clear");
-  
+
+  // Declare Variables
   Player Bob;
   Player TheDealer;
-
   int UCStart;
   int UCMove;
   int ThePot = 0;
-
   bool EndTheRound;
+
 
   while(true) { // Infinite Game Loop
 
     EndTheRound = false;
     UCStart = Bob.StartGame();
 
-    switch(UCStart) {
+    system("clear");
 
-      case 1: // The Player Places A Bet
-        if (Bob.AvaliableChips < 20) { // If You Cannot Afford To Play
+    if (UCStart == 1) { // The Player Places A Bet
 
-          Bob.LeaveGame();
-          return 0;
+      // Check If You Can Play
+      if (Bob.AvaliableChips < 20) { // If You Cannot Afford To Play
 
-        }
-
-        Bob.ManipulateChips("-", 20); // Pay The Buy-In
-        ThePot+= 40; // 20 from you and the dealer
-        
-        while (!EndTheRound) {
-
-          system("clear");
-
-          DisplayRound(TheDealer, Bob, ThePot);
-
-          //! ⬇️ THIS IS PROBABLY WRONG ⬇️
-          if (Bob.DisplayHand("Normal", false, false) == 21) Bob.RoundFinished(TheDealer, ThePot); // Exactly 21 = Win
-          if (TheDealer.DisplayHand("Dealer", true, false) == 21) TheDealer.RoundFinished(Bob, ThePot); // Exactly 21 = Win
-          //! ⬆️ THIS IS PROBABLY WRONG ⬆️
-
-          UCMove = Bob.MakeAMove();
-
-          if (UCMove == 1) { // Another Card
-
-            //! ⬇️ THIS IS PROBABLY WRONG ⬇️
-            if (Bob.DisplayHand("Normal", false, false) > 21) Bob.RoundFinished(TheDealer, ThePot); // Overflow = Loss 
-            if (Bob.DisplayHand("Normal", false, false) == 21) Bob.RoundFinished(TheDealer, ThePot); // Exactly 21 = Win
-            //! ⬆️ THIS IS PROBABLY WRONG ⬆️
-
-            Bob.TakeACard();
-            continue;
-
-          }
-
-          else { // End The Round
-
-            EndTheRound = true; // escape the round
-
-          }
-
-        }
-
-        system("clear");
-        DisplayRound(TheDealer, Bob, ThePot, true);
-        ThePot = 0; // reset the pot
-
-        this_thread::sleep_for(chrono::seconds(2));
-
-        // ! ADD FINAL COMPARSION OF HAND STRENGTH HERE
-        // TODO Add Pot To Your Chips If You Win
-        // TODO Add GamesWon++ If You Win
-        Bob.RoundFinished(TheDealer, ThePot);
-
-        break; // Necessary For THe Switch Statement
-
-      case 2: // The Player Leaves The Table
         Bob.LeaveGame();
         return 0;
 
-      default:
-      cout << "\nERROR OCCURED WITH THE SWITCH CASE ( int main )" << endl;
-        continue; // By Default Restart The Game Loop ( should never be reached )
+      }
+
+      // Pay The Buy In + Calculate The Pot
+      Bob.ManipulateChips("-", 20); // Buy In - 20 Chips // TODO Change Later
+      ThePot+= 40; // 20 from you and the dealer
+
+      while (!EndTheRound) {
+
+        system("clear");
+        DisplayRound(TheDealer, Bob, ThePot);
+        UCMove = Bob.MakeAMove();
+
+        //* Phase 1 ( 2 Cards )
+
+        //? Check For Player AND Dealer 21 => Draw (Split Pot)
+        //? Check For Player 21 => Win
+
+        if (UCMove == 1) { // Another Card
+
+          //* Phase 2 ( 2+ Cards )
+
+          //? Check For Player 21 AND Dealer 21 => Draw (Split Pot)
+          //? Check For Player 21 => Win
+          //? Check For Player 21+ => Loss
+
+          //! ⬇️ THIS IS PROBABLY WRONG ⬇️
+          if (Bob.DisplayHand("Normal", false, false) > 21) Bob.RoundFinished(TheDealer, ThePot); // Overflow = Loss 
+          if (Bob.DisplayHand("Normal", false, false) == 21) Bob.RoundFinished(TheDealer, ThePot); // Exactly 21 = Win
+          //! ⬆️ THIS IS PROBABLY WRONG ⬆️
+
+          Bob.TakeACard();
+          continue;
+
+        }
+
+        else { // End The Round
+
+          EndTheRound = true; // escape the round
+
+        }
+
+        // Display After The Round Is Over
+        system("clear");
+        DisplayRound(TheDealer, Bob, ThePot, true);
+        this_thread::sleep_for(chrono::seconds(2));
+
+        //* Phase 3 ( Compare Hands )
+
+        //? Check For Player 21 AND Dealer 21 => Draw (Split Pot)
+        //? Check For Player AND Dealer Same Hand => Draw (Split Pot)
+
+        //? Check For Dealer 21 => Win
+        //? Check For Dealer 21+ => Loss
+
+        //? Check For SCENARIO 1
+          // Dealer's Hand > Player's Hand => Dealer Win
+        //? Check For SCENARIO 2
+          // Player's Hand > Dealer's Hand => Player Win
+
+        // TODO Add Pot To Your Chips If You Win
+        // TODO Add GamesWon++ If You Win
+        
+        Bob.RoundFinished(TheDealer, ThePot);
+
+      }
+
+    }
+    
+    else if (UCStart == 2) { // The Player Leaves The Table
+
+      Bob.LeaveGame();
+      return 0;
+
+    }
+
+    else { // Should Never Be Reached 
+
+      cout << "\nERROR OCCURED WITH THE SWITCH CASE ( int main )" << endl; 
 
     }
 
    // Reset Players For A New Round
    Bob.StartNewRound();
    TheDealer.StartNewRound();
+   ThePot = 0; // Reset Pot For The Next Round
 
     continue;
 
   }
 
-  return 0;
+  return 0; // This Will Not Be Reached, Since There Are `return` Statements In The Above Code
 
 }
 
