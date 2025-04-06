@@ -693,26 +693,23 @@ int main () { // The Actual Game
 /* // The Roadmap For This Project
 
   0. ✅ Read The Rules For Blackjack
-    0.1. 🚧 Figure Out How To Calculate Hand Strength ( Sum ) In General
+    0.1. ✅ Figure Out How To Calculate Hand Strength ( Sum ) In General
     0.2. ✅ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
 
   1. ✅ Create A User Interface For Playing
-  2. 🚧 Add Playing Against The Dealer ( Random Moves )
-    - 1 Game, Many Turns
-    - Start With 2 Cards
-    - You Take Or Don't
-    - Want To Get To BLACKJACK
-    - Lose If Opp. Get's More, Or If You Get Above BLACKJACK
+  2. 🚧 Add Playing Against The Dealer
+    2.1 ❌ Give The Dealer A Turn
   3. ❌ Add Multiplayer ( Playing Against Yourself )
   4. ✅ Add Replayability ( A Score Of Wins And Total Games )
   5. ❌ Add Different Bet Sizes
   6. ❌ Improve Dealer's Strategy ( Make The Dealer Play OPTIMALLY )
   7. ❌ Refactor Code
-    - 7.1. ❌ More Readable
-      - 7.1.1. ✅ Remove The Switch Statement In int main()
-      - 7.1.2. ❌ Create A Seperate Function For Finishing The Round ( check for win, win type + reward )
-    - 7.2. ❌ Functions For Repetitions 
-      - 7.2.1. ❌ Counting + Displaying The Worth Of Cards
+    7.0. ❌ Simplify The Round End Checks In `PlayRound`
+    7.1. ❌ More Readable
+      7.1.1. ✅ Remove The Switch Statement In int main()
+      7.1.2. ✅ Create A Seperate Function For Finishing The Round ( check for win, win type + reward ) 
+    7.2. ❌ Functions For Repetitions 
+      7.2.1. ❌ Counting + Displaying The Worth Of Cards
   8. 
   
 
