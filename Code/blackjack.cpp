@@ -745,14 +745,15 @@ int main () { // The Actual Game
     2.1 ✅ Give The Dealer A Turn
   3. 🚧 Add Different Bet Sizes
   4. ✅ Add Replayability ( A Score Of Wins And Total Games )
-  5. ❌ Refactor Code
+  5. 🚧 Refactor Code
     5.0. ✅ Simplify The Round End Checks In `PlayRound`
     5.1. ✅ More Readable
       5.1.1. ✅ Remove The Switch Statement In int main()
       5.1.2. ✅ Create A Seperate Function For Finishing The Round ( check for win, win type + reward ) 
     5.2. 🚧 Functions For Repetetitive Tasks 
       5.2.1. 🚧 Counting + Displaying The Worth Of Cards
-  8. 
+      5.2.2. ✅ Checking If The Round Is Over
+  6. 
   
 
   98. ⛔︎ Improve User Interface ( ADD ACTUAL GRAPHICS )
