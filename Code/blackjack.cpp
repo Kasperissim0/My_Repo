@@ -472,7 +472,7 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
 
 void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll) { // Display Cards Of All Players + The Pot
 
-  cout << right << setw(100) << "Total Chips Left: " << Player1.AvaliableChips << << " || " << "The Current Pot Is: " << ThePot << " Chips\n" << endl;
+  cout << right << setw(100) << "Total Chips Left: " << Player1.AvaliableChips << " || " << "The Current Pot Is: " << ThePot << " Chips\n" << endl;
 
   cout << right << setw(50) << "YOUR OPPONENT'S HAND:" << endl;
 
