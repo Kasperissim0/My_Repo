@@ -322,12 +322,13 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
     
       while (true) {
     
+        cout << left << setw(15) << "0. Bet More Chips\n" << endl;
         cout << left << setw(15) << "1. Take Another Card" << endl;
-        cout << left << setw(15) << "2. Keep Current Hand\n\n" << endl;
+        cout << left << setw(15) << "2. Keep Current Hand" << endl;
     
         cin >> UCChoice;
     
-        if (cin.fail() || UCChoice > 2 || UCChoice <= 0) {
+        if (cin.fail() || UCChoice > 2 || UCChoice < 0) {
   
           system("clear");
           cout << "Invalid Input" << endl;
@@ -470,28 +471,28 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll) { // Display Cards Of All Players + The Pot
+void DisplayRound (Player& ThePlayer, Player& TheDealer, const int& ThePot, const bool& RevealAll) { // Display Cards Of All Players + The Pot
 
-  cout << right << setw(100) << "Total Chips Left: " << Player1.AvaliableChips << " || " << "The Current Pot Is: " << ThePot << " Chips\n" << endl;
+  cout << right << setw(100) << "Total Chips Left: " << ThePlayer.AvaliableChips << " || " << "The Current Pot Is: " << ThePot << " Chips\n" << endl;
 
   cout << right << setw(50) << "YOUR OPPONENT'S HAND:" << endl;
 
   if (RevealAll) { // For Final Reveal
 
-    Player1.DisplayHand("Dealer", true);
+    TheDealer.DisplayHand("Dealer", true);
 
   }
 
   else {
 
-    Player1.DisplayHand("Dealer");
+    TheDealer.DisplayHand("Dealer");
 
   }
 
   cout << endl << endl;
 
   cout << right << setw(39) << "YOUR HAND:" << endl;
-  Player2.DisplayHand();
+  ThePlayer.DisplayHand();
   cout << endl << endl;
 
 }
@@ -604,14 +605,40 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
   while (!EndTheRound) {
 
     system("clear");
-    DisplayRound(TheDealer, ThePlayer, ThePot);
+    DisplayRound(ThePlayer, TheDealer, ThePot);
     int UCMove = TheDealer.MakeAMove(); // User Choice Variables Defined Separately
 
     //* Phase 1 ( 2 Cards )
     if(ThePlayer.RoundFinished(TheDealer, ThePot, 1)) break;
 
-    // Respond According To User Choice
-    if (UCMove == 1) { // Another Card ( "Hit" )
+    //* Respond According To User Choice
+    if (UCMove == 0) { // Bet More Chips
+
+      int AdditionalBet = 0;
+
+      select_bet:
+        system("clear");
+        cout << "How Many Chips Do You Want To Bet?" << endl;
+        cin >> AdditionalBet;
+
+      if (cin.fail() || AdditionalBet > ThePlayer.AvaliableChips || ThePlayer.AvaliableChips == 0 || AdditionalBet <= 0) { // Error Handling
+
+        system("clear");
+        cout << "You Cannot Bet That Amount Of Chips" << endl;
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        this_thread::sleep_for(chrono::seconds(1));
+        goto select_bet;
+
+      }
+
+      ThePlayer.AvaliableChips-= AdditionalBet; // Remove The Bet From The Account
+      ThePot+= (AdditionalBet * 2); // The Bet Is Always Matched By The Dealer
+      continue;
+      
+    }
+
+    else if (UCMove == 1) { // Another Card ( "Hit" )
 
       ThePlayer.TakeACard();
       CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
@@ -619,7 +646,6 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
       //* Phase 2 ( 2+ Cards )
       if (ThePlayer.RoundFinished(TheDealer, ThePot, 2)) { // If The Round Is Finished, Exit
 
-        
         break;
 
       }
@@ -640,7 +666,7 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
     // Display After The Round Is Over
     system("clear");
     CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
-    DisplayRound(TheDealer, ThePlayer, ThePot, true);
+    DisplayRound(ThePlayer, TheDealer, ThePot, true);
     this_thread::sleep_for(chrono::seconds(2));
 
     //? The Dealer's "Move"
@@ -656,7 +682,7 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
 
         system("clear");
         CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
-        DisplayRound(TheDealer, ThePlayer, ThePot, true);
+        DisplayRound(ThePlayer, TheDealer, ThePot, true);
         this_thread::sleep_for(chrono::seconds(2));
         break;
         
@@ -664,7 +690,7 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
 
       system("clear");
       CalculateHandStrengths(ThePlayer, TheDealer, PlayerHandStrength, DealerHandStrength);
-      DisplayRound(TheDealer, ThePlayer, ThePot, true);
+      DisplayRound(ThePlayer, TheDealer, ThePot, true);
       this_thread::sleep_for(chrono::seconds(2));
 
     } 
@@ -743,7 +769,7 @@ int main () { // The Actual Game
   1. ✅ Create A User Interface For Playing
   2. ✅ Add Playing Against The Dealer
     2.1 ✅ Give The Dealer A Turn
-  3. 🚧 Add Different Bet Sizes
+  3. ✅ Add Different Bet Sizes
   4. ✅ Add Replayability ( A Score Of Wins And Total Games )
   5. 🚧 Refactor Code
     5.0. ✅ Simplify The Round End Checks In `PlayRound`
