@@ -25,7 +25,7 @@ int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // Declarat
 void DeclareFinishedRound(const int& YourScore, const int& OppsScore, bool GameWon); // Declaration For Use, Definition Below ⬇️
 bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot); // Declaration For Use, Definition Below ⬇️
 void CalculateHandStrengths(Player& ThePlayer, Player& TheDealer, int& PlayerHandStrength, int& DealerHandStrength); // Declaration For Use, Definition Below ⬇️
-void ClearStream(const string message = "IGNORE");
+void ClearStream(const string message = "IGNORE"); // Declaration For Use, Definition Below ⬇️
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -700,7 +700,7 @@ void CalculateHandStrengths(Player& ThePlayer, Player& TheDealer, int& PlayerHan
 
 }
 
-void ClearStream(const string message) {
+void ClearStream(const string message) { // Clear Stream After Invalid Input, Accepts A Message
 
   system("clear");
 
@@ -768,9 +768,6 @@ int main () { // The Actual Game
   0. ✅ Read The Rules For Blackjack
     0.1. ✅ Figure Out How To Calculate Hand Strength ( Sum ) In General
     0.2. ✅ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
-    0.3. ✅ Research How To Add Graphics with C++
-    0.4. ❌ Create An Implementation Plan
-      0.4.1. 🚧 Learn SDL
 
   1. ✅ Create A User Interface For Playing
   2. ✅ Add Playing Against The Dealer
@@ -787,11 +784,7 @@ int main () { // The Actual Game
       5.2.2. ✅ Checking If The Round Is Over
       5.2.3. ✅ Clearing The Stream After Invalid Input
 
-  6. 🚧 Improve User Interface ( ADD ACTUAL GRAPHICS )
-    6.1. 
-  
-
-
-  99. ⛔︎ Create A Way To Randomly Shuffle The Deck ( just for the challenge )
+  6. ☝️ Improve User Interface ( ADD ACTUAL GRAPHICS )
+    ( transfered to different project )
 
 */
