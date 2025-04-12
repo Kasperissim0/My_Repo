@@ -25,6 +25,7 @@ int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // Declarat
 void DeclareFinishedRound(const int& YourScore, const int& OppsScore, bool GameWon); // Declaration For Use, Definition Below ⬇️
 bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot); // Declaration For Use, Definition Below ⬇️
 void CalculateHandStrengths(Player& ThePlayer, Player& TheDealer, int& PlayerHandStrength, int& DealerHandStrength); // Declaration For Use, Definition Below ⬇️
+void ClearStream(const string message = "IGNORE");
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -270,11 +271,7 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
     
         if (cin.fail() || UCChoice > 2 || UCChoice <= 0) {
   
-          system("clear");
-          cout << "Invalid Input" << endl;
-          cin.clear();
-          cin.ignore(numeric_limits<streamsize>::max(), '\n');
-          this_thread::sleep_for(chrono::seconds(1));
+          ClearStream("Invalid Input");
           continue;
     
         }
@@ -330,11 +327,7 @@ class Player { // The Main Structure, Store Deck, Chips, + Useful Methods
     
         if (cin.fail() || UCChoice > 2 || UCChoice < 0) {
   
-          system("clear");
-          cout << "Invalid Input" << endl;
-          cin.clear();
-          cin.ignore(numeric_limits<streamsize>::max(), '\n');
-          this_thread::sleep_for(chrono::seconds(1));
+          ClearStream("Invalid Input");
           continue;
     
         }
@@ -599,7 +592,7 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
   }
 
   // Pay The Buy In + Calculate The Pot
-  ThePlayer.ManipulateChips("-", BUY_IN); // Buy In - 20 Chips // TODO Add Varying Bet Sizes
+  ThePlayer.ManipulateChips("-", BUY_IN); // Buy In - 20 Chips
   ThePot+= (BUY_IN * 2); // 20 from you and the dealer
 
   while (!EndTheRound) {
@@ -623,11 +616,7 @@ bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot) { // Full Roun
 
       if (cin.fail() || AdditionalBet > ThePlayer.AvaliableChips || ThePlayer.AvaliableChips == 0 || AdditionalBet <= 0) { // Error Handling
 
-        system("clear");
-        cout << "You Cannot Bet That Amount Of Chips" << endl;
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        this_thread::sleep_for(chrono::seconds(1));
+        ClearStream("You Cannot Bet That Amount Of Chips");
         goto select_bet;
 
       }
@@ -711,6 +700,20 @@ void CalculateHandStrengths(Player& ThePlayer, Player& TheDealer, int& PlayerHan
 
 }
 
+void ClearStream(const string message) {
+
+  system("clear");
+
+  if (message != "IGNORE") { // If There Is A Message Given, Display It
+    cout << message << endl;
+  }
+  
+  cin.clear();
+  cin.ignore(numeric_limits<streamsize>::max(), '\n');
+  this_thread::sleep_for(chrono::seconds(1));
+
+}
+
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main () { // The Actual Game
@@ -779,6 +782,7 @@ int main () { // The Actual Game
     5.2. 🚧 Functions For Repetetitive Tasks 
       5.2.1. 🚧 Counting + Displaying The Worth Of Cards
       5.2.2. ✅ Checking If The Round Is Over
+      5.2.3. ✅ Clearing The Stream After Invalid Input
   6. 
   
 
