@@ -768,25 +768,30 @@ int main () { // The Actual Game
   0. ✅ Read The Rules For Blackjack
     0.1. ✅ Figure Out How To Calculate Hand Strength ( Sum ) In General
     0.2. ✅ Figure Out How To Calculate Hand Strength ( Sum ) For The Ace
+    0.3. ✅ Research How To Add Graphics with C++
+    0.4. ❌ Create An Implementation Plan
+      0.4.1. 🚧 Learn SDL
 
   1. ✅ Create A User Interface For Playing
   2. ✅ Add Playing Against The Dealer
     2.1 ✅ Give The Dealer A Turn
   3. ✅ Add Different Bet Sizes
   4. ✅ Add Replayability ( A Score Of Wins And Total Games )
-  5. 🚧 Refactor Code
+  5. ✅ Refactor Code
     5.0. ✅ Simplify The Round End Checks In `PlayRound`
     5.1. ✅ More Readable
       5.1.1. ✅ Remove The Switch Statement In int main()
       5.1.2. ✅ Create A Seperate Function For Finishing The Round ( check for win, win type + reward ) 
-    5.2. 🚧 Functions For Repetetitive Tasks 
-      5.2.1. 🚧 Counting + Displaying The Worth Of Cards
+    5.2. ✅ Functions For Repetetitive Tasks 
+      5.2.1. ✅ Counting + Displaying The Worth Of Cards
       5.2.2. ✅ Checking If The Round Is Over
       5.2.3. ✅ Clearing The Stream After Invalid Input
-  6. 
+
+  6. 🚧 Improve User Interface ( ADD ACTUAL GRAPHICS )
+    6.1. 
   
 
-  98. ⛔︎ Improve User Interface ( ADD ACTUAL GRAPHICS )
+
   99. ⛔︎ Create A Way To Randomly Shuffle The Deck ( just for the challenge )
 
 */
