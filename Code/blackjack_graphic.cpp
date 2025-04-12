@@ -24,7 +24,7 @@ int main () {
 /* // The Roadmap For This Project
 
   0. 🚧 Create An Implementation Plan
-    0.1. 🚧 Learn SMF
+    0.1. 🚧 Learn SMFL
 
   1. ❌ Improve User Interface ( ADD ACTUAL GRAPHICS )
     1.1. 

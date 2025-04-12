@@ -20,7 +20,7 @@ static const int BUY_IN = 20; // The Current Buy In Rate
 
 class Player; // Declaration For Use, Definition Below ⬇️
 
-void DisplayRound (Player& Player1, Player& Player2, const int& ThePot, const bool& RevealAll = false); // Declaration For Use, Definition Below ⬇️
+void DisplayRound (Player& ThePlayer, Player& TheDealer, const int& ThePot, const bool& RevealAll = false); // Declaration For Use, Definition Below ⬇️
 int GetRandomNumber(const int& MaxNumber, const int& MinNumber = 0); // Declaration For Use, Definition Below ⬇️
 void DeclareFinishedRound(const int& YourScore, const int& OppsScore, bool GameWon); // Declaration For Use, Definition Below ⬇️
 bool PlayRound(Player& ThePlayer, Player& TheDealer, int& ThePot); // Declaration For Use, Definition Below ⬇️
@@ -722,29 +722,29 @@ int main () { // The Actual Game
   Player TheDealer;
   Player Bob;
   int ThePot = 0;
-  bool EndGame = false;
+  bool EndTheGame = false;
   
-  while(!EndGame) { // The Game Loop
+  while(!EndTheGame) { // The Game Loop
 
     system("clear");
     int UCStart = Bob.StartGame(); // User Choice Variables Defined Separately
 
     if (UCStart == 1) { // The Player Places A Bet, Play 1 Round
 
-      if(PlayRound(Bob, TheDealer, ThePot) == true) EndGame = true;
+      if(PlayRound(Bob, TheDealer, ThePot) == true) EndTheGame = true;
 
     }
     
     else if (UCStart == 2) { // The Player Leaves The Table
 
-      EndGame = true; // Break The Loop
+      EndTheGame = true; // Break The Loop
       
     }
 
     else { // Should Never Be Reached 
 
       cout << "\nERROR OCCURED WITH UCStart ( int main )" << endl;
-      EndGame = true; // Break The Loop
+      EndTheGame = true; // Break The Loop
 
     }
 
