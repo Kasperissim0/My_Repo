@@ -1,27 +1,18 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "C++ Debug",
-      "type": "lldb",
-      "request": "launch",
-      "program": "${workspaceFolder}/Build/${fileBasenameNoExtension}",
-      "args": [],
-      "preLaunchTask": "build",
-      "cwd": "${workspaceFolder}",
-      "env": {}
-    },
-    {
-      "name": "C/C++: clang++ build and debug active file",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/Build/${fileBasenameNoExtension}",
-      "args": [],
-      "cwd": "${fileDirname}",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "lldb",
-      "preLaunchTask": "build"
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug SFML App",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build/${fileBasenameNoExtension}",
+            "args": [],
+            "preLaunchTask": "build",
+            "cwd": "${workspaceFolder}",
+            "initCommands": [
+                "settings set target.env-vars DYLD_LIBRARY_PATH=/opt/homebrew/lib"
+            ],
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
 }

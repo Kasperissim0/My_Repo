@@ -28,13 +28,18 @@
             "type": "cppbuild",
             "command": "/usr/bin/clang++",
             "args": [
-                "-std=c++11", // Add this line
+                "-std=c++17",
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-g",
                 "${workspaceFolder}/Code/${fileBasename}",
                 "-o",
-                "${workspaceFolder}/Build/${fileBasenameNoExtension}"
+                "${workspaceFolder}/Build/${fileBasenameNoExtension}",
+                "-I/opt/homebrew/include",
+                "-L/opt/homebrew/lib",
+                "-lsfml-graphics",
+                "-lsfml-window",
+                "-lsfml-system"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
