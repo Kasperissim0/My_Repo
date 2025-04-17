@@ -2,6 +2,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Format with clang-format",
+            "type": "shell",
+            "command": "${workspaceFolder}/.vscode/format_all.sh",
+            "args": [
+                "${workspaceFolder}/Code"
+            ],
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "clean",
             "type": "shell",
             "command": "rm",
@@ -53,6 +65,7 @@
             },
             "dependsOrder": "sequence",
             "dependsOn": [
+                "Format with clang-format",
                 "clean",
                 "create_build_dir"
             ]

@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/kornienkodaniel/C++ Code/Build/test'
+relocations:     []
+...

@@ -1,23 +1,25 @@
 {
   "files.associations": {
-      "*.cpp": "cpp",
-      "*.hpp": "cpp",
-      "*.h": "cpp",
-      "**/iostream": "cpp",
-      "**/vector": "cpp",
-      "**/string": "cpp",
-      "**/cmath": "cpp",
-      "**/SFML/**": "cpp"
+    "*.cpp": "cpp",
+    "*.hpp": "cpp",
+    "*.h": "cpp",
+    "**/iostream": "cpp",
+    "**/vector": "cpp",
+    "**/string": "cpp",
+    "**/cmath": "cpp",
+    "**/SFML/**": "cpp",
+    "__locale": "cpp",
+    "optional": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp.intelliSenseEngine": "default",
   "C_Cpp.default.cppStandard": "c++17",
   "C_Cpp.default.includePath": [
-      "${workspaceFolder}/**",
-      "/opt/homebrew/include",
-      "/Library/Developer/CommandLineTools/usr/include/c++/v1",
-      "/Library/Developer/CommandLineTools/usr/lib/clang/13.1.6/include",
-      "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
+    "${workspaceFolder}/**",
+    "/opt/homebrew/include",
+    "/Library/Developer/CommandLineTools/usr/include/c++/v1",
+    "/Library/Developer/CommandLineTools/usr/lib/clang/13.1.6/include",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
   ],
   "editor.formatOnSave": true
 }
