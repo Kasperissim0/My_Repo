@@ -9,7 +9,9 @@
     "**/cmath": "cpp",
     "**/SFML/**": "cpp",
     "__locale": "cpp",
-    "optional": "cpp"
+    "optional": "cpp",
+    "new": "cpp",
+    "ios": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp.intelliSenseEngine": "default",

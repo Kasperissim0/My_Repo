@@ -1,23 +1,47 @@
-#include <iostream> // For output and input
-#include <iomanip> // For formatting output nicely
-#include <string> // For strings
-#include <vector> // For vectors
-#include <cstdlib> // For clearing the terminal
-#include <limits> // For clearing the input buffer
-#include <chrono> // For time manipulation + delaying actions
-#include <thread> // For time manipulation + delaying actions
-#include <cmath> // For mathematical calculations
-#include <random> // For generating random numbers
 #include <SFML/Graphics.hpp> // For Graphics
+#include <optional>
 
-using namespace std;
+using namespace sf;
 
 int main () {
-
-  system("clear");
-
-  // here
   
-  return 0;
+  const int Width_Window = 900;
+  const int Heigh_Window = 600;
 
+  RenderWindow* window = new RenderWindow(VideoMode({Width_Window, Heigh_Window}), "Fucking Around With SFML");
+
+  
+  while (window->isOpen()) {
+    
+    while (std::optional event = window->pollEvent()) { 
+      
+      if (event->is<Event::Closed>()) { // closing the window
+        
+        window->close();
+        
+      }
+      
+      else if (const auto* KeyPressed = event->getIf<Event::KeyPressed>()) {
+        
+        if (KeyPressed->scancode == Keyboard::Scancode::Escape) { // quit with escape
+          
+          window->close();
+          
+        }
+        
+      }
+      
+      // Draw Here
+
+      window->clear(Color::Green);
+      window->display();
+      
+      
+    }
+    
+  }
+  
+  delete window;
+  return 0;
+  
 }
