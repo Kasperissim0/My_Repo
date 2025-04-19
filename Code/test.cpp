@@ -33,7 +33,7 @@ int main () {
       
       // Draw Here
 
-      window->clear(Color::Green);
+      window->clear(Color(238, 98, 128));
       window->display();
       
       
