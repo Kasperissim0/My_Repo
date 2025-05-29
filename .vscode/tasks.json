@@ -6,7 +6,7 @@
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/format_all.sh",
             "args": [
-                "${workspaceFolder}/Code"
+                "${workspaceFolder}/Active"
             ],
             "presentation": {
                 "reveal": "silent"
@@ -19,9 +19,8 @@
             "command": "rm",
             "args": [
                 "-rf",
-                "${workspaceFolder}/Build/*",
-                "${workspaceFolder}/Code/${fileBasenameNoExtension}",
-                "${workspaceFolder}/Code/${fileBasenameNoExtension}.dSYM"
+                "${workspaceFolder}/Build/${fileBasenameNoExtension}",
+                "${workspaceFolder}/Build/${fileBasenameNoExtension}.dSYM"
             ],
             "problemMatcher": []
         },
@@ -44,7 +43,7 @@
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-g",
-                "${workspaceFolder}/Code/${fileBasename}",
+                "${workspaceFolder}/Active/${fileBasename}",
                 "-o",
                 "${workspaceFolder}/Build/${fileBasenameNoExtension}",
                 "-I/opt/homebrew/include",
