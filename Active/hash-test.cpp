@@ -56,10 +56,8 @@ int main () {
   
   system("clear");
 
-  int ArraySize = GetRandomNumber(1, 100);
-  int *size = &ArraySize;
-  cout << *size << endl;
-  int array[*size];
+  const int ArraySize = GetRandomNumber(1, 100);
+  int array[ArraySize];
 
 
   return 0;
