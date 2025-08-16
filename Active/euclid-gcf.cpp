@@ -9,11 +9,11 @@ int findGCF(int& firstNumber, int& secondNumber) {
         swap(firstNumber, secondNumber); // Use swap to simplify the logic
     }
 
-    system("clear");
+    // system("clear");
 
     // Subtract the smaller number from the larger number
     firstNumber -= secondNumber;
-    cout << "\n" << (firstNumber + secondNumber) << " - " << secondNumber << " = " << firstNumber; // Logging To Verify
+    cout << "\n" << (firstNumber + secondNumber) << " - " << secondNumber << " = " << firstNumber; // Show the operation
 
     // Check if the numbers are equal
     if ((firstNumber == secondNumber) && firstNumber != 0) {
