@@ -6,13 +6,13 @@
 using namespace std;
 
 const string divider = "-------------------------";
-const int AMOUNT_OF_ARGUMENTS = 3; // a - 1, b - 2, c - 3
+const int AMOUNT_OF_ARGUMENTS = 3; // a - 1, b - 2, c - 3a
 
 bool fullFunction(bool a, bool b, bool c){
-  return !(a || b); // put the expression you want to check here
+  return (!(!a && c) || (ab && !c && a || !(c && b)) && c && b || a); // ⬅️ put the expression you want to check here
 } 
 bool simplifiedFunction(bool a, bool b, bool c){
-  return !a && !b; // put the expression you want to check here
+  return (a || !c); // ⬅️ put the expression you want to check here
 }
 
 int main () {
