@@ -54,7 +54,8 @@
     "unordered_map": "cpp",
     "variant": "cpp",
     "algorithm": "cpp",
-    "__config": "cpp"
+    "__config": "cpp",
+    "fstream": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp.intelliSenseEngine": "default",
