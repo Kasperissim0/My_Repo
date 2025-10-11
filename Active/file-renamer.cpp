@@ -2,6 +2,8 @@
 #include <iomanip> // For formatting output nicely
 #include <string> // For strings
 #include <vector> // For vectors
+#include <thread>
+#include <chrono>
 #include <cstdlib> // For clearing the terminal
 #include <limits> // For clearing the input buffer
 #include <fstream> // For reading/writing to files
@@ -12,6 +14,7 @@
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 using namespace std;
+namespace fs = filesystem;
 
 struct userConfig;
 struct namingScheme;
@@ -34,24 +37,32 @@ struct userConfig {
   string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it this way
   vector<namingScheme> schemes;
 
-  string createTitle() {
+  string createTitle(int* consistentWorksheetNumber = nullptr){
     string finalTitle = schemes[selectedSchemeIndex].pattern;
     int userInput;
     if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
     if (finalTitle.find("[Nachname]") != string::npos) { replaceSubstring(finalTitle, "[Nachname]", surname); }
     if (finalTitle.find("[AufgabenblattNr]") != string::npos) {
-      cout << "What Is The Number Of This Worksheet: ";
-      cin >> userInput; // TODO add error checking function
-      replaceSubstring(finalTitle, "[AufgabenblattNr]", to_string(userInput));
+      if (consistentWorksheetNumber != nullptr) {
+         userInput = *consistentWorksheetNumber;
       }
+      else {
+        cout << "What Is The Number Of This Worksheet: ";
+        cin >> userInput; // TODO add error checking function
+      }
+      replaceSubstring(finalTitle, "[AufgabenblattNr]", to_string(userInput));
+    }
     if (finalTitle.find("[BeispielNr]") != string::npos) {
       cout << "What Is The Number Of This Exercise: ";
       cin >> userInput; // TODO add error checking function
       replaceSubstring(finalTitle, "[BeispielNr]", to_string(userInput));  
-      }
+    }
+    userInput = 1; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
+    if (schemes[selectedSchemeIndex].fileTypes.size() > 1) {
       cout << "Select File Type: " << endl;
       displayOptions(schemes[selectedSchemeIndex].fileTypes);
       cin >> userInput; // TODO add error checking function
+    }
       //TODO fix the double dot ..extension when renaming TGI
       replaceSubstring(finalTitle, "[Extension]", schemes[selectedSchemeIndex].fileTypes[userInput - 1]); 
       return finalTitle;
@@ -63,8 +74,8 @@ class renamer {
     userConfig config;
     const string CONFIG_DIRECTORY = ".renamer-config";
     const string CONFIG_FILE = "config.txt";
-    const filesystem::path directoryPath = CONFIG_DIRECTORY;
-    const filesystem::path configPath = directoryPath / CONFIG_FILE;
+    const fs::path directoryPath = CONFIG_DIRECTORY;
+    const fs::path configPath = directoryPath / CONFIG_FILE;
 
     void initialSetUp() {
       system("clear");
@@ -106,7 +117,7 @@ class renamer {
     }
   public:
     renamer() {
-      if(!filesystem::exists(configPath)) { initialSetUp(); }
+      if(!fs::exists(configPath)) { initialSetUp(); }
       else { loadConfig(); }
       displayStartMenu();
     }
@@ -115,29 +126,76 @@ class renamer {
       vector<string> options;
       string tempTitle = "Automatic Worksheet Titler"; // currently works better if the length of the string is even
         options.push_back("Rename Single File");
-        // options.push_back("Rename Multiple Files"); //* add later
+        options.push_back("Rename Multiple Files\n");
         options.push_back("Select Schema");
-        // options.push_back("Edit User Information"); //* add later
+        options.push_back("Edit User Information\n");
         // options.push_back("Edit Avaliable Schema(s)"); // optional add later
         options.push_back("Delete Configuration File");
         options.push_back("Exit");
       displayOptions(options, &tempTitle, &config);
       processUserChoice();
     }
-    void processUserChoice () {
-      int userChoice;
-      cin >> userChoice; // TODO add error checking function
+    void processUserChoice (int specificallySelectedOption = 0) {
+      //! Minimize (remove) specific variable initializations inside case statements ⬇️
+      int userChoice = 0;
+      if (specificallySelectedOption == 0) { cin >> userChoice; } // TODO add error checking function
+      else { userChoice = specificallySelectedOption; }
       switch (userChoice) {
         case 1: {
-          filesystem::path originalFilePath, finalFilePath;
-          //! Add "" for the path (during user input) does not work otherwise
+          fs::path originalFilePath = {}, finalFilePath = {};
+          //! Add "" for the path (during user input) manually does not work otherwise
+          // TODO ⬆️ Figure out how to do that automatically
           system("clear");
           cout << "Insert The Path To The File You Want To Rename: ";
           cin >> originalFilePath; // TODO add error checking function
+          if (originalFilePath == "exit" || originalFilePath == "q") { displayStartMenu(); }
           finalFilePath = originalFilePath.parent_path() / config.createTitle();
-          filesystem::rename(originalFilePath, finalFilePath);
+          try { fs::rename(originalFilePath, finalFilePath); }
+          catch(const std::exception& error) {
+            cout << "ERROR: Incorrect Path Formatting" << endl;
+            std::cerr << error.what() << endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            processUserChoice(1);
+          }
         break; } //? {} required for some reason
         case 2: {
+          // multiple file rename
+          int fileAmount;
+          //! Add "" for the path (during user input) manually does not work otherwise
+          // TODO ⬆️ Figure out how to do that automatically
+          system("clear");
+          cout << "How Many Files Do You Want To Rename: ";
+          cin >> userChoice; // TODO add error checking function
+          if (userChoice == 1) { processUserChoice(1); }
+          vector<fs::path> originalFilePaths(userChoice), finalFilePaths(userChoice);
+          fileAmount = userChoice;
+          cout << "What Is The Number Of This Worksheet: ";
+          cin >> userChoice; // TODO add error checking function
+          for (int i = 0; i < fileAmount; i++) {
+            system("clear");
+            cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
+            cout << "Worksheet Number: " << userChoice << endl;
+            cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
+            cin >> originalFilePaths[i]; // TODO add error checking function
+            if (originalFilePaths[i] == "exit" || originalFilePaths[i] == "q") { displayStartMenu(); } // TODO FIX INFINITE LOOP
+            finalFilePaths[i] = originalFilePaths[i].parent_path() / config.createTitle(&userChoice);
+            try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
+            catch(const std::exception& error) {
+              cout << "ERROR: Incorrect Path Formatting" << endl;
+              std::cerr << error.what() << endl;
+              this_thread::sleep_for(chrono::seconds(2));
+              processUserChoice(2);
+            }
+          }
+          /* //? if you want to collect all file paths and then rename them separately use two separate loops
+          for (int i = 0; i < originalFilePaths.size(); i++) {
+            finalFilePaths[i] = originalFilePaths[i].parent_path() / config.createTitle(userChoice);
+            fs::rename(originalFilePath[i], finalFilePath[i]);
+          }
+          */
+
+        break; }
+        case 3: {
           //! modularize + remove duplication ↕️
           system("clear"); // TODO replace all used 'system("clear")' (as a function)
           vector<string> tempStorage;
@@ -150,24 +208,33 @@ class renamer {
           config.selectedSchemeIndex--;
           saveConfig();
         break; } //? {} required for some reason
-        case 3: {
+        case 4: {
+          // edit user information
+          cout << "The Current Surname Saved Is: " << config.surname << endl
+               << "Change To: ";
+          cin >> config.surname; // TODO add error checking function
+          cout << "The Current StudentID Saved Is: " << config.studentID << endl
+               << "Change To: ";
+          cin >> config.studentID; // TODO add error checking function
+          saveConfig();
+        break; }
+        case 5: {
           config.surname.clear();
           config.studentID.clear();
           config.schemes.clear();
           config.selectedSchemeIndex = 0;
-          filesystem::remove(configPath);
+          fs::remove(configPath);
           initialSetUp();
         break; } //? {} required for some reason
-        case 4:
+        case 6:
           return;
         default:
           // TODO add error checking response
-        break;
-      }
+        break; }
       displayStartMenu();
     }
     void saveConfig() {
-      if (!(filesystem::exists(directoryPath) && filesystem::is_directory(directoryPath))) { filesystem::create_directories(directoryPath); }
+      if (!(fs::exists(directoryPath) && fs::is_directory(directoryPath))) { fs::create_directories(directoryPath); }
       fstream cachedConfig(configPath, ios::out | ios::trunc);
       if (!(cachedConfig.is_open())) { cerr << "\nERROR: Failed To Open File: " << configPath << endl; }
       cachedConfig << "--START--" << endl
@@ -190,7 +257,7 @@ class renamer {
     }
     bool loadConfig () {
       // read from the file and push into the info vector, return false if file does not exist
-      if (!filesystem::exists(configPath)) { return false; }
+      if (!fs::exists(configPath)) { return false; }
       ifstream cachedConfig(configPath);
       int lineCount = 0, schemeIndexCount = 0;
       namingScheme tempBundle;

@@ -1,0 +1,10 @@
+
+
+0
+2
+TGI
+{surname}_{matrikel}_B{sheet}_A{exercise}.{ext}
+Archimedes_31415926_B5_A3.PDF
+MGI
+a{matrikel}_UE{sheet}_BSP{exercise}.{ext}
+a12345678_UE1_BSP2.pdf
