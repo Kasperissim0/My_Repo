@@ -18,11 +18,17 @@ struct namingScheme;
 class renamer;
 
 void displayOptions(vector<string> options, string* highlightedTitle = nullptr, userConfig* config = nullptr);
-bool validateInput();
+bool validateInput(); // TODO Create this function
+void replaceSubstring (string& superString, const string& substringIndex, const string& replacementString);
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // classes/structs
+struct namingScheme {
+  vector<string> fileTypes;
+  string courseTitle, pattern, example, ; // fileType divided by | in the string (if/when there are multiple)
+};
+
 struct userConfig {
   int selectedSchemeIndex = 0; // the first one by default
   string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it this way
@@ -31,32 +37,35 @@ struct userConfig {
   string createTitle() {
     string finalTitle = schemes[selectedSchemeIndex].pattern;
     int userInput;
-    if (finalTitle.contains("[Matrikelnummer]")) { finalTitle.replace("[Matrikelnummer]", studentID) }
-    if (finalTitle.contains("[Nachname]")) { finalTitle.replace("[Nachname]", surname) }
-    if (finalTitle.contains("[AufgabenblattNr]")) {
+    if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
+    if (finalTitle.find("[Nachname]") != string::npos) { replaceSubstring(finalTitle, "[Nachname]", surname); }
+    if (finalTitle.find("[AufgabenblattNr]") != string::npos) {
       cout << endl << "What Is The Number Of This Worksheet: ";
       cin >> userInput; // TODO add error checking function
-      finalTitle.replace("[AufgabenblattNr]", userInput);
+      replaceSubstring(finalTitle, "[AufgabenblattNr]", to_string(userInput));
       }
-    if (finalTitle.contains("[BeispielNr]")) {
-      cout << endl << "What Is The Number Of This Exercise: ";
+    if (finalTitle.find("[BeispielNr]") != string::npos) {
+      cout << "What Is The Number Of This Exercise: ";
       cin >> userInput; // TODO add error checking function
-      finalTitle.replace("[AufgabenblattNr]", userInput);  
+      replaceSubstring(finalTitle, "[BeispielNr]", to_string(userInput));  
       }
-    if (schemes[selectedSchemeIndex].fileTypes.contains("|")) {
+    if (schemes[selectedSchemeIndex].fileTypes.find("|") != string::npos) {
       vector<string> fileTypeOptions;
       int chosenFileType;
+      stringstream tempHelperStream(schemes[selectedSchemeIndex].fileTypes);
+      string tempHelper;
       //! fill fileTypeOptions by going through schemes[selectedSchemeIndex].fileTypes and getting each type between the | pipes
+      while (getline(tempHelperStream, tempHelper, '|')) {
+        fileTypeOptions.push_back(tempHelper);
+      }
+      cout << "Select File Type: " << endl;
       displayOptions(fileTypeOptions);
       cin >> chosenFileType; // TODO add error checking function
-      finalTitle.replace("[.FileType]", fileTypeOptions[chosenFileType - 1]); 
+      //TODO fix the double dot ..extension when renaming TGI
+      replaceSubstring(finalTitle, "[Extension]", fileTypeOptions[chosenFileType - 1]); 
     }
     return finalTitle;
   }
-};
-
-struct namingScheme {
-  string courseTitle, pattern, example, fileTypes; // fileType divided by | in the string (if/when there are multiple)
 };
 
 class renamer {
@@ -71,8 +80,8 @@ class renamer {
       system("clear");
       if (!loadConfig()) {
         vector<string> tempStorage;
-        config.schemes.push_back({"TGI", "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr][.FileType]", "a12345678_UE1_BSP2.pdf", ".jpg|.jpeg|.png|.pdf|.txt"});
-        config.schemes.push_back({"MGI", "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr].PDF", "Archimedes_31415926_B5_A3.PDF", ".PDF"});
+        config.schemes.push_back({"TGI", "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr].[Extension]", "a12345678_UE1_BSP2.pdf", "jpg|jpeg|png|pdf|txt"});
+        config.schemes.push_back({"MGI", "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr].[Extension]", "Archimedes_31415926_B5_A3.PDF", "PDF"});
         cout << "Insert Your Surname: ";
         cin >> config.surname; // TODO add error checking function
         cout << "Insert StudentID: ";
@@ -112,10 +121,13 @@ class renamer {
       cin >> userChoice; // TODO add error checking function
       switch (userChoice) {
         case 1: {
-          filesystem::path originalFilePath;
+          filesystem::path originalFilePath, finalFilePath;
           //! Add "" for the path (during user input) does not work otherwise
+          system("clear");
+          cout << "Insert The Path To The File You Want To Rename: ";
           cin >> originalFilePath; // TODO add error checking function
-          filesystem::rename(originalFilePath, config.createTitle());
+          finalFilePath = originalFilePath.parent_path() / config.createTitle();
+          filesystem::rename(originalFilePath, finalFilePath);
         break; } //? {} required for some reason
         case 2: {
           //! modularize + remove duplication ↕️
@@ -254,6 +266,14 @@ void displayOptions(vector<string> options, string* highlightedTitle, userConfig
     cout << "[ " << i << " ] " << options[i - 1] << endl;
   }
   cout << "\n→ Choice: ";
+}
+void replaceSubstring (string& superString, const string& stringToReplace, const string& replacementString) {
+  if (superString.empty() || stringToReplace.empty() || replacementString.empty()) { return; }
+  int positionCount = 0;
+  while ((positionCount = superString.find(stringToReplace, positionCount)) != string::npos) {
+    superString.replace(positionCount, stringToReplace.length(), replacementString);
+    positionCount += stringToReplace.length();
+  }
 }
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
