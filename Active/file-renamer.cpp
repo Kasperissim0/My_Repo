@@ -26,7 +26,7 @@ void replaceSubstring (string& superString, const string& substringIndex, const 
 // classes/structs
 struct namingScheme {
   vector<string> fileTypes;
-  string courseTitle, pattern, example, ; // fileType divided by | in the string (if/when there are multiple)
+  string courseTitle, pattern, example; // fileType divided by | in the string (if/when there are multiple)
 };
 
 struct userConfig {
@@ -40,7 +40,7 @@ struct userConfig {
     if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
     if (finalTitle.find("[Nachname]") != string::npos) { replaceSubstring(finalTitle, "[Nachname]", surname); }
     if (finalTitle.find("[AufgabenblattNr]") != string::npos) {
-      cout << endl << "What Is The Number Of This Worksheet: ";
+      cout << "What Is The Number Of This Worksheet: ";
       cin >> userInput; // TODO add error checking function
       replaceSubstring(finalTitle, "[AufgabenblattNr]", to_string(userInput));
       }
@@ -49,22 +49,12 @@ struct userConfig {
       cin >> userInput; // TODO add error checking function
       replaceSubstring(finalTitle, "[BeispielNr]", to_string(userInput));  
       }
-    if (schemes[selectedSchemeIndex].fileTypes.find("|") != string::npos) {
-      vector<string> fileTypeOptions;
-      int chosenFileType;
-      stringstream tempHelperStream(schemes[selectedSchemeIndex].fileTypes);
-      string tempHelper;
-      //! fill fileTypeOptions by going through schemes[selectedSchemeIndex].fileTypes and getting each type between the | pipes
-      while (getline(tempHelperStream, tempHelper, '|')) {
-        fileTypeOptions.push_back(tempHelper);
-      }
       cout << "Select File Type: " << endl;
-      displayOptions(fileTypeOptions);
-      cin >> chosenFileType; // TODO add error checking function
+      displayOptions(schemes[selectedSchemeIndex].fileTypes);
+      cin >> userInput; // TODO add error checking function
       //TODO fix the double dot ..extension when renaming TGI
-      replaceSubstring(finalTitle, "[Extension]", fileTypeOptions[chosenFileType - 1]); 
-    }
-    return finalTitle;
+      replaceSubstring(finalTitle, "[Extension]", schemes[selectedSchemeIndex].fileTypes[userInput - 1]); 
+      return finalTitle;
   }
 };
 
@@ -80,12 +70,30 @@ class renamer {
       system("clear");
       if (!loadConfig()) {
         vector<string> tempStorage;
-        config.schemes.push_back({"TGI", "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr].[Extension]", "a12345678_UE1_BSP2.pdf", "jpg|jpeg|png|pdf|txt"});
-        config.schemes.push_back({"MGI", "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr].[Extension]", "Archimedes_31415926_B5_A3.PDF", "PDF"});
+        namingScheme transitionStorage;
+        tempStorage.push_back(".jpg");
+        tempStorage.push_back(".jpeg");
+        tempStorage.push_back(".png");
+        tempStorage.push_back(".pdf");
+        tempStorage.push_back(".txt");
+        transitionStorage.fileTypes = tempStorage;
+        transitionStorage.courseTitle = "TGI";
+        transitionStorage.pattern = "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr][Extension]";
+        transitionStorage.example = "a12345678_UE1_BSP2.pdf";
+        config.schemes.push_back({transitionStorage});
+        transitionStorage = {};
+        tempStorage.clear();
+        tempStorage.push_back(".PDF");
+        transitionStorage.fileTypes = tempStorage;
+        transitionStorage.courseTitle = "MGI";
+        transitionStorage.pattern = "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr][Extension]";
+        transitionStorage.example = "Archimedes_31415926_B5_A3.PDF";
+        config.schemes.push_back({transitionStorage});
         cout << "Insert Your Surname: ";
         cin >> config.surname; // TODO add error checking function
         cout << "Insert StudentID: ";
         cin >> config.studentID; // TODO add error checking function
+        tempStorage.clear();
         for (auto& course : config.schemes) {
           tempStorage.push_back(course.courseTitle);
         }
@@ -170,8 +178,13 @@ class renamer {
         cachedConfig << "----" << endl
                      << data.courseTitle << endl
                      << data.pattern << endl
-                     << data.example << endl
-                     << data.fileTypes << endl;
+                     << data.example << endl;
+                     for (int i = 0; i < data.fileTypes.size(); i++) {
+                        cachedConfig << data.fileTypes[i] << ((i < data.fileTypes.size() - 1) ? "|" : "");
+                        if (i == data.fileTypes.size() - 1) {
+                          cachedConfig << endl;
+                        }
+                      }
       }
       cachedConfig << "--END--" << endl;
     }
@@ -223,10 +236,16 @@ class renamer {
             case 2:
               tempBundle.example = lineContent;
               break;
-              case 3:
-              tempBundle.fileTypes = lineContent;
-              config.schemes.push_back(tempBundle); // save the data bundle
-              break;
+              case 3: { 
+                  //! FIX FOR MULTIPLE LINES
+                stringstream tempStorage(lineContent);
+                string token = "";
+                while (getline(tempStorage, token, '|')) {
+                  tempBundle.fileTypes.push_back(token);
+                }
+                config.schemes.push_back(tempBundle); // save the data bundle
+                break; 
+              }
             default:
               cerr << "\nERROR: Incorrect File Reading During Scheme Extraction" << endl;
               return false;
