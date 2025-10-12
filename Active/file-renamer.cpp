@@ -25,7 +25,7 @@ class renamer;
 void displayOptions(vector<string> options, string* highlightedTitle = nullptr, userConfig* config = nullptr);
 bool validateInput(bool& stopPrompting, string userInput = "", int* largestAvaliableOption = nullptr, string expectedDataType = "int"); // TODO Create this function
 void replaceSubstring (string& superString, const string& substringIndex, const string& replacementString);
-// void cleanInputBuffer();
+void cleanInputBuffer();
 void chastiseIncorrectInput(string dataType = "", int& maxValidNumber = MAX_INT);
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -41,44 +41,54 @@ struct userConfig {
   vector<namingScheme> schemes;
 
   string createTitle(int* consistentWorksheetNumber = nullptr){
-    string finalTitle = schemes[selectedSchemeIndex].pattern;
-    int amountOfFileTypes = schemes[selectedSchemeIndex].fileTypes.size();
-    int userInput;
+    string finalTitle = schemes[selectedSchemeIndex].pattern, userInput; bool errorCaught = false;
+    int amountOfFileTypes = schemes[selectedSchemeIndex].fileTypes.size(), backup = 1;
     if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
     if (finalTitle.find("[Nachname]") != string::npos) { replaceSubstring(finalTitle, "[Nachname]", surname); }
     if (finalTitle.find("[AufgabenblattNr]") != string::npos) {
       if (consistentWorksheetNumber != nullptr) {
-         userInput = *consistentWorksheetNumber;
+         userInput = to_string(*consistentWorksheetNumber);
       }
       else {
         do {
           if (stopPromptingUser) { return ""; }
           cout << "What Is The Number Of This Worksheet: ";
           cin >> userInput; // TODO add error checking function
-        } while (!validateInput(stopPromptingUser, to_string(userInput), &MAX_INT));
+          if (userInput == "q" || userInput == "exit") { return ""; }
+          try { stoi(userInput); }  
+          catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
+        } while (!validateInput(stopPromptingUser, userInput, &MAX_INT));
       }
-      replaceSubstring(finalTitle, "[AufgabenblattNr]", to_string(userInput));
+      replaceSubstring(finalTitle, "[AufgabenblattNr]", userInput);
     }
     if (finalTitle.find("[BeispielNr]") != string::npos) {
       do {
         if (stopPromptingUser) { return ""; }
         cout << "What Is The Number Of This Exercise: ";
         cin >> userInput; // TODO add error checking function
-      } while (!validateInput(stopPromptingUser, to_string(userInput), &MAX_INT));
-      replaceSubstring(finalTitle, "[BeispielNr]", to_string(userInput));  
+        if (userInput == "q" || userInput == "exit") { return ""; }
+         try { stoi(userInput); }  
+         catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
+      } while (!validateInput(stopPromptingUser, userInput, &MAX_INT));
+      replaceSubstring(finalTitle, "[BeispielNr]", userInput);  
     }
-    userInput = 1; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
+    userInput = "1"; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
     if (amountOfFileTypes > 1) {
       do {
         if (stopPromptingUser) { return ""; }
         cout << "Select File Type: " << endl;
         displayOptions(schemes[selectedSchemeIndex].fileTypes);
         cin >> userInput; // TODO add error checking function
-      } while (!validateInput(stopPromptingUser, to_string(userInput), &amountOfFileTypes));
-    }
-      // TODO fix the double dot ..extension when renaming TGI
-      replaceSubstring(finalTitle, "[Extension]", schemes[selectedSchemeIndex].fileTypes[userInput - 1]); 
-      return finalTitle;
+        if (userInput == "q" || userInput == "exit") { return ""; }
+        try { stoi(userInput); }  
+        catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
+      } while (!validateInput(stopPromptingUser, userInput, &amountOfFileTypes));
+    } 
+    try { stoi(userInput); } // double check for single extension type case
+    catch (const exception&) { errorCaught = true; } 
+    // TODO fix the double dot ..extension when renaming TGI
+    replaceSubstring(finalTitle, "[Extension]", schemes[selectedSchemeIndex].fileTypes[(errorCaught ? backup : stoi(userInput)) - 1]); 
+    return finalTitle;
   }
 };
 class renamer {
@@ -134,7 +144,7 @@ class renamer {
           cout << "Select Course:" << endl;
           displayOptions(tempStorage, nullptr, nullptr);
           cin >> config.selectedSchemeIndex; // TODO add error checking function
-          if (validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes)) { correctCourse = true; } else { chastiseIncorrectInput("int"); continue;; }
+          if (validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes)) { correctCourse = true; } else { chastiseIncorrectInput("int", amountOfSchemes); continue;; }
         } while (!correctSurname || !correctStudentID || !correctCourse);
         if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--;  saveConfig();}
     }
@@ -184,7 +194,7 @@ class renamer {
           } while(!validateInput(stopPromptingUser, originalFilePath.string(), nullptr, "path"));
           tempTitleStorage = config.createTitle();
           if (tempTitleStorage == "") { displayStartMenu(); return; }
-          finalFilePath = originalFilePath.parent_path() / config.createTitle();
+          finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
           try { fs::rename(originalFilePath, finalFilePath); }
           catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
             cout << "\nERROR Incorrect Path Formatting" << endl;
@@ -208,8 +218,8 @@ class renamer {
               cin >> userChoice; // TODO add error checking function
               if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) { correctFileAmount = true; }  
               else {
-                if (stopPromptingUser) { displayStartMenu(); } 
-                else { chastiseIncorrectInput("int"); continue; } 
+                if (stopPromptingUser) { displayStartMenu(); return; } 
+                else { chastiseIncorrectInput("int", MAX_INT); continue; } 
               }
               
               if (stoi(userChoice) == 1) { processUserChoice(1); }
@@ -220,8 +230,8 @@ class renamer {
             cin >> userChoice; // TODO add error checking function
             if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) { correctWorksheetNumber = true; } 
             else {
-              if (stopPromptingUser) { displayStartMenu(); } 
-              else { chastiseIncorrectInput("int"); continue; } 
+              if (stopPromptingUser) { displayStartMenu(); return; } 
+              else { chastiseIncorrectInput("int", MAX_INT); continue; } 
             }
           } while(!correctFileAmount || !correctWorksheetNumber);
           //! Change control flow: ⬇️
@@ -241,7 +251,7 @@ class renamer {
           for (int i = 0; i < fileAmount; i++) {
             do {
               system("clear");
-              if (stopPromptingUser) { displayStartMenu(); } // TODO Verifty that this acually works/escapes the prompting
+              if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
               cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
               cout << "Worksheet Number: " << userChoice << endl;
               cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
@@ -250,7 +260,7 @@ class renamer {
             tempStorage = stoi(userChoice);
             tempTitleStorage = config.createTitle(&tempStorage);
             if (tempTitleStorage == "") { displayStartMenu(); return; }
-            finalFilePaths[i] = originalFilePaths[i].parent_path() / config.createTitle(&tempStorage);
+            finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
             try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
             catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
               cout << "\nERROR Incorrect Path Formatting" << endl;
@@ -286,25 +296,25 @@ class renamer {
         break; } //? {} required for some reason
         case 4: {
           // edit user information
-          bool correctSurname = false, correctStudentID = false;
+          bool correctSurname = false, correctStudentID = false; string newSurname, newStudentID;
           do {
             system("clear");
             if (!correctSurname) {
               cout << "The Current Surname Saved Is: " << config.surname << endl
                   << "Change To: ";
-              cin >> config.surname; // TODO add error checking function
-              if (validateInput(stopPromptingUser, config.surname, nullptr, "string")) { correctSurname = true; }  
+              cin >> newSurname; // TODO add error checking function
+              if (validateInput(stopPromptingUser, newSurname, nullptr, "string")) { correctSurname = true; }  
               else {
-                if (stopPromptingUser) { displayStartMenu(); } 
+                if (stopPromptingUser) { displayStartMenu(); return; } 
                 else { chastiseIncorrectInput("string"); continue; } 
               }
             }
             cout << "The Current StudentID Saved Is: " << config.studentID << endl
                << "Change To: ";
-          cin >> config.studentID; // TODO add error checking function
-          if (validateInput(stopPromptingUser, config.studentID, nullptr, "string")) { correctStudentID = true; }  
+            cin >> newStudentID; // TODO add error checking function
+            if (validateInput(stopPromptingUser, newStudentID, nullptr, "string")) { correctStudentID = true; }  
               else {
-                if (stopPromptingUser) { displayStartMenu(); } 
+                if (stopPromptingUser) { displayStartMenu(); return; } 
                 else { chastiseIncorrectInput("string"); continue; } 
               }
           } while (!correctSurname || !correctStudentID);
@@ -330,6 +340,7 @@ class renamer {
           // TODO add error checking response
         break; }
       displayStartMenu();
+      return;
     }
     void saveConfig() {
       if (!(fs::exists(directoryPath) && fs::is_directory(directoryPath))) { fs::create_directories(directoryPath); }
@@ -459,14 +470,12 @@ void replaceSubstring (string& superString, const string& stringToReplace, const
     positionCount += stringToReplace.length();
   }
 }
-/*
 void cleanInputBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
-*/
 void chastiseIncorrectInput(string dataType, int& maxValidInput) {
-    // cleanInputBuffer();
+    cleanInputBuffer();
     system("clear");
     cout << "Please ";
     if (dataType == "int") { cout << "Select Insert A Number In Allowed Range: " << "(0–" << maxValidInput << ")";}
@@ -492,7 +501,7 @@ bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableO
   }
   else if (expectedDataType == "string") {
     if (userInput.empty()) { cerr << "\nERROR: Function Called Without Specifying (String) Arguments" << endl; }
-    else if (cin.fail() || userInput.find('\\') != string::npos || userInput.find('\'') != string::npos || userInput.find('\"') != string::npos) { successfulInput = false; }
+    else if (userInput.find('\\') != string::npos || userInput.find('\'') != string::npos || userInput.find('\"') != string::npos) { successfulInput = false; }
   }
   else if (expectedDataType == "path") {
     //! validate here + fix the "" requirement
