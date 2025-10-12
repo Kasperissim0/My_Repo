@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <thread>
 #include <chrono>
+#include <regex>
 #include <cstdlib> // For clearing the terminal
 #include <limits> // For clearing the input buffer
 #include <fstream> // For reading/writing to files
@@ -24,9 +25,10 @@ class renamer;
 
 void displayOptions(vector<string> options, string* highlightedTitle = nullptr, userConfig* config = nullptr);
 bool validateInput(bool& stopPrompting, string userInput = "", int* largestAvaliableOption = nullptr, string expectedDataType = "int"); // TODO Create this function
-void replaceSubstring (string& superString, const string& substringIndex, const string& replacementString);
+string replaceSubstring (string& superString, const string& substringIndex, const string& replacementString, bool returnString = false);
 void cleanInputBuffer();
 void chastiseIncorrectInput(string dataType = "", int& maxValidNumber = MAX_INT);
+vector<string> separatePaths(const string& input);
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -178,7 +180,7 @@ class renamer {
     }
     void processUserChoice (int selectedOption) {
       //! Minimize (remove) specific variable initializations inside case statements ⬇️
-      string userChoice, tempTitleStorage;
+      string userChoice, tempTitleStorage, pathInput, copy;
       switch (selectedOption) {
         case 1: {
           fs::path originalFilePath = {}, finalFilePath = {}; 
@@ -186,14 +188,36 @@ class renamer {
           // TODO ⬆️ Figure out how to do that automatically
           do {
             system("clear");
-            if (stopPromptingUser) { displayStartMenu(); } // TODO Verifty that this acually works/escapes the prompting
+            if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
             cout << "Insert The Path To The File You Want To Rename: ";
             //! IMPORTANT: Troubleshoot how to error check + properly process
-            cin >> originalFilePath; // TODO add error checking function
+            getline(cin, pathInput); // cleanInputBuffer(); //! FIX, DOES NOT WORK
+            pathInput.pop_back(); 
+            copy = replaceSubstring(pathInput, "\\", "", true); originalFilePath = copy; // avoiding string corruption
+cout << "DEBUG: originalFilePath content = " << originalFilePath << endl;
+cout << "DEBUG: Checking path existence..." << endl;
+cout << "DEBUG: pathInput/copy = " << pathInput << endl << copy << endl; 
+cout << "DEBUG: originalFilePath = " << originalFilePath << endl;
+cout << "DEBUG: fs::exists(originalFilePath) = " << fs::exists(originalFilePath) << endl;
+
+// Try to get info about the path
+try {
+  auto status = fs::status(originalFilePath);
+  cout << "DEBUG: fs::status succeeded" << endl;
+  cout << "DEBUG: is_regular_file = " << fs::is_regular_file(originalFilePath) << endl;
+} catch (const exception& e) {
+  cout << "DEBUG: fs::status exception: " << e.what() << endl;
+}
+
+// Also check the parent directory
+cout << "DEBUG: parent path = " << originalFilePath.parent_path() << endl;
+cout << "DEBUG: parent exists = " << fs::exists(originalFilePath.parent_path()) << endl;
+cout << "DEBUG: filename = " << originalFilePath.filename() << endl;
+this_thread::sleep_for(chrono::seconds(2));
             //! IMPORTANT: Troubleshoot how to error check + properly process
-          } while(!validateInput(stopPromptingUser, originalFilePath.string(), nullptr, "path"));
+          } while(!validateInput(stopPromptingUser, pathInput, nullptr, "path"));
           tempTitleStorage = config.createTitle();
-          if (tempTitleStorage == "") { displayStartMenu(); return; }
+          if (tempTitleStorage.empty()) { displayStartMenu(); return; }
           finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
           try { fs::rename(originalFilePath, finalFilePath); }
           catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
@@ -206,70 +230,105 @@ class renamer {
         break; } //? {} required for some reason
         case 2: {
           // multiple file rename
-          int fileAmount, tempStorage; bool correctFileAmount = false, correctWorksheetNumber = false;
-          vector<fs::path> originalFilePaths, finalFilePaths;
-          //! Add "" for the path (during user input) manually does not work otherwise
-          // TODO ⬆️ Figure out how to do that automatically
+          int fileAmount, worsheetNumber; bool correctFileAmount = false, correctWorksheetNumber = false, correctFilePaths = false;
+          vector<fs::path> originalFilePaths, finalFilePaths; string filePath;
           do {
             system("clear");
             if (stopPromptingUser) { return; }
             if (!correctFileAmount) {
               cout << "How Many Files Do You Want To Rename: ";
-              cin >> userChoice; // TODO add error checking function
+              cin >> userChoice;
               if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) { correctFileAmount = true; }  
               else {
                 if (stopPromptingUser) { displayStartMenu(); return; } 
                 else { chastiseIncorrectInput("int", MAX_INT); continue; } 
               }
-              
               if (stoi(userChoice) == 1) { processUserChoice(1); }
               originalFilePaths.resize(stoi(userChoice)); finalFilePaths.resize(stoi(userChoice));
               fileAmount = stoi(userChoice);
             }
             cout << "What Is The Number Of This Worksheet: ";
-            cin >> userChoice; // TODO add error checking function
+            cin >> userChoice;
             if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) { correctWorksheetNumber = true; } 
             else {
               if (stopPromptingUser) { displayStartMenu(); return; } 
               else { chastiseIncorrectInput("int", MAX_INT); continue; } 
             }
-          } while(!correctFileAmount || !correctWorksheetNumber);
-          //! Change control flow: ⬇️
-          /*
-          1. input amount of files
-          2. input worksheet number
-          3. drag all files into terminal
-          repeat for all files {
-            4. display
-              - remaining amount of files
-              - worksheet number (constant)
-              - current path (parse the concactenated string from step 3)
-            5. input exercises number
-            6. rename file
-          }
-          */
+            worsheetNumber = stoi(userChoice);
+            cout << "Drag All Of The Files You Want To Rename Here: ";
+            // cin.ignore();
+            getline(cin, userChoice);
+
+            // Parse paths using regex
+            vector<string> parsedPaths = separatePaths(userChoice);
+
+            // DEBUG
+            cout << "DEBUG: Input string: " << userChoice << endl;
+            cout << "DEBUG: Parsed " << parsedPaths.size() << " paths" << endl;
+            for (int i = 0; i < parsedPaths.size(); i++) {
+              cout << "DEBUG: Path " << i << ": " << parsedPaths[i] << endl;
+              cout << "DEBUG: Exists? " << fs::exists(parsedPaths[i]) << endl;
+            }
+            this_thread::sleep_for(chrono::seconds(3));
+
+            // Validate that we got the right number of files
+            if (parsedPaths.size() == fileAmount && !parsedPaths[0].empty() && fs::exists(parsedPaths[0])) {
+              correctFilePaths = true;
+            } else {
+              if (stopPromptingUser) { displayStartMenu(); return; } 
+              else { chastiseIncorrectInput("path"); continue; } 
+            }
+
+            // Assign parsed paths
+            for (int i = 0; i < fileAmount && i < parsedPaths.size(); i++) {
+              originalFilePaths[i] = parsedPaths[i];
+            }
+
           for (int i = 0; i < fileAmount; i++) {
             do {
               system("clear");
-              if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
+              if (stopPromptingUser) { displayStartMenu(); return; }
               cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
-              cout << "Worksheet Number: " << userChoice << endl;
-              cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
-              cin >> originalFilePaths[i]; // TODO add error checking function
-            } while(!validateInput(stopPromptingUser, originalFilePaths[i].string(), nullptr, "path")); 
-            tempStorage = stoi(userChoice);
-            tempTitleStorage = config.createTitle(&tempStorage);
-            if (tempTitleStorage == "") { displayStartMenu(); return; }
-            finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
-            try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
-            catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
-              cout << "\nERROR Incorrect Path Formatting" << endl;
-              std::cerr << error.what() << endl;
-              this_thread::sleep_for(chrono::seconds(2));
-              displayStartMenu();
-              return;
-            }
+              cout << "Worksheet Number: " << worsheetNumber << endl;
+              cout << endl << "Current File Path #" << (i + 1) << ": " << endl
+                   << originalFilePaths[i] << endl << endl;
+              tempTitleStorage = config.createTitle(&worsheetNumber);
+              if (tempTitleStorage.empty()) { displayStartMenu(); return; }
+              finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
+                try { fs::rename(originalFilePaths[i], finalFilePaths[i]);  break; }
+                catch(const std::exception& error) {
+                  cout << "\nERROR Incorrect Path Formatting" << endl;
+                  std::cerr << error.what() << endl;
+                  this_thread::sleep_for(chrono::seconds(2));
+                  displayStartMenu();
+                  return;
+                }
+            } while(true); 
           }
+/*  deprecated, ignore
+for (int i = 0; i < fileAmount; i++) {
+  do {
+    system("clear");
+    if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
+    cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
+    cout << "Worksheet Number: " << userChoice << endl;
+    cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
+    cin >> originalFilePaths[i]; // TODO add error checking function
+  } while(!validateInput(stopPromptingUser, originalFilePaths[i].string(), nullptr, "path")); 
+  tempStorage = stoi(userChoice);
+  tempTitleStorage = config.createTitle(&tempStorage);
+  if (tempTitleStorage.empty()) { displayStartMenu(); return; }
+  finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
+  try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
+  catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
+    cout << "\nERROR Incorrect Path Formatting" << endl;
+    std::cerr << error.what() << endl;
+    this_thread::sleep_for(chrono::seconds(2));
+    displayStartMenu();
+    return;
+  }
+}
+*/
           /* //? if you want to collect all file paths and then rename them separately use two separate loops
           for (int i = 0; i < originalFilePaths.size(); i++) {
             finalFilePaths[i] = originalFilePaths[i].parent_path() / config.createTitle(userChoice);
@@ -462,13 +521,14 @@ void displayOptions(vector<string> options, string* highlightedTitle, userConfig
   }
   cout << "\n→ Choice: ";
 }
-void replaceSubstring (string& superString, const string& stringToReplace, const string& replacementString) {
-  if (superString.empty() || stringToReplace.empty() || replacementString.empty()) { return; }
+string replaceSubstring (string& superString, const string& stringToReplace, const string& replacementString, bool returnString) {
+  if (superString.empty() || stringToReplace.empty()) { return ""; }
   int positionCount = 0;
   while ((positionCount = superString.find(stringToReplace, positionCount)) != string::npos) {
-    superString.replace(positionCount, stringToReplace.length(), replacementString);
-    positionCount += stringToReplace.length();
+    superString.replace(positionCount, (replacementString.empty() ? 1 : stringToReplace.length()), replacementString);
+    positionCount += (replacementString.empty() ? 1 : replacementString.length());
   }
+  return returnString ? superString : "";
 }
 void cleanInputBuffer() {
     cin.clear();
@@ -496,7 +556,7 @@ bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableO
       cerr << error.what() << endl;
       cout << "\nERROR: During String to Integer Conversion, While Validating Input" << endl;
     }
-    if (userInput == "" || largestAvaliableOption == nullptr) { cerr << "\nERROR: Function Called Without Specifying (Integer) Arguments" << endl; }
+    if (userInput.empty() || largestAvaliableOption == nullptr) { cerr << "\nERROR: Function Called Without Specifying (Integer) Arguments" << endl; }
     else if (integerInput < 0 || integerInput > *largestAvaliableOption) { successfulInput = false; }
   }
   else if (expectedDataType == "string") {
@@ -511,6 +571,18 @@ bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableO
   else { cerr << "\nERROR: Unedfined Data Type During Input Validation" << endl; successfulInput = false; }
   if (!successfulInput && !stopPrompting) { chastiseIncorrectInput(expectedDataType, MAX_INT); } // might want to add cleanInputBuffer() here
   return successfulInput;
+}
+vector<string> separatePaths(const string& input) {
+  vector<string> paths; string result = input;
+  //? Regex: find dot followed by 2-5 letters (extensions), then capture until end of line or next space
+  regex pathPattern(R"(([^ ]*\.[a-zA-Z]{2,5})(?:\s|$))"); smatch match;
+  while (regex_search(result, match, pathPattern)) {
+    string path = match[1].str();
+    replaceSubstring(path, "\\", "");
+    paths.push_back(path);
+    result = match.suffix();
+  }
+  return paths;
 }
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
