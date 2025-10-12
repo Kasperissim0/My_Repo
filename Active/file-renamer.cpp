@@ -148,10 +148,10 @@ class renamer {
           system("clear");
           cout << "Insert The Path To The File You Want To Rename: ";
           cin >> originalFilePath; // TODO add error checking function
-          if (originalFilePath == "exit" || originalFilePath == "q") { displayStartMenu(); }
+          if (originalFilePath == "exit" || originalFilePath == "q") { break; }
           finalFilePath = originalFilePath.parent_path() / config.createTitle();
           try { fs::rename(originalFilePath, finalFilePath); }
-          catch(const std::exception& error) {
+          catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
             cout << "ERROR: Incorrect Path Formatting" << endl;
             std::cerr << error.what() << endl;
             this_thread::sleep_for(chrono::seconds(2));
@@ -171,16 +171,30 @@ class renamer {
           fileAmount = userChoice;
           cout << "What Is The Number Of This Worksheet: ";
           cin >> userChoice; // TODO add error checking function
+          //! Change control flow: ⬇️
+          /*
+          1. input amount of files
+          2. input worksheet number
+          3. drag all files into terminal
+          repeat for all files {
+            4. display
+              - remaining amount of files
+              - worksheet number (constant)
+              - current path (parse the concactenated string from step 3)
+            5. input exercises number
+            6. rename file
+          }
+          */
           for (int i = 0; i < fileAmount; i++) {
             system("clear");
             cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
             cout << "Worksheet Number: " << userChoice << endl;
             cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
             cin >> originalFilePaths[i]; // TODO add error checking function
-            if (originalFilePaths[i] == "exit" || originalFilePaths[i] == "q") { displayStartMenu(); } // TODO FIX INFINITE LOOP
+            if (originalFilePaths[i] == "exit" || originalFilePaths[i] == "q") { break; }
             finalFilePaths[i] = originalFilePaths[i].parent_path() / config.createTitle(&userChoice);
             try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
-            catch(const std::exception& error) {
+            catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
               cout << "ERROR: Incorrect Path Formatting" << endl;
               std::cerr << error.what() << endl;
               this_thread::sleep_for(chrono::seconds(2));
@@ -372,3 +386,11 @@ int main () {
 }
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*
+1. Add an input verifier function
+2. Add a possibility to exit at EVERY cin (q/exit) function check
+3. Work through all comments
+4. Minimize variable usage
+5. Minimize code repition (functions)
+*/
