@@ -283,52 +283,53 @@ this_thread::sleep_for(chrono::seconds(2));
             for (int i = 0; i < fileAmount && i < parsedPaths.size(); i++) {
               originalFilePaths[i] = parsedPaths[i];
             }
+          } while(!correctFileAmount || !correctWorksheetNumber || !correctFilePaths);
 
+            for (int i = 0; i < fileAmount; i++) {
+              do {
+                system("clear");
+                if (stopPromptingUser) { displayStartMenu(); return; }
+                cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
+                cout << "Worksheet Number: " << worsheetNumber << endl;
+                cout << endl << "Current File Path #" << (i + 1) << ": " << endl
+                    << originalFilePaths[i] << endl << endl;
+                tempTitleStorage = config.createTitle(&worsheetNumber);
+                if (tempTitleStorage.empty()) { displayStartMenu(); return; }
+                finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
+                  try { fs::rename(originalFilePaths[i], finalFilePaths[i]);  break; }
+                  catch(const std::exception& error) {
+                    cout << "\nERROR Incorrect Path Formatting" << endl;
+                    std::cerr << error.what() << endl;
+                    this_thread::sleep_for(chrono::seconds(2));
+                    displayStartMenu();
+                    return;
+                  } 
+              }
+            }
+          /*  deprecated, ignore
           for (int i = 0; i < fileAmount; i++) {
             do {
               system("clear");
-              if (stopPromptingUser) { displayStartMenu(); return; }
+              if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
               cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
-              cout << "Worksheet Number: " << worsheetNumber << endl;
-              cout << endl << "Current File Path #" << (i + 1) << ": " << endl
-                   << originalFilePaths[i] << endl << endl;
-              tempTitleStorage = config.createTitle(&worsheetNumber);
-              if (tempTitleStorage.empty()) { displayStartMenu(); return; }
-              finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
-                try { fs::rename(originalFilePaths[i], finalFilePaths[i]);  break; }
-                catch(const std::exception& error) {
-                  cout << "\nERROR Incorrect Path Formatting" << endl;
-                  std::cerr << error.what() << endl;
-                  this_thread::sleep_for(chrono::seconds(2));
-                  displayStartMenu();
-                  return;
-                }
-            } while(true); 
+              cout << "Worksheet Number: " << userChoice << endl;
+              cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
+              cin >> originalFilePaths[i]; // TODO add error checking function
+            } while(!validateInput(stopPromptingUser, originalFilePaths[i].string(), nullptr, "path")); 
+            tempStorage = stoi(userChoice);
+            tempTitleStorage = config.createTitle(&tempStorage);
+            if (tempTitleStorage.empty()) { displayStartMenu(); return; }
+            finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
+            try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
+            catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
+              cout << "\nERROR Incorrect Path Formatting" << endl;
+              std::cerr << error.what() << endl;
+              this_thread::sleep_for(chrono::seconds(2));
+              displayStartMenu();
+              return;
+            }
           }
-/*  deprecated, ignore
-for (int i = 0; i < fileAmount; i++) {
-  do {
-    system("clear");
-    if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
-    cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
-    cout << "Worksheet Number: " << userChoice << endl;
-    cout << endl << "Insert The Path To File #" << (i + 1) << ": ";
-    cin >> originalFilePaths[i]; // TODO add error checking function
-  } while(!validateInput(stopPromptingUser, originalFilePaths[i].string(), nullptr, "path")); 
-  tempStorage = stoi(userChoice);
-  tempTitleStorage = config.createTitle(&tempStorage);
-  if (tempTitleStorage.empty()) { displayStartMenu(); return; }
-  finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
-  try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
-  catch(const std::exception& error) { // TODO Fix infinite loop and input blocking after error
-    cout << "\nERROR Incorrect Path Formatting" << endl;
-    std::cerr << error.what() << endl;
-    this_thread::sleep_for(chrono::seconds(2));
-    displayStartMenu();
-    return;
-  }
-}
-*/
+          */
           /* //? if you want to collect all file paths and then rename them separately use two separate loops
           for (int i = 0; i < originalFilePaths.size(); i++) {
             finalFilePaths[i] = originalFilePaths[i].parent_path() / config.createTitle(userChoice);
@@ -395,7 +396,7 @@ for (int i = 0; i < fileAmount; i++) {
         break; } //? {} required for some reason
         case 6:
         return;
-        default:
+        default: {
           // TODO add error checking response
         break; }
       displayStartMenu();
@@ -585,6 +586,7 @@ vector<string> separatePaths(const string& input) {
   return paths;
 }
 
+
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 int main () {
@@ -606,6 +608,7 @@ int main () {
   2.1. ✅ for strings
   2.2. ✅ for integers
 3. 🚧 Work through all comments
+ 3.1 🚧 Fix multiline rename
 4. ❌ Minimize variable usage
 5. ❌ Minimize code repition (functions)
 */
