@@ -1,7 +1,7 @@
 --START--
-Korniienko
-12429280
 1
+1
+0
 ----
 TGI
 a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr][Extension]
