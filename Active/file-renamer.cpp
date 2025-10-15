@@ -58,7 +58,7 @@ struct userConfig {
           cin >> userInput;
           if (userInput == "q" || userInput == "exit") { return ""; }
           try { stoi(userInput); }  
-          catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
+          catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
         } while (!validateInput(stopPromptingUser, userInput, &MAX_INT));
       }
       replaceSubstring(finalTitle, "[AufgabenblattNr]", userInput);
@@ -70,7 +70,7 @@ struct userConfig {
         cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
          try { stoi(userInput); }  
-         catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
+         catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
       } while (!validateInput(stopPromptingUser, userInput, &MAX_INT));
       replaceSubstring(finalTitle, "[BeispielNr]", userInput);  
     }
@@ -83,7 +83,7 @@ struct userConfig {
         cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
         try { stoi(userInput); }  
-        catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
+        catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
       } while (!validateInput(stopPromptingUser, userInput, &amountOfFileTypes));
     } 
     try { stoi(userInput); } // double check for single extension type case
@@ -180,7 +180,7 @@ class renamer {
     }
     void processUserChoice (int selectedOption) {
       //! Minimize (remove) specific variable initializations inside case statements ⬇️
-      string userChoice, tempTitleStorage, pathInput, copy;
+      string userChoice, tempTitleStorage, pathInput, cleanedPath;
       switch (selectedOption) {
         case 1: {
           fs::path originalFilePath = {}, finalFilePath = {}; 
@@ -193,8 +193,8 @@ class renamer {
             //! IMPORTANT: Troubleshoot how to error check + properly process
             cleanInputBuffer();
             getline(cin, pathInput); // cleanInputBuffer(); //! FIX, DOES NOT WORK
-            pathInput.pop_back(); 
-            copy = replaceSubstring(pathInput, "\\", "", true); originalFilePath = copy; // avoiding string corruption
+            if (pathInput.back() == ' ') {  pathInput.pop_back(); } //! this is needed for paths, but deletes q (escape)
+            cleanedPath = replaceSubstring(pathInput, "\\ ", " ", true); // avoiding string corruption
             /* //? DEBUG
             cout << "DEBUG: originalFilePath content = " << originalFilePath << endl;
             cout << "DEBUG: Checking path existence..." << endl;
@@ -216,6 +216,7 @@ class renamer {
             this_thread::sleep_for(chrono::seconds(2));
             */
           } while(!validateInput(stopPromptingUser, pathInput, nullptr, "path"));
+          originalFilePath = cleanedPath;
           tempTitleStorage = config.createTitle();
           if (tempTitleStorage.empty()) { displayStartMenu(); return; }
           finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
@@ -538,9 +539,9 @@ void cleanInputBuffer() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 void chastiseIncorrectInput(string dataType, int& maxValidInput) {
-    cleanInputBuffer();
+    // cleanInputBuffer();
     system("clear");
-    cout << "Please ";
+    cout << "Please ";  
     if (dataType == "int") { cout << "Select Insert A Number In Allowed Range: " << "(0–" << maxValidInput << ")";}
     else if (dataType == "string") { cout << "Do Not Use Forbidden Characters"; }
     else if (dataType == "path") { cout << "Insert A Path To An Existing File"; }
@@ -555,16 +556,15 @@ bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableO
   else if (userInput.empty()) { successfulInput = false; }
   else if (expectedDataType == "int") {
     try { integerInput = stoi(userInput); }
-    catch (const exception& error) {
-      cerr << error.what() << endl;
-      cout << "\nERROR: During String to Integer Conversion, While Validating Input" << endl;
+    catch (const exception& error) { successfulInput = false;
+      // cerr << error.what() << endl; //* Fail Gracefully
+      // cout << "\nERROR: During String to Integer Conversion, While Validating Input" << endl; //* Fail Gracefully
     }
-    if (userInput.empty() || largestAvaliableOption == nullptr) { cerr << "\nERROR: Function Called Without Specifying (Integer) Arguments" << endl; }
-    else if (integerInput < 0 || integerInput > *largestAvaliableOption) { successfulInput = false; }
+    if (largestAvaliableOption == nullptr) { cerr << "\nERROR: Function Called Without Specifying (Integer) Arguments" << endl; successfulInput = false; }
+    if (successfulInput) { if (integerInput < 0 || integerInput > *largestAvaliableOption) { successfulInput = false; } } // avoid accessing if stoi() failed
   }
   else if (expectedDataType == "string") {
-    if (userInput.empty()) { cerr << "\nERROR: Function Called Without Specifying (String) Arguments" << endl; }
-    else if (userInput.find('\\') != string::npos || userInput.find('\'') != string::npos || userInput.find('\"') != string::npos) { successfulInput = false; }
+    if (userInput.find('\\') != string::npos || userInput.find('\'') != string::npos || userInput.find('\"') != string::npos) { successfulInput = false; }
   }
   else if (expectedDataType == "path") {
     //! validate here + fix the "" requirement
@@ -601,16 +601,16 @@ int main () {
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /*
-0. 🚧 Fix bugs in renaming process
+0. ✅ Fix bugs in renaming process
   0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
   0.1. ✅ infinite loop after catching an error
-  0.2. 🚧 incorrect input reading if not inside ""
+  0.2. ✅ incorrect input reading if not inside ""
 1. ✅ Add an input verifier function
 2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
   2.1. ✅ for strings
   2.2. ✅ for integers
 3. 🚧 Work through all comments
- 3.1 🚧 Fix multiline rename
+ 3.1 ✅ Fix multiline rename
 4. ❌ Minimize variable usage
 5. ❌ Minimize code repition (functions)
 */
