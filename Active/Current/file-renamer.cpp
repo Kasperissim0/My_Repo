@@ -120,18 +120,21 @@ class renamer {
         transitionStorage.example = "Archimedes_31415926_B5_A3.PDF";
         config.schemes.push_back({transitionStorage});
         amountOfSchemes = config.schemes.size();
-        bool correctSurname = false, correctStudentID = false, correctCourse = false;
+        bool correctSurname = false, correctStudentID = false, correctCourse = false, incorrectInput = false;
         do {
           if (!correctSurname) {
             cout << "Insert Your Surname: ";
             cin >> config.surname;
-            if (validateInput(stopPromptingUser, config.surname, nullptr, "string")) { correctSurname = true; } else { chastiseIncorrectInput("string"); continue; } 
+            try { stoi(config.surname); incorrectInput = true; } 
+            catch (const exception& e) { // want to check that it is NOT an integer
+              if (validateInput(stopPromptingUser, config.surname, nullptr, "string") && !incorrectInput) { correctSurname = true; }
+              else { chastiseIncorrectInput("string"); continue; } } 
           } 
           if (!correctStudentID) {
             cout << "Insert StudentID: ";
             cin >> config.studentID;
             try { stoi(config.studentID); }  
-            catch (const exception&) { chastiseIncorrectInput("string"); continue; } // want to check if it is an integer
+            catch (const exception& e) { chastiseIncorrectInput("string"); continue; } // want to check if it is an integer
             if (validateInput(stopPromptingUser, config.studentID, &MAX_INT, "int")) { correctStudentID = true; } else { chastiseIncorrectInput("string"); continue; }
             tempStorage.clear();
             for (auto& course : config.schemes) {
@@ -141,38 +144,12 @@ class renamer {
           cout << "Select Course:" << endl;
           displayOptions(tempStorage, nullptr, nullptr);
           cin >> config.selectedSchemeIndex;
-          if (validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes)) { correctCourse = true; } else { chastiseIncorrectInput("int", amountOfSchemes); continue;; }
+          if (validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes)) { correctCourse = true; } 
+          else { chastiseIncorrectInput("int", amountOfSchemes); continue; }
         } while (!correctSurname || !correctStudentID || !correctCourse);
         if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--;  saveConfig();}
     }
   }
-  public:
-    renamer() {
-      if(!fs::exists(configPath)) { initialSetUp(); }
-      else { loadConfig(); }
-      displayStartMenu();
-    }
-    void displayStartMenu() {
-      clearScreen();
-      string userInput, tempTitle = "Automatic Worksheet Titler"; // currently works better if the length of the string is even 
-      vector<string> options = {}; int amountOfOptions; stopPromptingUser = false;
-        options.push_back("Rename Single File");
-        options.push_back("Rename Multiple Files\n");
-        options.push_back("Select Schema");
-        options.push_back("Edit User Information\n");
-        // options.push_back("Edit Avaliable Schema(s)"); // optional add later
-        options.push_back("Delete Configuration File");
-        options.push_back("Exit");
-        amountOfOptions = options.size();
-      do {
-          displayOptions(options, &tempTitle, &config);
-          cin >> userInput;
-          if (userInput == "q" || userInput == "exit") { break; }
-        } while (!validateInput(stopPromptingUser, userInput, &amountOfOptions));
-      if (userInput == "q" || userInput == "exit") { processUserChoice(6); }
-      else { processUserChoice(stoi(userInput)); }
-      
-    }
     void processUserChoice (int selectedOption) {
       string userChoice, tempTitleStorage, pathInput, cleanedPath;
       switch (selectedOption) {
@@ -406,6 +383,35 @@ class renamer {
         lineCount++;
       }
       return true;
+    }
+
+  public:
+    renamer() {
+      if(!fs::exists(configPath)) { initialSetUp(); }
+      else { loadConfig(); }
+      displayStartMenu();
+    }
+    void displayStartMenu() {
+      clearScreen();
+      string userInput, tempTitle = "Automatic Worksheet Titler"; // currently works better if the length of the string is even 
+      vector<string> options = {}; int amountOfOptions; stopPromptingUser = false;
+        options.push_back("Rename Single File");
+        options.push_back("Rename Multiple Files\n");
+        options.push_back("Select Schema");
+        options.push_back("Edit User Information\n");
+        // options.push_back("Edit Avaliable Schema(s)"); //* optional add later
+        // options.push_back("Add Additional Schema(s)"); //* optional add later
+        options.push_back("Delete Configuration File");
+        options.push_back("Exit");
+        amountOfOptions = options.size();
+      do {
+          displayOptions(options, &tempTitle, &config);
+          cin >> userInput;
+          if (userInput == "q" || userInput == "exit") { break; }
+        } while (!validateInput(stopPromptingUser, userInput, &amountOfOptions));
+      if (userInput == "q" || userInput == "exit") { processUserChoice(6); }
+      else { processUserChoice(stoi(userInput)); }
+      
     }
 };
 
