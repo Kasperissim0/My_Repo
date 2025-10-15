@@ -10,10 +10,7 @@
 #include <fstream> // For reading/writing to files
 #include <filesystem> // For manipulating files
 #include <sstream> // For reading/writing to strings
-
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-//* declarations
 using namespace std;
 namespace fs = filesystem;
 
@@ -30,10 +27,8 @@ string replaceSubstring (string& superString, const string& substringIndex, cons
 void cleanInputBuffer();
 void chastiseIncorrectInput(string dataType = "", int& maxValidNumber = MAX_INT);
 vector<string> separatePaths(const string& input);
-
+void clearScreen ();
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-//* classe/struct definitions
 struct namingScheme {
   vector<string> fileTypes;
   string courseTitle, pattern, example; // fileType divided by | in the string (if/when there are multiple)
@@ -103,7 +98,7 @@ class renamer {
     const fs::path configPath = directoryPath / CONFIG_FILE;
 
     void initialSetUp() {
-      system("clear");
+      clearScreen();
       if (!loadConfig()) {
         vector<string> tempStorage;  namingScheme transitionStorage; int amountOfSchemes;
         tempStorage.push_back(".jpg");
@@ -158,7 +153,7 @@ class renamer {
       displayStartMenu();
     }
     void displayStartMenu() {
-      system("clear");
+      clearScreen();
       string userInput, tempTitle = "Automatic Worksheet Titler"; // currently works better if the length of the string is even 
       vector<string> options = {}; int amountOfOptions; stopPromptingUser = false;
         options.push_back("Rename Single File");
@@ -167,7 +162,7 @@ class renamer {
         options.push_back("Edit User Information\n");
         // options.push_back("Edit Avaliable Schema(s)"); // optional add later
         options.push_back("Delete Configuration File");
-        options.push_back("Exit (press q)");
+        options.push_back("Exit");
         amountOfOptions = options.size();
       do {
           displayOptions(options, &tempTitle, &config);
@@ -184,33 +179,13 @@ class renamer {
         case 1: {
           fs::path originalFilePath = {}, finalFilePath = {}; 
           do {
-            system("clear");
+            clearScreen();
             if (stopPromptingUser) { displayStartMenu(); return; }
             cout << "Insert The Path To The File You Want To Rename: ";
             cleanInputBuffer();
             getline(cin, pathInput);
             if (pathInput.back() == ' ') {  pathInput.pop_back(); }
             cleanedPath = replaceSubstring(pathInput, "\\ ", " ", true); // avoiding string corruption
-            /* //? DEBUG
-            cout << "DEBUG: originalFilePath content = " << originalFilePath << endl;
-            cout << "DEBUG: Checking path existence..." << endl;
-            cout << "DEBUG: pathInput/copy = " << pathInput << endl << copy << endl; 
-            cout << "DEBUG: originalFilePath = " << originalFilePath << endl;
-            cout << "DEBUG: fs::exists(originalFilePath) = " << fs::exists(originalFilePath) << endl;
-            // Try to get info about the path
-            try {
-              auto status = fs::status(originalFilePath);
-              cout << "DEBUG: fs::status succeeded" << endl;
-              cout << "DEBUG: is_regular_file = " << fs::is_regular_file(originalFilePath) << endl;
-            } catch (const exception& e) {
-              cout << "DEBUG: fs::status exception: " << e.what() << endl;
-            }
-            // Also check the parent directory
-            cout << "DEBUG: parent path = " << originalFilePath.parent_path() << endl;
-            cout << "DEBUG: parent exists = " << fs::exists(originalFilePath.parent_path()) << endl;
-            cout << "DEBUG: filename = " << originalFilePath.filename() << endl;
-            this_thread::sleep_for(chrono::seconds(2));
-            */
           } while(!validateInput(stopPromptingUser, pathInput, nullptr, "path"));
           originalFilePath = cleanedPath;
           tempTitleStorage = config.createTitle();
@@ -230,7 +205,7 @@ class renamer {
           int fileAmount, worsheetNumber, exerciseNumber; bool correctFileAmount = false, correctWorksheetNumber = false, correctFilePaths = false, correctExerciseNumber = false;
           vector<fs::path> originalFilePaths, finalFilePaths; string filePath;
           do {
-            system("clear");
+            clearScreen();
             if (stopPromptingUser) { return; }
             if (!correctFileAmount) {
               cout << "How Many Files Do You Want To Rename: ";
@@ -257,36 +232,19 @@ class renamer {
             cout << "Drag All Of The Files You Want To Rename Here: ";
             cleanInputBuffer();
             getline(cin, userChoice);
-
-            // Parse paths using regex
             vector<string> parsedPaths = separatePaths(userChoice);
-
-            /* //? DEBUG
-            cout << "DEBUG: Input string: " << userChoice << endl;
-            cout << "DEBUG: Parsed " << parsedPaths.size() << " paths" << endl;
-            for (int i = 0; i < parsedPaths.size(); i++) {
-              cout << "DEBUG: Path " << i << ": " << parsedPaths[i] << endl;
-              cout << "DEBUG: Exists? " << fs::exists(parsedPaths[i]) << endl;
-            }
-            this_thread::sleep_for(chrono::seconds(3));
-            */
-
-            // Validate that we got the right number of files
             if (parsedPaths.size() == fileAmount) { correctFilePaths = true; } 
             else { cout << "\nERROR: Expected " << fileAmount << " files, but found " << parsedPaths.size() << ".\n" << endl; correctFilePaths = false; }
             for (int i = 0; i < parsedPaths.size(); i++) {
               if (parsedPaths[i].empty() || !fs::exists(parsedPaths[i])) { correctFilePaths = false; } 
               else if (stopPromptingUser) { displayStartMenu(); return; }
             }
-
-            // Assign parsed paths
             for (int i = 0; i < fileAmount && i < parsedPaths.size(); i++) {
               originalFilePaths[i] = parsedPaths[i];
             }
           } while(!correctFileAmount || !correctWorksheetNumber || !correctFilePaths);
-
             for (int i = 0; i < fileAmount; i++) {
-              system("clear");
+              clearScreen();
               if (stopPromptingUser) { displayStartMenu(); return; }
               cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
               cout << "Worksheet Number: " << worsheetNumber << endl;
@@ -311,7 +269,7 @@ class renamer {
           tempStorage.push_back(course.courseTitle);
           }
           do {
-            system("clear"); // TODO replace all used 'system("clear")' (as a function)
+            clearScreen(); // TODO replace all used 'system("clear")' (as a function)
             cout << "Select Course:" << endl;
             displayOptions(tempStorage, nullptr, nullptr);
             cin >> config.selectedSchemeIndex;
@@ -321,10 +279,9 @@ class renamer {
           if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--; saveConfig(); }
         break; } //? {} required for some reason
         case 4: {
-          // edit user information
           bool correctSurname = false, correctStudentID = false; string newSurname, newStudentID;
           do {
-            system("clear");
+            clearScreen();
             if (!correctSurname) {
               cout << "The Current Surname Saved Is: " << config.surname << endl
                   << "Change To: ";
@@ -347,7 +304,7 @@ class renamer {
           saveConfig();
         break; }
         case 5: {
-          system("clear");
+          clearScreen();
           cout << "Are you sure you want to delete your configuration? (yes/no): ";
           string confirm;
           cin >> confirm;
@@ -391,14 +348,12 @@ class renamer {
       cachedConfig << "--END--" << endl;
     }
     bool loadConfig () {
-      // read from the file and push into the info vector, return false if file does not exist
       if (!fs::exists(configPath)) { return false; }
       ifstream cachedConfig(configPath);
       int lineCount = 0, schemeIndexCount = 0;
       namingScheme tempBundle;
       string lineContent;
       if (!cachedConfig.is_open()) { cerr << "\nERROR: Failed To Open File: " << configPath << endl; return false; }
-      // delete saved information
         config.surname.clear();
         config.schemes.clear();
         config.studentID.clear();
@@ -414,11 +369,7 @@ class renamer {
               break;
             case 2:
               try { config.selectedSchemeIndex = stoi(lineContent); }
-              catch (const exception& error) {
-                cerr << error.what() << endl;
-                cout << "\nERROR: During String to Integer Conversion. Setting To 1st Avaliable Scheme\n" << endl;
-                config.selectedSchemeIndex = 0;
-              }
+              catch (const exception& error) { config.selectedSchemeIndex = 0; }
               break;
             default:
               cerr << "\nERROR: Incorrect File Reading During Scheme Extraction" << endl;
@@ -429,7 +380,7 @@ class renamer {
           schemeIndexCount = (lineCount - 3) % 4;
           switch (schemeIndexCount) {
             case 0:
-              tempBundle = {}; // reset the data bundle
+              tempBundle = {};
               tempBundle.courseTitle = lineContent;
               break;
             case 1:
@@ -459,8 +410,6 @@ class renamer {
 };
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-//* function definitions
 void displayOptions(vector<string> options, string* highlightedTitle, userConfig* config){
   if (highlightedTitle != nullptr) {
     string padding, spaces;
@@ -502,7 +451,7 @@ void cleanInputBuffer() {
 }
 void chastiseIncorrectInput(string dataType, int& maxValidInput) {
     // cleanInputBuffer(); // not always necessary, sometimes detrimental
-    system("clear");
+    clearScreen();
     cout << "Please ";  
     if (dataType == "int") { cout << "Select Insert A Number In Allowed Range: " << "(1–" << maxValidInput << ")";}
     else if (dataType == "string") { cout << "Do Not Use Forbidden Characters"; }
@@ -510,7 +459,7 @@ void chastiseIncorrectInput(string dataType, int& maxValidInput) {
     else { cout << "Insert A Valid Input"; }
     cout << endl;
     this_thread::sleep_for(chrono::seconds(2));
-    system("clear");
+    clearScreen();
   }
 bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableOption, string expectedDataType){
   bool successfulInput = true; int integerInput;
@@ -545,21 +494,22 @@ vector<string> separatePaths(const string& input) {
   }
   return paths;
 }
-
-
-//!------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-//* programm start
-int main () {
-  system("clear");
-  renamer instance;
-  system("clear");
-  return 0;
+void clearScreen () {
+  #ifdef _WIN32
+    system("cls");
+  #else
+    system("clear");
+  #endif
 }
 
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-//* roadmap
+int main () {
+  clearScreen();
+  renamer instance;
+  clearScreen();
+  return 0;
+}
+//!------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*
 0. ✅ Fix bugs in renaming process
   0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
@@ -574,4 +524,5 @@ int main () {
 4. ❌ Minimize variable usage
 5. ❌ Minimize code repition (functions)
   5.1. ❌ verification for "q" || "exit" as a function
+6. 🚧 Add cross platform compatibility 
 */

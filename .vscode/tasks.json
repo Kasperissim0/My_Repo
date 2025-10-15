@@ -6,7 +6,7 @@
             "type": "shell",
             "command": "${workspaceFolder}/.vscode/format_all.sh",
             "args": [
-                "${workspaceFolder}/Active"
+                "${workspaceFolder}/Active/Current"
             ],
             "presentation": {
                 "reveal": "silent"
@@ -43,7 +43,7 @@
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-g",
-                "${workspaceFolder}/Active/${fileBasename}",
+                "${workspaceFolder}/Active/Current/${fileBasename}",
                 "-o",
                 "${workspaceFolder}/Build/${fileBasenameNoExtension}",
                 "-I/opt/homebrew/include",
@@ -64,7 +64,6 @@
             },
             "dependsOrder": "sequence",
             "dependsOn": [
-                "Format with clang-format",
                 "clean",
                 "create_build_dir"
             ]

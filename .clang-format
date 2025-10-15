@@ -1,21 +1,16 @@
-Language: Cpp
-BasedOnStyle: LLVM
-IndentWidth: 2
-UseTab: Never
-TabWidth: 2
-BreakBeforeBraces: All
-AllowShortFunctionsOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
-BreakConstructorInitializersBeforeComma: Never
-BreakConstructorInitializers: BeforeColon
-ColumnLimit: 0
-NamespaceIndentation: All
-PointerAlignment: Left
-AlignAfterOpenBracket: Always
-AlignOperands: true
-AlignTrailingComments: true
-DerivePointerAlignment: false
-BinPackArguments: false
-BinPackParameters: false
-MaxEmptyLinesToKeep: 1
+# Language: Cpp
+# BasedOnStyle: LLVM
+# IndentWidth: 2
+# UseTab: Never
+# TabWidth: 2
+# ColumnLimit: 0
+# AllowShortFunctionsOnASingleLine: All
+# AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+# AllowShortLoopsOnASingleLine: true
+# AllowShortBlocksOnASingleLine: Always
+# AllowShortCaseLabelsOnASingleLine: true
+# BreakBeforeBraces: Attach
+# SpaceBeforeParens: Always
+# PointerAlignment: Left
+# MaxEmptyLinesToKeep: 2
+# KeepEmptyLinesAtTheStartOfBlocks: false
