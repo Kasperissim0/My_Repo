@@ -42,7 +42,7 @@ struct userConfig {
   string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it this way
   vector<namingScheme> schemes;
 
-  string createTitle(int* consistentWorksheetNumber = nullptr){
+  string createTitle(int* consistentWorksheetNumber = nullptr, int* exerciseNumberRange = nullptr){
     string finalTitle = schemes[selectedSchemeIndex].pattern, userInput; bool errorCaught = false;
     int amountOfFileTypes = schemes[selectedSchemeIndex].fileTypes.size(), backup = 1;
     if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
@@ -55,7 +55,7 @@ struct userConfig {
         do {
           if (stopPromptingUser) { return ""; }
           cout << "What Is The Number Of This Worksheet: ";
-          cin >> userInput; // TODO add error checking function
+          cin >> userInput;
           if (userInput == "q" || userInput == "exit") { return ""; }
           try { stoi(userInput); }  
           catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
@@ -66,8 +66,8 @@ struct userConfig {
     if (finalTitle.find("[BeispielNr]") != string::npos) {
       do {
         if (stopPromptingUser) { return ""; }
-        cout << "What Is The Number Of This Exercise: ";
-        cin >> userInput; // TODO add error checking function
+        cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : ("(1-" + to_string(*exerciseNumberRange) + "): "));
+        cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
          try { stoi(userInput); }  
          catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
@@ -80,7 +80,7 @@ struct userConfig {
         if (stopPromptingUser) { return ""; }
         cout << "Select File Type: " << endl;
         displayOptions(schemes[selectedSchemeIndex].fileTypes);
-        cin >> userInput; // TODO add error checking function
+        cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
         try { stoi(userInput); }  
         catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("string"); }; continue; } // want to check if it is an integer
@@ -230,7 +230,7 @@ this_thread::sleep_for(chrono::seconds(2));
         break; } //? {} required for some reason
         case 2: {
           // multiple file rename
-          int fileAmount, worsheetNumber; bool correctFileAmount = false, correctWorksheetNumber = false, correctFilePaths = false;
+          int fileAmount, worsheetNumber, exerciseNumber; bool correctFileAmount = false, correctWorksheetNumber = false, correctFilePaths = false, correctExerciseNumber = false;
           vector<fs::path> originalFilePaths, finalFilePaths; string filePath;
           do {
             system("clear");
@@ -272,11 +272,10 @@ this_thread::sleep_for(chrono::seconds(2));
             this_thread::sleep_for(chrono::seconds(3));
 
             // Validate that we got the right number of files
-            if (parsedPaths.size() == fileAmount && !parsedPaths[0].empty() && fs::exists(parsedPaths[0])) {
-              correctFilePaths = true;
-            } else {
-              if (stopPromptingUser) { displayStartMenu(); return; } 
-              else { chastiseIncorrectInput("path"); continue; } 
+            if (parsedPaths.size() == fileAmount) { correctFilePaths = true; } else { correctFilePaths = false; }
+            for (int i = 0; i < parsedPaths.size(); i++) {
+              if (parsedPaths[i].empty() || !fs::exists(parsedPaths[i])) { correctFilePaths = false; } 
+              else { if (stopPromptingUser) { displayStartMenu(); return; } else { chastiseIncorrectInput("path"); continue; } }
             }
 
             // Assign parsed paths
@@ -286,25 +285,23 @@ this_thread::sleep_for(chrono::seconds(2));
           } while(!correctFileAmount || !correctWorksheetNumber || !correctFilePaths);
 
             for (int i = 0; i < fileAmount; i++) {
-              do {
-                system("clear");
-                if (stopPromptingUser) { displayStartMenu(); return; }
-                cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
-                cout << "Worksheet Number: " << worsheetNumber << endl;
-                cout << endl << "Current File Path #" << (i + 1) << ": " << endl
+              system("clear");
+              if (stopPromptingUser) { displayStartMenu(); return; }
+              cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
+              cout << "Worksheet Number: " << worsheetNumber << endl;
+              cout << endl << "Current File Path #" << (i + 1) << ": " << endl
                     << originalFilePaths[i] << endl << endl;
-                tempTitleStorage = config.createTitle(&worsheetNumber);
-                if (tempTitleStorage.empty()) { displayStartMenu(); return; }
-                finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
-                  try { fs::rename(originalFilePaths[i], finalFilePaths[i]);  break; }
-                  catch(const std::exception& error) {
-                    cout << "\nERROR Incorrect Path Formatting" << endl;
-                    std::cerr << error.what() << endl;
-                    this_thread::sleep_for(chrono::seconds(2));
-                    displayStartMenu();
-                    return;
-                  } 
-              }
+              tempTitleStorage = config.createTitle(&worsheetNumber, &fileAmount);
+              if (tempTitleStorage.empty()) { displayStartMenu(); return; }
+              finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
+                try { fs::rename(originalFilePaths[i], finalFilePaths[i]);  break; }
+                catch(const std::exception& error) {
+                  cout << "\nERROR Incorrect Path Formatting" << endl;
+                  std::cerr << error.what() << endl;
+                  this_thread::sleep_for(chrono::seconds(2));
+                  displayStartMenu();
+                  return;
+                } 
             }
           /*  deprecated, ignore
           for (int i = 0; i < fileAmount; i++) {
