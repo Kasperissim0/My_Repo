@@ -66,7 +66,7 @@ struct userConfig {
     if (finalTitle.find("[BeispielNr]") != string::npos) {
       do {
         if (stopPromptingUser) { return ""; }
-        cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : ("(1-" + to_string(*exerciseNumberRange) + "): "));
+        cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : (" (1-" + to_string(*exerciseNumberRange) + "): "));
         cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
          try { stoi(userInput); }  
@@ -191,30 +191,30 @@ class renamer {
             if (stopPromptingUser) { displayStartMenu(); return; } // TODO Verifty that this acually works/escapes the prompting
             cout << "Insert The Path To The File You Want To Rename: ";
             //! IMPORTANT: Troubleshoot how to error check + properly process
+            cleanInputBuffer();
             getline(cin, pathInput); // cleanInputBuffer(); //! FIX, DOES NOT WORK
             pathInput.pop_back(); 
             copy = replaceSubstring(pathInput, "\\", "", true); originalFilePath = copy; // avoiding string corruption
-cout << "DEBUG: originalFilePath content = " << originalFilePath << endl;
-cout << "DEBUG: Checking path existence..." << endl;
-cout << "DEBUG: pathInput/copy = " << pathInput << endl << copy << endl; 
-cout << "DEBUG: originalFilePath = " << originalFilePath << endl;
-cout << "DEBUG: fs::exists(originalFilePath) = " << fs::exists(originalFilePath) << endl;
-
-// Try to get info about the path
-try {
-  auto status = fs::status(originalFilePath);
-  cout << "DEBUG: fs::status succeeded" << endl;
-  cout << "DEBUG: is_regular_file = " << fs::is_regular_file(originalFilePath) << endl;
-} catch (const exception& e) {
-  cout << "DEBUG: fs::status exception: " << e.what() << endl;
-}
-
-// Also check the parent directory
-cout << "DEBUG: parent path = " << originalFilePath.parent_path() << endl;
-cout << "DEBUG: parent exists = " << fs::exists(originalFilePath.parent_path()) << endl;
-cout << "DEBUG: filename = " << originalFilePath.filename() << endl;
-this_thread::sleep_for(chrono::seconds(2));
-            //! IMPORTANT: Troubleshoot how to error check + properly process
+            /* //? DEBUG
+            cout << "DEBUG: originalFilePath content = " << originalFilePath << endl;
+            cout << "DEBUG: Checking path existence..." << endl;
+            cout << "DEBUG: pathInput/copy = " << pathInput << endl << copy << endl; 
+            cout << "DEBUG: originalFilePath = " << originalFilePath << endl;
+            cout << "DEBUG: fs::exists(originalFilePath) = " << fs::exists(originalFilePath) << endl;
+            // Try to get info about the path
+            try {
+              auto status = fs::status(originalFilePath);
+              cout << "DEBUG: fs::status succeeded" << endl;
+              cout << "DEBUG: is_regular_file = " << fs::is_regular_file(originalFilePath) << endl;
+            } catch (const exception& e) {
+              cout << "DEBUG: fs::status exception: " << e.what() << endl;
+            }
+            // Also check the parent directory
+            cout << "DEBUG: parent path = " << originalFilePath.parent_path() << endl;
+            cout << "DEBUG: parent exists = " << fs::exists(originalFilePath.parent_path()) << endl;
+            cout << "DEBUG: filename = " << originalFilePath.filename() << endl;
+            this_thread::sleep_for(chrono::seconds(2));
+            */
           } while(!validateInput(stopPromptingUser, pathInput, nullptr, "path"));
           tempTitleStorage = config.createTitle();
           if (tempTitleStorage.empty()) { displayStartMenu(); return; }
@@ -247,22 +247,24 @@ this_thread::sleep_for(chrono::seconds(2));
               originalFilePaths.resize(stoi(userChoice)); finalFilePaths.resize(stoi(userChoice));
               fileAmount = stoi(userChoice);
             }
-            cout << "What Is The Number Of This Worksheet: ";
-            cin >> userChoice;
-            if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) { correctWorksheetNumber = true; } 
-            else {
-              if (stopPromptingUser) { displayStartMenu(); return; } 
-              else { chastiseIncorrectInput("int", MAX_INT); continue; } 
+            if (!correctWorksheetNumber) {
+              cout << "What Is The Number Of This Worksheet: ";
+              cin >> userChoice;
+              if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) { correctWorksheetNumber = true; } 
+              else {
+                if (stopPromptingUser) { displayStartMenu(); return; } 
+                else { chastiseIncorrectInput("int", MAX_INT); continue; } 
+              }
+              worsheetNumber = stoi(userChoice);
             }
-            worsheetNumber = stoi(userChoice);
             cout << "Drag All Of The Files You Want To Rename Here: ";
-            // cin.ignore();
+            cleanInputBuffer();
             getline(cin, userChoice);
 
             // Parse paths using regex
             vector<string> parsedPaths = separatePaths(userChoice);
 
-            // DEBUG
+            /* //? DEBUG
             cout << "DEBUG: Input string: " << userChoice << endl;
             cout << "DEBUG: Parsed " << parsedPaths.size() << " paths" << endl;
             for (int i = 0; i < parsedPaths.size(); i++) {
@@ -270,12 +272,14 @@ this_thread::sleep_for(chrono::seconds(2));
               cout << "DEBUG: Exists? " << fs::exists(parsedPaths[i]) << endl;
             }
             this_thread::sleep_for(chrono::seconds(3));
+            */
 
             // Validate that we got the right number of files
-            if (parsedPaths.size() == fileAmount) { correctFilePaths = true; } else { correctFilePaths = false; }
+            if (parsedPaths.size() == fileAmount) { correctFilePaths = true; } 
+            else { cout << "\nERROR: Expected " << fileAmount << " files, but found " << parsedPaths.size() << ".\n" << endl; correctFilePaths = false; }
             for (int i = 0; i < parsedPaths.size(); i++) {
               if (parsedPaths[i].empty() || !fs::exists(parsedPaths[i])) { correctFilePaths = false; } 
-              else { if (stopPromptingUser) { displayStartMenu(); return; } else { chastiseIncorrectInput("path"); continue; } }
+              else if (stopPromptingUser) { displayStartMenu(); return; }
             }
 
             // Assign parsed paths
@@ -294,7 +298,7 @@ this_thread::sleep_for(chrono::seconds(2));
               tempTitleStorage = config.createTitle(&worsheetNumber, &fileAmount);
               if (tempTitleStorage.empty()) { displayStartMenu(); return; }
               finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
-                try { fs::rename(originalFilePaths[i], finalFilePaths[i]);  break; }
+                try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
                 catch(const std::exception& error) {
                   cout << "\nERROR Incorrect Path Formatting" << endl;
                   std::cerr << error.what() << endl;
@@ -393,9 +397,10 @@ this_thread::sleep_for(chrono::seconds(2));
         break; } //? {} required for some reason
         case 6:
         return;
-        default: {
-          // TODO add error checking response
-        break; }
+        default:
+          // TODO Add error checking responses
+        break;
+      }
       displayStartMenu();
       return;
     }
@@ -573,10 +578,10 @@ bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableO
 vector<string> separatePaths(const string& input) {
   vector<string> paths; string result = input;
   //? Regex: find dot followed by 2-5 letters (extensions), then capture until end of line or next space
-  regex pathPattern(R"(([^ ]*\.[a-zA-Z]{2,5})(?:\s|$))"); smatch match;
+  regex pathPattern(R"(([^ ]*(?:\\ |[^ ])*\.[a-zA-Z0-9]{2,5}))"); smatch match;
   while (regex_search(result, match, pathPattern)) {
     string path = match[1].str();
-    replaceSubstring(path, "\\", "");
+    replaceSubstring(path, "\\ ", " ");
     paths.push_back(path);
     result = match.suffix();
   }
