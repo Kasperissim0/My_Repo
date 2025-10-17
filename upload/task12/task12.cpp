@@ -5,7 +5,6 @@ using namespace std;
 
 int main() {
     // Calculate combinations for 6 out of 45
-    // C(45, 6) = (45 * 44 * 43 * 42 * 41 * 40) / (6 * 5 * 4 * 3 * 2 * 1)
     long long combinations = 45LL * 44 * 43 * 42 * 41 * 40 / (6 * 5 * 4 * 3 * 2 * 1);
     
     double probability = 1.0 / combinations;
