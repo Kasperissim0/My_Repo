@@ -24,7 +24,6 @@ std::string GetHexColor () {
 
   return "#" + HexString;
 }
-
 int GetRandomColor () {
   std::random_device GetSeed;
   std::mt19937 GenerateNumber (GetSeed ());
@@ -32,7 +31,6 @@ int GetRandomColor () {
 
   return GenRange (GenerateNumber);
 }
-
 int GetRandomColor (bool overload) {
   std::random_device GetSeed;
   std::mt19937 GenerateNumber (GetSeed ());
@@ -69,7 +67,6 @@ int main () {
         window->close ();
         std::cout << "Window Closed" << std::endl;
       }
-
       else if (const auto* KeyPressed = event->getIf<Event::KeyPressed> ()) { // close window using escape key + line breaks
 
         if (KeyPressed->scancode == Keyboard::Scancode::Escape) {
@@ -81,7 +78,6 @@ int main () {
           std::cout << '\n';
         }
       }
-
       else if (const auto* WindowResized = event->getIf<Event::Resized> ()) { // when the window is resized
 
         Width_Window = WindowResized->size.x;
@@ -112,13 +108,11 @@ int main () {
         std::cout << "The Center Of The Window y Coordinates - " << center.getPosition ().y << std::endl;
         std::cout << std::endl; // line break
       }
-
       else if (const auto* EnteredText = event->getIf<Event::TextEntered> ()) { // get input + display text
 
         std::cout << static_cast<char> (EnteredText->unicode);                                         // translate ascii into text
         BackgroundColor = Color (GetRandomColor (true), GetRandomColor (true), GetRandomColor (true)); // ✅ Set new color
       }
-
       else if (Mouse::isButtonPressed (Mouse::Button::Right)) { // get mouse input
 
         std::cout << "Right Mouse Button Clicked" << std::endl;
@@ -126,7 +120,6 @@ int main () {
 
         rectangle.setFillColor (Color (GetRandomColor (), GetRandomColor (), GetRandomColor ()));
       }
-
       else if (Mouse::isButtonPressed (Mouse::Button::Left)) { // get mouse input
 
         std::cout << "Left Mouse Button Clicked" << std::endl;
@@ -134,7 +127,6 @@ int main () {
 
         rectangle.setOutlineColor (Color (GetRandomColor (), GetRandomColor (), GetRandomColor ()));
       }
-
       else if (event->is<Event::FocusLost> ()) {
         std::cout << "Window Has Gone Out Of Focus" << std::endl;
         std::cout << std::endl; // line break

@@ -517,18 +517,18 @@ int main () {
 }
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*
-0. ✅ Fix bugs in renaming process
-  0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
-  0.1. ✅ infinite loop after catching an error
-  0.2. ✅ incorrect input reading if not inside ""
-1. ✅ Add an input verifier function
-2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
-  2.1. ✅ for strings
-  2.2. ✅ for integers
-3. 🚧 Work through all comments
- 3.1 ✅ Fix multiline rename
-4. ❌ Minimize variable usage
-5. ❌ Minimize code repition (functions)
-  5.1. ❌ verification for "q" || "exit" as a function
-6. 🚧 Add cross platform compatibility 
+  0. ✅ Fix bugs in renaming process
+    0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
+    0.1. ✅ infinite loop after catching an error
+    0.2. ✅ incorrect input reading if not inside ""
+  1. ✅ Add an input verifier function
+  2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
+    2.1. ✅ for strings
+    2.2. ✅ for integers
+  3. 🚧 Work through all comments
+  3.1 ✅ Fix multiline rename
+  4. ❌ Minimize variable usage
+  5. ❌ Minimize code repition (functions)
+    5.1. ❌ verification for "q" || "exit" as a function
+  6. 🚧 Add cross platform compatibility 
 */
