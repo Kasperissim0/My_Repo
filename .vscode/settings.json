@@ -55,7 +55,8 @@
     "variant": "cpp",
     "algorithm": "cpp",
     "__config": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "regex": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp.intelliSenseEngine": "default",

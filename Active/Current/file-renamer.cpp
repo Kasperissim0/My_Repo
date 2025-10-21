@@ -4,7 +4,6 @@
 #include <iomanip> // for clearing the screen
 #include <thread> // for time manipulation
 #include <chrono> // for time manipulation
-#include <regex> // for pattern manipulation
 #include <cstdlib> // For clearing the terminal
 #include <limits> // For clearing the input buffer
 #include <fstream> // For reading/writing to files
@@ -84,7 +83,6 @@ struct userConfig {
     try { stoi(userInput); } // double check for single extension type case
     catch (const exception&) { errorCaught = true; } 
     }
-    // TODO fix the double dot ..extension when renaming TGI AND the extension not getting appended
     if (consistentFileExtension != nullptr) { replaceSubstring(finalTitle, "[Extension]", schemes[selectedSchemeIndex].fileTypes[*consistentFileExtension]); }
     else { replaceSubstring(finalTitle, "[Extension]", schemes[selectedSchemeIndex].fileTypes[(errorCaught ? backup : stoi(userInput)) - 1]); }
     return finalTitle;
@@ -101,27 +99,39 @@ class renamer {
     void initialSetUp() {
       clearScreen();
       if (!loadConfig()) {
-        vector<string> tempStorage;  namingScheme transitionStorage; int amountOfSchemes;
-        tempStorage.push_back(".jpg");
-        tempStorage.push_back(".jpeg");
-        tempStorage.push_back(".png");
-        tempStorage.push_back(".pdf");
-        tempStorage.push_back(".txt");
-        transitionStorage.fileTypes = tempStorage;
-        transitionStorage.courseTitle = "TGI";
-        transitionStorage.pattern = "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr][Extension]";
-        transitionStorage.example = "a12345678_UE1_BSP2.pdf";
-        config.schemes.push_back({transitionStorage});
-        transitionStorage = {};
-        tempStorage.clear();
-        tempStorage.push_back(".PDF");
-        transitionStorage.fileTypes = tempStorage;
-        transitionStorage.courseTitle = "MGI";
-        transitionStorage.pattern = "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr][Extension]";
-        transitionStorage.example = "Archimedes_31415926_B5_A3.PDF";
-        config.schemes.push_back({transitionStorage});
-        amountOfSchemes = config.schemes.size();
+        vector<string> tempStorage; namingScheme transitionStorage; int amountOfSchemes;
         bool correctSurname = false, correctStudentID = false, correctCourse = false, incorrectInput = false;
+        transitionStorage.courseTitle = "TGI";
+            transitionStorage.pattern = "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr][Extension]";
+            transitionStorage.example = "a12345678_UE1_BSP2.png";
+            tempStorage.push_back(".jpg");
+            tempStorage.push_back(".jpeg");
+            tempStorage.push_back(".png");
+            tempStorage.push_back(".pdf");
+            tempStorage.push_back(".txt");
+          transitionStorage.fileTypes = tempStorage;
+          config.schemes.push_back({transitionStorage});
+          transitionStorage = {};
+          tempStorage.clear();
+        transitionStorage.courseTitle = "MGI";
+            transitionStorage.pattern = "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr][Extension]";
+            transitionStorage.example = "Archimedes_31415926_B5_A3.PDF";
+            tempStorage.push_back(".PDF");
+          transitionStorage.fileTypes = tempStorage;
+          config.schemes.push_back({transitionStorage});
+          transitionStorage = {};
+          tempStorage.clear();
+        transitionStorage.courseTitle = "TGI (special)";
+            transitionStorage.pattern = "a[Matrikelnummer]_S[AufgabenblattNr][Extension]";
+            transitionStorage.example = "a12345678_S1.pdf";
+            tempStorage.push_back(".pdf");
+          transitionStorage.fileTypes = tempStorage;
+          config.schemes.push_back({transitionStorage});
+          transitionStorage = {};
+          tempStorage.clear();
+        
+        amountOfSchemes = config.schemes.size();
+       
         do {
           if (!correctSurname) {
             cout << "Insert Your Surname: ";
@@ -162,9 +172,9 @@ class renamer {
             cout << "Insert The Path To The File You Want To Rename: ";
             cleanInputBuffer();
             getline(cin, pathInput);
-            if (pathInput.back() == ' ') {  pathInput.pop_back(); }
-            cleanedPath = replaceSubstring(pathInput, "\\ ", " ", true); // avoiding string corruption
-          } while(!validateInput(stopPromptingUser, pathInput, nullptr, "path"));
+            if (pathInput.back() == ' ') pathInput.pop_back(); // remove trailing whitespace 
+            cleanedPath = replaceSubstring(pathInput, "\\", "", true); // remove terminal added backslashes
+          } while(!validateInput(stopPromptingUser, cleanedPath, nullptr, "path"));
           originalFilePath = cleanedPath;
           tempTitleStorage = config.createTitle();
           if (tempTitleStorage.empty()) { displayStartMenu(); return; }
@@ -194,7 +204,7 @@ class renamer {
                 if (stopPromptingUser) { displayStartMenu(); return; } 
                 else { chastiseIncorrectInput("int", MAX_INT); continue; } 
               }
-              if (stoi(userChoice) == 1) { processUserChoice(1); }
+              if (stoi(userChoice) == 1) { processUserChoice(1); return; }
               originalFilePaths.resize(stoi(userChoice)); finalFilePaths.resize(stoi(userChoice));
               fileAmount = stoi(userChoice);
             }
@@ -429,10 +439,11 @@ class renamer {
     }
     void displayStartMenu() {
       clearScreen();
-      string userInput, tempTitle = "Automatic Worksheet Titler"; // currently works better if the length of the string is even 
+      string userInput, tempTitle = "Automatic Worksheet Titler", tempOption = "Rename Single File";
       vector<string> options = {}; int amountOfOptions; stopPromptingUser = false;
-        options.push_back("Rename Single File");
-        options.push_back("Rename Multiple Files\n");
+      tempOption += ((config.schemes[config.selectedSchemeIndex].courseTitle == "TGI (special)") ? "\n" : "");
+        options.push_back(tempOption);
+        if (config.schemes[config.selectedSchemeIndex].courseTitle != "TGI (special)") options.push_back("Rename Multiple Files\n");
         options.push_back("Select Schema");
         options.push_back("Edit User Information\n");
         // options.push_back("Edit Avaliable Schema(s)"); //* optional add later
@@ -446,7 +457,11 @@ class renamer {
           if (userInput == "q" || userInput == "exit") { break; }
         } while (!validateInput(stopPromptingUser, userInput, &amountOfOptions));
       if (userInput == "q" || userInput == "exit") { processUserChoice(6); }
-      else { processUserChoice(stoi(userInput)); }
+      else {
+        int choice = stoi(userInput);
+        if (config.schemes[config.selectedSchemeIndex].courseTitle == "TGI (special)" && choice >= 2) { choice++; }
+        processUserChoice(choice);
+      }
       
     }
 };
@@ -500,7 +515,7 @@ void chastiseIncorrectInput(string dataType, int& maxValidInput) {
     else if (dataType == "path") { cout << "Insert A Path To An Existing File"; }
     else { cout << "Insert A Valid Input"; }
     cout << endl;
-    this_thread::sleep_for(chrono::seconds(2));
+    this_thread::sleep_for(chrono::seconds(1));
     clearScreen();
   }
 bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableOption, string expectedDataType){
@@ -531,16 +546,19 @@ bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableO
   return successfulInput;
 }
 vector<string> separatePaths(const string& input) {
-  vector<string> paths; string result = input;
-  //? Regex: find dot followed by 2-5 letters (extensions), then capture until end of line or next space
-  regex pathPattern(R"(([^ ]*(?:\\ |[^ ])*\.[a-zA-Z0-9]{2,5}))"); smatch match;
-  while (regex_search(result, match, pathPattern)) {
-    string path = match[1].str();
-    replaceSubstring(path, "\\ ", " ");
-    paths.push_back(path);
-    result = match.suffix();
-  }
-  return paths;
+    vector<string> paths; string currentPath;
+    bool isEscaped = false;
+
+    for (char token : input) {
+      if (isEscaped) { currentPath += token; isEscaped = false; } 
+      else if (token == '\\') { isEscaped = true; } 
+      else if (isspace(token)) {
+        if (!currentPath.empty()) { paths.push_back(currentPath); currentPath.clear(); }
+      } 
+      else { currentPath += token; }
+    }
+    if (!currentPath.empty()) { paths.push_back(currentPath); }
+    return paths;
 }
 void clearScreen () {
   #ifdef _WIN32
@@ -549,7 +567,6 @@ void clearScreen () {
     system("clear");
   #endif
 }
-
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 int main () {
   clearScreen();
