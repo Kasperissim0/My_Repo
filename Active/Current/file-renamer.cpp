@@ -187,9 +187,8 @@ class renamer {
             displayStartMenu();
             return;
           }
-        break; } //? {} required for some reason
+        break; } 
         case 2: {
-          // multiple file rename
           int fileAmount, worsheetNumber, exerciseNumber, fileExtension, maxExtensionAmount = config.schemes[config.selectedSchemeIndex].fileTypes.size(); 
           bool correctFileAmount = false, correctWorksheetNumber = false, correctFilePaths = false, correctExerciseNumber = false, correctFileExtension = false, consistentFileExtension = true;
           vector<fs::path> originalFilePaths, finalFilePaths; string filePath;
@@ -218,13 +217,9 @@ class renamer {
               }
               worsheetNumber = stoi(userChoice);
             }
-            // TODO Add an option to have a consistent file extension type (to not reprompt during the title creation)
-            //! 1. do you want a consistent file extension
-            //! 2. choose it
             if (maxExtensionAmount != 1) {
               if (consistentFileExtension) {
                 int maxOptions = 2; // store value for pointer
-                //! N. 1
                 cout << "Do You Want All Your Files To Have The Same Extension?" << endl;
                 displayOptions();
                 cin >> userChoice;
@@ -237,7 +232,6 @@ class renamer {
                 if (userChoice != "1") { consistentFileExtension = false; correctFileExtension = true; }
               }
               if (!correctFileExtension && consistentFileExtension) { // only runs if answer to the previous block was 1 (positive)
-                //! N. 2
                 cout << "Select File Type: " << endl;
                 displayOptions(config.schemes[config.selectedSchemeIndex].fileTypes);
                 cin >> userChoice;
@@ -292,7 +286,7 @@ class renamer {
           tempStorage.push_back(course.courseTitle);
           }
           do {
-            clearScreen(); // TODO replace all used 'system("clear")' (as a function)
+            clearScreen();
             cout << "Select Course:" << endl;
             displayOptions(tempStorage, nullptr, nullptr);
             cin >> config.selectedSchemeIndex;
@@ -300,7 +294,7 @@ class renamer {
           } while(!validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amonutOfSchemes));
           if (stopPromptingUser) { return; }
           if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--; saveConfig(); }
-        break; } //? {} required for some reason
+        break; } 
         case 4: {
           bool correctSurname = false, correctStudentID = false; string newSurname, newStudentID;
           do {
@@ -338,11 +332,10 @@ class renamer {
           config.selectedSchemeIndex = 0;
           fs::remove(configPath);
           initialSetUp();
-        break; } //? {} required for some reason
+        break; } 
         case 6:
         return;
         default:
-          // TODO Add error checking responses
         break;
       }
       displayStartMenu();
@@ -472,7 +465,7 @@ void displayOptions(vector<string> options, string* highlightedTitle, userConfig
     for (int i = 0; i < highlightedTitle->length(); i++) { 
       padding += "══";
       if (i % 2 == 0) { spaces += " "; } //  aproximated dynamic scaling
-    } // TODO make dynamic scaling work for both even AND odd numbers
+    } // // TODO make dynamic scaling work for both even AND odd numbers
     if (highlightedTitle->length() % 2 != 0) {
       padding.pop_back();
       spaces.pop_back();
@@ -583,10 +576,14 @@ int main () {
   2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
     2.1. ✅ for strings
     2.2. ✅ for integers
-  3. 🚧 Work through all comments
-  3.1 ✅ Fix multiline rename
-  4. ❌ Minimize variable usage
-  5. ❌ Minimize code repition (functions)
+  3. ✅ Work through all comments
+    3.1 ✅ Fix multiline rename
+  4. 🚧 Minimize variable usage
+  5. ❌ Minimize code repition (functions + separate files)
     5.1. ❌ verification for "q" || "exit" as a function
-  6. 🚧 Add cross platform compatibility 
+  6. ❌ Add cross platform compatibility 
+    6.1. ✅ clearing the terminal
+    6.2. ❌ parsing "/" vs "\"
+    6.3. ❌ invividual terminal formatting (when dragging files)
+  7.  ❌ Refactor + review code
 */
