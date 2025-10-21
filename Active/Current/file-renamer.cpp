@@ -465,7 +465,6 @@ class renamer {
       
     }
 };
-
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 void displayOptions(vector<string> options, string* highlightedTitle, userConfig* config){
   if (highlightedTitle != nullptr) {
