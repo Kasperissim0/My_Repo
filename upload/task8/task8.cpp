@@ -3,10 +3,10 @@
 using namespace std;
 
 int main() {
-    const int secondsPerMinute = 60;
-    const int secondsPerHour = 3600;
-    const int secondsPerDay = 86400;
-    const int secondsPerYear = 31536000; // 365 days
+    static const int secondsPerMinute = 60;
+    static const int secondsPerHour = secondsPerMinute * 60;
+    static const int secondsPerDay = secondsPerHour * 24;
+    static const int secondsPerYear = secondsPerDay * 365;
 
     int choice;
     cout << "Time Converter" << endl;

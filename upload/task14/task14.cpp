@@ -10,14 +10,6 @@ int main() {
 
     // Using int
     cout << "\n--- int ---" << endl;
-    // On most systems, 2147483647 is the maximum value for a 32-bit signed int (INT_MAX).
-    // Adding 1 to it results in an integer overflow, which is undefined behavior in C++.
-    // Depending on the compiler and environment, this might wrap around to the minimum
-    // negative value, or cause a program crash (as mentioned in the task description
-    // if sanitizers are enabled).
-    // To demonstrate the value without causing an explicit overflow in this code,
-    // we'll cast to long long first, then to int to show the potential wrap-around.
-    // If compiled without sanitizers, this would typically be -2147483648.
     int intResult = static_cast<int>(largeNumber + 1);
     cout << "int result: " << intResult << endl;
     cout << "(Expected behavior without sanitizers: -2147483648 due to wrap-around)" << endl;
@@ -31,8 +23,6 @@ int main() {
 
     // Using long
     cout << "\n--- long ---" << endl;
-    // On many modern systems (like 64-bit Linux/macOS), long is 64-bit,
-    // so it can hold 2147483647 + 1 without overflow.
     long longValue = 2147483647L; // L for long literal
     long longResult = longValue + 1L;
     cout << "long result: " << longResult << endl;

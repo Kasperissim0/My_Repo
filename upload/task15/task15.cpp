@@ -17,8 +17,6 @@ int main() {
     }
 
     // Calculate the number of kegs needed using an expression for ceiling division.
-    // This formula works for positive integers a and b: (a + b - 1) / b
-    // Here, a = orderQuantity, b = kegCapacity
     int num_kegs = (orderQuantity + kegCapacity - 1) / kegCapacity;
 
     cout << "For an order of " << orderQuantity << " liters with kegs of " << kegCapacity << "L, you will need " << num_kegs << " keg(s)." << endl;
