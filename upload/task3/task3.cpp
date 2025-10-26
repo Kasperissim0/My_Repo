@@ -18,7 +18,7 @@ int main() {
 
   int reversedNumber = digit3 * 100 + digit2 * 10 + digit1;
 
-  cout << "The reversed number is: " << reversed_number << endl;
+  cout << "The reversed number is: " << reversedNumber << endl;
 
   return 0;
 }

@@ -18,7 +18,7 @@ int main() {
     cout << "\n--- unsigned int ---" << endl;
     unsigned int unsignedIntVal = 2147483647U; // U for unsigned literal
     unsigned int unsignedResult = unsignedIntVal + 1U;
-    cout << "unsigned int result: " << unsignedIntegerResult << endl;
+    cout << "unsigned int result: " << unsignedResult << endl;
     cout << "(This is 2^31, which is a valid value for unsigned int)" << endl;
 
     // Using long
