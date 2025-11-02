@@ -1,28 +1,29 @@
 #include <iostream>
 #include <cmath>
-#include <iomanip>
 
 using namespace std;
 
 int main() {
-    double x;
+    cout << "Almost perfect numbers in the range 0 to 10^7:" << endl;
 
-    cout << "Rounding Expression" << endl;
-    cout << "Enter a positive number to round: ";
-    cin >> x;
+    for (int n = 1; n <= 10000000; ++n) {
+        int sumOfDivisors = 1; // Start with 1 as a divisor for all n > 1
+        if (n > 1) {
+            int limit = sqrt(n);
+            for (int i = 2; i <= limit; ++i) {
+                if (n % i == 0) {
+                    sumOfDivisors += i;
+                    if (i * i != n) {
+                        sumOfDivisors += n / i;
+                    }
+                }
+            }
+        }
 
-    if (x < 0) {
-        cout << "Please enter a positive number." << endl;
-        return 1;
+        if (sumOfDivisors == n - 1) {
+            cout << n << endl;
+        }
     }
-
-    // The expression to round a positive number x correctly (round up from 0.5 and down below)
-    // is floor(x + 0.5).
-    double roundedX = floor(x + 0.5);
-
-    cout << fixed << setprecision(1);
-    cout << "Original number: " << x << endl;
-    cout << "Rounded number: " << roundedX << endl;
 
     return 0;
 }

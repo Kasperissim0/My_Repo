@@ -3,24 +3,28 @@
 using namespace std;
 
 int main() {
-    int num1, num2;
+    int n;
 
-    cout << "Factor Checker" << endl;
-    cout << "Enter the first whole number: ";
-    cin >> num1;
-    cout << "Enter the second whole number: ";
-    cin >> num2;
+    cout << "Enter a natural number: ";
+    cin >> n;
 
-    if (num2 == 0) {
-        cout << "Cannot check for factor with zero." << endl;
+    if (n <= 0) {
+        cout << "Please enter a positive natural number." << endl;
         return 1;
     }
 
-    if (num1 % num2 == 0) {
-        cout << num2 << " divides " << num1 << "." << endl;
-    } else {
-        cout << num2 << " does not divide " << num1 << "." << endl;
+    int sumOfDivisors = 0;
+    for (int i = 1; i <= n / 2; ++i) {
+        if (n % i == 0) {
+            sumOfDivisors += i;
+        }
     }
+
+    cout << n << " is a ";
+    if (sumOfDivisors == n) cout <<     "perfect";
+    else if (sumOfDivisors < n) cout << "deficient"; 
+    else cout <<                        "abundant";
+    cout << " number." << endl;
 
     return 0;
 }

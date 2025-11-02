@@ -19,7 +19,7 @@ void printNumber(char number) {
     case '7': cout << "seven"; break;
     case '8': cout << "eight"; break;
     case '9': cout << "nine"; break;
-    default: throw runtime_error("Invalid Char In Printing Function"); break;
+    default: throw runtime_error("Invalid Integer In Printing Function"); break;
   }
 }
 

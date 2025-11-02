@@ -1,20 +1,28 @@
 #include <iostream>
-#include <cmath>
 
 using namespace std;
 
 int main() {
-    double number;
+    int n;
 
-    cout << "Integer Checker" << endl;
-    cout << "Enter a number: ";
-    cin >> number;
+    cout << "Enter a natural number: ";
+    cin >> n;
 
-    // A number is an integer if it is equal to itself when the fractional part is removed.
-    if (number == floor(number)) {
-        cout << "The number " << number << " is an integer." << endl;
+    if (n <= 0) {
+        cout << "Please enter a positive natural number." << endl;
+        return 1;
+    }
+
+    if (n % 2 != 0) {
+        cout << "Largest power of two that divides " << n << " is: 1" << endl;
     } else {
-        cout << "The number " << number << " is not an integer." << endl;
+        int tempN = n;
+        int largestPowerOfTwo = 1;
+        while (tempN % 2 == 0) {
+            tempN /= 2;
+            largestPowerOfTwo *= 2;
+        }
+        cout << "Largest power of two that divides " << n << " is: " << largestPowerOfTwo << endl;
     }
 
     return 0;

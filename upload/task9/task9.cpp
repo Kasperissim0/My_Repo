@@ -1,44 +1,35 @@
 #include <iostream>
-#include <iomanip>
+#include <limits>
 
 using namespace std;
 
 int main() {
-    double betAmount;
-    int trials;
+    double number;
+    double max = -numeric_limits<double>::infinity();
+    double min = numeric_limits<double>::infinity();
+    double sum = 0;
+    int count = 0;
 
-    cout << "Roulette Win/Loss Calculator" << endl;
-    cout << "The player always bets on the number 0." << endl;
-    cout << "A win on 0 pays 35 to 1." << endl;
+    cout << "Enter double values (Ctrl+D or Ctrl+Z to end input):" << endl;
 
-    cout << "Enter the fixed bet amount: ";
-    cin >> betAmount;
-    cout << "Enter the number of trials until the win occurred: ";
-    cin >> trials;
-
-    if (betAmount <= 0 || trials <= 0) {
-        cout << "Bet amount and trials must be positive numbers." << endl;
-        return 1;
+    while (cin >> number) {
+        if (number > max) {
+            max = number;
+        }
+        if (number < min) {
+            min = number;
+        }
+        sum += number;
+        count++;
     }
 
-    // There are (trials - 1) losses.
-    double totalLoss = betAmount * (trials - 1);
-    // The win gives a net profit of 35 times the bet.
-    double winAmount = betAmount * 35;
-
-    double finalBalance = winAmount - totalLoss;
-
-    cout << fixed << setprecision(2);
-    cout << "\nTotal money lost before winning: " << totalLoss << endl;
-    cout << "Money won on the final trial: " << winAmount << endl;
-    cout << "------------------------------------" << endl;
-
-    if (finalBalance > 0) {
-        cout << "Total net win: " << finalBalance << endl;
-    } else if (finalBalance < 0) {
-        cout << "Total net loss: " << -finalBalance << endl;
+    if (count > 0) {
+        double mean = sum / count;
+        cout << "\nMaximum: " << max << endl;
+        cout << "Minimum: " << min << endl;
+        cout << "Mean: " << mean << endl;
     } else {
-        cout << "The player broke even." << endl;
+        cout << "\nNo numbers were entered." << endl;
     }
 
     return 0;

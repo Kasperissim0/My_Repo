@@ -3,22 +3,40 @@
 using namespace std;
 
 int main() {
-    double a, b, c, x;
+    double lowerLimit, upperLimit;
 
-    cout << "Calculate ax^2 + bx + c using Horner's method." << endl;
-    cout << "Enter coefficient a: ";
-    cin >> a;
-    cout << "Enter coefficient b: ";
-    cin >> b;
-    cout << "Enter coefficient c: ";
-    cin >> c;
-    cout << "Enter value for x: ";
-    cin >> x;
+    cout << "Enter the lower limit of the interval: ";
+    cin >> lowerLimit;
+    cout << "Enter the upper limit of the interval: ";
+    cin >> upperLimit;
 
-    // Horner's method: (a*x + b)*x + c
-    double result = (a * x + b) * x + c;
+    if (lowerLimit > upperLimit) {
+        double temp = lowerLimit;
+        lowerLimit = upperLimit;
+        upperLimit = temp;
+        cout << "Interval limits swapped to ensure lowerLimit <= upperLimit." << endl;
+    }
 
-    cout << "The result of (" << a << " * " << x << "^2) + (" << b << " * " << x << ") + " << c << " is: " << result << endl;
+    int smallerCount = 0;
+    int inIntervalCount = 0;
+    int largerCount = 0;
+    double number;
+
+    cout << "Enter numbers (Ctrl+D or Ctrl+Z to end input):" << endl;
+    while (cin >> number) {
+        if (number < lowerLimit) {
+            smallerCount++;
+        } else if (number > upperLimit) {
+            largerCount++;
+        } else {
+            inIntervalCount++;
+        }
+    }
+
+    cout << "\nResults:" << endl;
+    cout << "Numbers smaller than " << lowerLimit << ": " << smallerCount << endl;
+    cout << "Numbers within [" << lowerLimit << ", " << upperLimit << "]: " << inIntervalCount << endl;
+    cout << "Numbers larger than " << upperLimit << ": " << largerCount << endl;
 
     return 0;
 }

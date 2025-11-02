@@ -1,34 +1,40 @@
 #include <iostream>
-#include <iomanip>
 
 using namespace std;
 
 int main() {
-    const double eurToUsdRate = 1.08;
-    int choice;
-    double amount;
+    long long n0;
 
-    cout << "Currency Converter" << endl;
-    cout << "1. Euros to Dollars" << endl;
-    cout << "2. Dollars to Euros" << endl;
-    cout << "Enter your choice (1 or 2): ";
-    cin >> choice;
+    cout << "Enter a positive starting value (n0): ";
+    cin >> n0;
 
-    cout << fixed << setprecision(2);
-
-    if (choice == 1) {
-        cout << "Enter amount in Euros: ";
-        cin >> amount;
-        double dollars = amount * eurToUsdRate;
-        cout << amount << " EUR is equal to " << dollars << " USD." << endl;
-    } else if (choice == 2) {
-        cout << "Enter amount in Dollars: ";
-        cin >> amount;
-        double euros = amount / eurToUsdRate;
-        cout << amount << " USD is equal to " << euros << " EUR." << endl;
-    } else {
-        cout << "Invalid choice. Please run the program again and select 1 or 2." << endl;
+    if (n0 <= 0) {
+        cout << "Please enter a positive starting value." << endl;
+        return 1;
     }
+
+    long long currentN = n0;
+    int steps = 0;
+
+    cout << "Sequence: " << currentN;
+
+    while (currentN != 1) {
+        if (currentN % 2 == 0) {
+            currentN /= 2;
+        } else {
+            currentN = 3 * currentN + 1;
+        }
+        cout << " -> " << currentN;
+        steps++;
+
+        // Added a safeguard for extremely long sequences or if the conjecture fails
+        if (steps > 10000) {
+            cout << "\nSequence exceeded 10000 steps, stopping to prevent infinite loop." << endl;
+            return 0;
+        }
+    }
+
+    cout << "\nReached 1 in " << steps << " steps." << endl;
 
     return 0;
 }

@@ -568,10 +568,13 @@ int main () {
 }
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*
-  0. ✅ Fix bugs in renaming process
+  0. 🚧 Fix bugs in renaming process
     0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
     0.1. ✅ infinite loop after catching an error
     0.2. ✅ incorrect input reading if not inside ""
+    0.3. ❌ add a time delay for error of incorrect path amonut (multiple rename)
+      0.3.1. ❌ if fewer paths than requested still complete the rename (if user agrees)
+    0.4. ❌ add a double check before deleting a file (renaming to an existing file name)
   1. ✅ Add an input verifier function
   2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
     2.1. ✅ for strings
@@ -585,5 +588,5 @@ int main () {
     6.1. ✅ clearing the terminal
     6.2. ❌ parsing "/" vs "\"
     6.3. ❌ invividual terminal formatting (when dragging files)
-  7.  ❌ Refactor + review code
+  7. ❌ Refactor + review code
 */

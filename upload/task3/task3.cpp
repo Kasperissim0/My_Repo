@@ -1,24 +1,27 @@
 #include <iostream>
+#include <cmath>
+#include <complex>
 
 using namespace std;
 
 int main() {
-  int number;
-  cout << "Enter a three-digit number: ";
-  cin >> number;
+    double p, q, discriminant;
 
-  if (number < 100 || number > 999) {
-    cout << "The number is not a three-digit number." << endl;
-    return 1;
-  }
+    cout << "Enter coefficients p and q for the quadratic equation x^2 + px + q = 0: ";
+    cin >> p >> q;
 
-  int digit1 = number / 100;
-  int digit2 = (number / 10) % 10;
-  int digit3 = number % 10;
+    discriminant = p * p - 4 * q;
 
-  int reversedNumber = digit3 * 100 + digit2 * 10 + digit1;
+    if (discriminant >= 0) {
+        double x1 = (-p + sqrt(discriminant)) / 2;
+        double x2 = (-p - sqrt(discriminant)) / 2;
+        cout << "Real roots: x1 = " << x1 << ", x2 = " << x2 << endl;
+    } else {
+        // Complex solutions
+        complex<double> x1 = (-p + sqrt(complex<double>(discriminant))) / 2.0;
+        complex<double> x2 = (-p - sqrt(complex<double>(discriminant))) / 2.0;
+        cout << "Complex roots: x1 = " << x1 << ", x2 = " << x2 << endl;
+    }
 
-  cout << "The reversed number is: " << reversedNumber << endl;
-
-  return 0;
+    return 0;
 }

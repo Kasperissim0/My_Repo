@@ -1,29 +1,31 @@
 #include <iostream>
-#include <cmath>
 
 using namespace std;
 
 int main() {
-  int m, n;
-  cout << "Enter a number (m): ";
-  cin >> m;
-  cout << "Enter the digit position (n, from the right): ";
-  cin >> n;
+    double num1, num2, num3;
 
-  if (n <= 0) {
-    cout << "Invalid digit position." << endl;
-    return 1;
-  }
+    cout << "Enter three double numbers: ";
+    cin >> num1 >> num2 >> num3;
 
-  int divisor = pow(10, n - 1);
-  if (m < divisor && n > 1) {
-      cout << "The number " << m << " does not have a " << n << "th digit." << endl;
-      return 0;
-  }
-  
-  int digit = (m / divisor) % 10;
+    // Sort without logical operators
+    if (num1 > num2) {
+        double temp = num1;
+        num1 = num2;
+        num2 = temp;
+    }
+    if (num2 > num3) {
+        double temp = num2;
+        num2 = num3;
+        num3 = temp;
+    }
+    if (num1 > num2) {
+        double temp = num1;
+        num1 = num2;
+        num2 = temp;
+    }
 
-  cout << "The " << n << "th digit of " << m << " is " << digit << endl;
+    cout << "Sorted numbers: " << num1 << ", " << num2 << ", " << num3 << endl;
 
-  return 0;
+    return 0;
 }
