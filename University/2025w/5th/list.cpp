@@ -31,18 +31,13 @@ int main() {
 
 	static_assert(LIST_CAPACITY != 1, "A List With One Element Makes No Sense");
 	
-	// system("clear"); // clearScreen();
+	system("clear"); // clearScreen();
 	cout << "Insert Element #1: ";
 	while (cin >> tempStorage && (tempStorage != "q" || elements.size() < 2 || (LIST_CAPACITY != 0 && elements.size() % LIST_CAPACITY == 1))) {
 		if (tempStorage != "q") { elements.push_back(tempStorage); }
 		else if (elements.size() > 2 && (elements.size() % LIST_CAPACITY != 1)) break;
 		cout << "Insert Element #" << (elements.size() + 1) << ": ";
 		tempStorage =  "";
-		// if (LIST_CAPACITY != 0) {
-		// 	clog << "Input Amount: " << (elements.size() + 1) << " | " 
-		// 	     << (elements.size() + 1) << " % " << LIST_CAPACITY << " = " 
-		// 	     << ((elements.size() + 1) %  LIST_CAPACITY) << endl;
-		// }
 	} 
 	
 	system("clear"); // clearScreen();
@@ -50,20 +45,12 @@ int main() {
 		size_t listAmount = ceil((double)elements.size() / LIST_CAPACITY), index = 0;
 		vector<vector<string>> allVectors;
 		allVectors.resize(listAmount);
-		// clog << "List Amount: " << listAmount << endl;
 		for (size_t a = 0; a < listAmount; a++) {
 			allVectors.at(a).resize(LIST_CAPACITY);
 			for (size_t b = 0; b < LIST_CAPACITY; b++) {
-				if (index >= elements.size()) {
-					allVectors.at(a).resize(b);
-					// clog << " | Final v[] size: " << b << endl;
-					break; 
-				}
-				// clog << "Assigning: v[" << a << "][" << b << "] = v[" << index 
-				// 	   << "] = " << elements.at(index);
+				if (index >= elements.size()) {	allVectors.at(a).resize(b);	break; }
 				allVectors.at(a).at(b) = elements.at(index);
 				index++;
-				// clog << " | v[] size: " << elements.size() << endl;
 			}
 		}
 		
