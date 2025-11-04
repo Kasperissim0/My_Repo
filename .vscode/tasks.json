@@ -67,6 +67,22 @@
                 "clean",
                 "create_build_dir"
             ]
+        },
+        {
+            "label": "Build LaTeX",
+            "type": "shell",
+            "command": "pdflatex",
+            "args": [
+                "-output-directory=${workspaceFolder}/Build",
+                "${workspaceFolder}/Latex/semester_aufgabe.tex"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build"
+            }
         }
     ]
 }
