@@ -37,7 +37,6 @@ int main() {
 		if (tempStorage != "q") { elements.push_back(tempStorage); }
 		else if (elements.size() > 2 && (elements.size() % LIST_CAPACITY != 1)) break;
 		cout << "Insert Element #" << (elements.size() + 1) << ": ";
-		tempStorage =  "";
 	} 
 	
 	system("clear"); // clearScreen();
@@ -54,11 +53,12 @@ int main() {
 			}
 		}
 		
-		cout << "The List(s) Are: " << endl << endl;
+		tempStorage = ((((elements.size() + 1) / LIST_CAPACITY) > 1) ? "(s) Are" : " Is");
+		cout << "The List" << tempStorage << ": " << endl << endl;
 		for (size_t i = 0; i < listAmount; i++) {
 			vector<string> current = splitVectors(allVectors, i);
 
-			// Dynamic Space Scaling
+			// Dynamic Padding Scaling
 			if ((i + 1) == 10) spacing.pop_back();
 			if ((i + 1) == 100) spacing.pop_back();
 			if ((i + 1) == 1000) spacing.pop_back();
