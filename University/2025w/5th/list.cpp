@@ -2,16 +2,12 @@
 #include<vector>
 #include<string>
 #include<cmath>
-#include<iomanip> // remove if using clearScreen();
-// #include "/home/korniienkd07/University/2025w/functions/screen.h"
+#include "functions/screen.h" // use  "clang++ x.cpp -I.. -o a" for correct preprocessor behaviour
 
 using namespace std;
 
-static const size_t LIST_CAPACITY = 3; //! Set List Clumping Here, 0 for 1 single list
+static const size_t LIST_CAPACITY = 2; //! Set List Clumping Here, 0 for 1 single list
 
-vector<string> splitVectors(vector<vector<string>>& elements, int returnVector) {
-	return elements.at(returnVector);
-}
 string turnIntoList(vector<string>& elements, int changeLength = 0) {
 	string list = ""; 
 	size_t listLength = (changeLength ? changeLength : elements.size());
@@ -31,7 +27,7 @@ int main() {
 
 	static_assert(LIST_CAPACITY != 1, "A List With One Element Makes No Sense");
 	
-	system("clear"); // clearScreen();
+	clearScreen();
 	cout << "Insert Element #1: ";
 	while (cin >> tempStorage && (tempStorage != "q" || elements.size() < 2 || (LIST_CAPACITY != 0 && elements.size() % LIST_CAPACITY == 1))) {
 		if (tempStorage != "q") { elements.push_back(tempStorage); }
@@ -39,7 +35,7 @@ int main() {
 		cout << "Insert Element #" << (elements.size() + 1) << ": ";
 	} 
 	
-	system("clear"); // clearScreen();
+	clearScreen();
 	if (LIST_CAPACITY > 0 && !elements.empty()) {
 		size_t listAmount = ceil((double)elements.size() / LIST_CAPACITY), index = 0;
 		vector<vector<string>> allVectors;
@@ -56,14 +52,12 @@ int main() {
 		tempStorage = ((((elements.size() + 1) / LIST_CAPACITY) > 1) ? "(s) Are" : " Is");
 		cout << "The List" << tempStorage << ": " << endl << endl;
 		for (size_t i = 0; i < listAmount; i++) {
-			vector<string> current = splitVectors(allVectors, i);
-
 			// Dynamic Padding Scaling
 			if ((i + 1) == 10) spacing.pop_back();
 			if ((i + 1) == 100) spacing.pop_back();
 			if ((i + 1) == 1000) spacing.pop_back();
 			
-			cout << (i + 1) << spacing << turnIntoList(current, LIST_CAPACITY) << endl;
+			cout << (i + 1) << spacing << turnIntoList(allVectors.at(i), LIST_CAPACITY) << endl;
 		}
 	}
 	else cout << "The List Is: " << endl << endl << turnIntoList(elements) << endl;
