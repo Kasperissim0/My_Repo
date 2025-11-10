@@ -1,7 +1,6 @@
 #include<iostream>
 #include<vector>
 #include<string>
-#include<cmath>
 #include "functions/screen.h" // use  "clang++ x.cpp -I.. -o a" for correct preprocessor behaviour
 
 using namespace std;
