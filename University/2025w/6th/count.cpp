@@ -11,7 +11,7 @@ vector<size_t> substrIndexes(string n, char c) {
  	return indexes;
  }
 void highlighterArrows (string n, vector<size_t> indexes) {
-	char space = ' ', point = '^', base = '|', row = 3; // i for the point and one for the base
+	string space = " ", point = "△", base = "|"; unsigned row = 3; // i for the point and one for the base
 	bool foundIndex = false; unsigned count = 1;
 	while (row) {
 		cout << "                "; //! TODO Scale This Dynamically

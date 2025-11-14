@@ -13,31 +13,41 @@
 using namespace std;
 namespace fs = filesystem;
 
-int MAX_INT = numeric_limits<int>::max();
+const int MAX_INT = numeric_limits<int>::max();
 bool stopPromptingUser = false;
 
-struct userConfig;
-struct namingScheme;
-class renamer;
+//* Bundle Of Relevant Data For Each Course Template Type
+struct NamingScheme;
+//* User Information That Is Stored In Persistent File, As Well As A Method For Creating The Final Title For The Rename
+struct UserConfig;
+//* The Object For The Terminal UI: Loads/Saves User Info, Requests Input, Executes Command Chosen
+class Renamer;
 
-void displayOptions(vector<string> options = {"Yes", "No"}, string* highlightedTitle = nullptr, userConfig* config = nullptr);
-bool validateInput(bool& stopPrompting, string userInput = "", int* largestAvaliableOption = nullptr, string expectedDataType = "int");
-string replaceSubstring (string& superString, const string& substringIndex, const string& replacementString, bool returnString = false);
-void chastiseIncorrectInput(string dataType = "", int& maxValidNumber = MAX_INT);
+//* Displays Options Given From A Vector Of Strings, By Default Yes/No. Optional Arguments Allow To Add A Higlighted Title And Display @UserConfig Contents
+void displayOptions(vector<string> options = {"Yes", "No"}, string* highlightedTitle = nullptr, UserConfig* config = nullptr);
+//* Checks For A Valid Input Based On Passed Data Type("string"/"path"/"int"), + Modifies A Global Boolean Value(1st arg) If Set To True - Means User Wants To Exit The Input Process. Expects "int" By Default
+bool validateInput(bool& stopPrompting, string userInput = "", const int* largestAvaliableOption = nullptr, string expectedDataType = "int");
+//* Replaces A Substring(2nd arg) In The String Passed(1st arg) For A Different Passed String(3rd arg), If Specified Returns The Modified String, By Default Returns ""
+string replaceSubstring (string& superString, const string& stringToReplace, const string& replacementString, bool returnString = false);
+//* Informs User Of Incorrect Input Based On The Data Type("string"/"path"/"int") And Requests A Valid Input, Clears Screen After
+void chastiseIncorrectInput(string dataType = "", const int& maxValidInput = MAX_INT);
+// TODO Make Cross-OS Compatible (handle both / and \ based on OS)
+//* Given A Single Concateneted String Of Paths Separates Them And Returns A Vector Of Individual Paths, Escapes Illegal Charachters
 vector<string> separatePaths(const string& input);
+//* Cross-OS Compatible Function For Clearing The Terminal
 void clearScreen ();
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
-struct namingScheme {
+struct NamingScheme {
   vector<string> fileTypes;
   string courseTitle, pattern, example; // fileType divided by | in the string (if/when there are multiple)
   unsigned short lastWorksheet;
 };
-struct userConfig {
+struct UserConfig {
   int selectedSchemeIndex = 0; // the first one by default
-  string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it this way
-  vector<namingScheme> schemes;
+  string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it as a string instead of int
+  vector<NamingScheme> schemes;
 
-  string createTitle(int* consistentWorksheetNumber = nullptr,int* consistentFileExtension = nullptr, int* exerciseNumberRange = nullptr){
+  string createTitle(int* consistentWorksheetNumber = nullptr,int* consistentFileExtension = nullptr, int* exerciseNumberRange = nullptr) {
     string finalTitle = schemes[selectedSchemeIndex].pattern, userInput; bool errorCaught = false;
     int amountOfFileTypes = schemes[selectedSchemeIndex].fileTypes.size(), backup = 1;
     if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
@@ -48,38 +58,38 @@ struct userConfig {
       }
       else {
         do {
-          if (stopPromptingUser) { return ""; }
+          if (::stopPromptingUser) { return ""; }
           cout << "What Is The Number Of This Worksheet: ";
           cin >> userInput;
           if (userInput == "q" || userInput == "exit") { return ""; }
           try { stoi(userInput); }  
-          catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
-        } while (!validateInput(stopPromptingUser, userInput, &MAX_INT));
+          catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
+        } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
       }
       replaceSubstring(finalTitle, "[AufgabenblattNr]", userInput);
     }
     if (finalTitle.find("[BeispielNr]") != string::npos) {
       do {
-        if (stopPromptingUser) { return ""; }
+        if (::stopPromptingUser) { return ""; }
         cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : (" (1-" + to_string(*exerciseNumberRange) + "): "));
         cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
          try { stoi(userInput); }  
-         catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
-      } while (!validateInput(stopPromptingUser, userInput, &MAX_INT));
+         catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
+      } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
       replaceSubstring(finalTitle, "[BeispielNr]", userInput);  
     }
     userInput = "1"; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
     if (amountOfFileTypes > 1 && consistentFileExtension == nullptr) {
       do {
-        if (stopPromptingUser) { return ""; }
+        if (::stopPromptingUser) { return ""; }
         cout << "Select File Type: " << endl;
         displayOptions(schemes[selectedSchemeIndex].fileTypes);
         cin >> userInput;
         if (userInput == "q" || userInput == "exit") { return ""; }
         try { stoi(userInput); }  
-        catch (const exception&) { if (!stopPromptingUser) { chastiseIncorrectInput("int", amountOfFileTypes); }; continue; } // want to check if it is an integer
-      } while (!validateInput(stopPromptingUser, userInput, &amountOfFileTypes));
+        catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", amountOfFileTypes); }; continue; } // want to check if it is an integer
+      } while (!validateInput(::stopPromptingUser, userInput, &amountOfFileTypes));
     try { stoi(userInput); } // double check for single extension type case
     catch (const exception&) { errorCaught = true; } 
     }
@@ -88,18 +98,26 @@ struct userConfig {
     return finalTitle;
   }
 };
-class renamer {
+class Renamer {
   private:
-    userConfig config;
-    const string CONFIG_DIRECTORY = ".renamer-config";
+    UserConfig config;
+    const string CONFIG_DIRECTORY = ".Renamer-config";
     const string CONFIG_FILE = "config.txt";
     const fs::path directoryPath = CONFIG_DIRECTORY;
     const fs::path configPath = directoryPath / CONFIG_FILE;
 
+    enum MenuOptions {
+      RENAME = 1,
+      CHANGE_SCHEMA,
+      EDIT_USER_INFO,
+      DELETE_USER_CONFIG,
+      EXIT_PROGRAMM
+    };
+
     void initialSetUp() {
       clearScreen();
       if (!loadConfig()) {
-        vector<string> tempStorage; namingScheme transitionStorage; int amountOfSchemes;
+        vector<string> tempStorage; NamingScheme transitionStorage; int amountOfSchemes;
         bool correctSurname = false, correctStudentID = false, correctCourse = false, incorrectInput = false;
         transitionStorage.courseTitle = "TGI";
             transitionStorage.lastWorksheet = 0; //! TODO Create An Auto-Saving Tracker Of The Last Rename
@@ -141,7 +159,7 @@ class renamer {
             cin >> config.surname;
             try { stoi(config.surname); incorrectInput = true; } 
             catch (const exception& e) { // want to check that it is NOT an integer
-              if (validateInput(stopPromptingUser, config.surname, nullptr, "string") && !incorrectInput) { correctSurname = true; }
+              if (validateInput(::stopPromptingUser, config.surname, nullptr, "string") && !incorrectInput) { correctSurname = true; }
               else { chastiseIncorrectInput("string"); continue; } } 
           } 
           if (!correctStudentID) {
@@ -149,7 +167,7 @@ class renamer {
             cin >> config.studentID;
             try { stoi(config.studentID); }  
             catch (const exception& e) { chastiseIncorrectInput("string"); continue; } // want to check if it is an integer
-            if (validateInput(stopPromptingUser, config.studentID, &MAX_INT, "int")) { correctStudentID = true; } else { chastiseIncorrectInput("string"); continue; }
+            if (validateInput(::stopPromptingUser, config.studentID, &MAX_INT, "int")) { correctStudentID = true; } else { chastiseIncorrectInput("string"); continue; }
             tempStorage.clear();
             for (auto& course : config.schemes) {
               tempStorage.push_back(course.courseTitle);
@@ -158,224 +176,234 @@ class renamer {
           cout << "Select Course:" << endl;
           displayOptions(tempStorage, nullptr, nullptr);
           cin >> config.selectedSchemeIndex;
-          if (validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes)) { correctCourse = true; } 
+          if (validateInput(::stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes)) { correctCourse = true; } 
           else { chastiseIncorrectInput("int", amountOfSchemes); continue; }
         } while (!correctSurname || !correctStudentID || !correctCourse);
         if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--;  saveConfig();}
     }
   }
-    void processUserChoice (int selectedOption) {
+    void processUserChoice(MenuOptions selectedOption) {
       string userChoice, tempTitleStorage, pathInput, cleanedPath;
-      switch (selectedOption) {
-        case 1: {
-          fs::path originalFilePath = {}, finalFilePath = {}; 
-          do {
-            clearScreen();
-            if (stopPromptingUser) { displayStartMenu(); return; }
-            cout << "Insert The Path To The File You Want To Rename: ";
-            getline(cin >> ws, pathInput);
-            if (pathInput.back() == ' ') pathInput.pop_back(); // remove trailing whitespace 
-            cleanedPath = replaceSubstring(pathInput, "\\", "", true); // remove terminal added backslashes
-          } while(!validateInput(stopPromptingUser, cleanedPath, nullptr, "path"));
-          originalFilePath = cleanedPath;
-          tempTitleStorage = config.createTitle();
-          if (tempTitleStorage.empty()) { displayStartMenu(); return; }
-          finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
-          try { fs::rename(originalFilePath, finalFilePath); }
-          catch(const std::exception& error) {
-            cout << "\nERROR Incorrect Path Formatting" << endl;
-            std::cerr << error.what() << endl;
-            this_thread::sleep_for(chrono::seconds(2));
-            displayStartMenu();
-            return;
-          }
-        break; } 
-        case 2: {
-          vector<fs::path> originalFilePaths, finalFilePaths; vector<string> parsedPaths;
-          int fileAmount ,worksheetNumber ,fileExtension ,maxExtensionAmount ,maxOptions;
-          bool pathsInCorrectForm, consistentFileExtension;
-          string userChoice, tempTitleStorage;
+      // TODO Replace case 1/case 2 with the correct option 'case RENAME'
+      try { // Attempt To Process User Input, Catch Invalid Values
+        switch (selectedOption) {
+          /* // TODO Check Functionality And Delete If No Problems Arise
+          case 1: {
+            fs::path originalFilePath = {}, finalFilePath = {}; 
+            do {
+              clearScreen();
+              if (::stopPromptingUser) { displayStartMenu(); return; }
+              cout << "Insert The Path To The File You Want To Rename: ";
+              getline(cin >> ws, pathInput);
+              if (pathInput.back() == ' ') pathInput.pop_back(); // remove trailing whitespace 
+              cleanedPath = replaceSubstring(pathInput, "\\", "", true); // remove terminal added backslashes
+            } while(!validateInput(::stopPromptingUser, cleanedPath, nullptr, "path"));
+            originalFilePath = cleanedPath;
+            tempTitleStorage = config.createTitle();
+            if (tempTitleStorage.empty()) { displayStartMenu(); return; }
+            finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
+            try { fs::rename(originalFilePath, finalFilePath); }
+            catch(const std::exception& error) {
+              cout << "\nERROR Incorrect Path Formatting" << endl;
+              std::cerr << error.what() << endl;
+              this_thread::sleep_for(chrono::seconds(2));
+              displayStartMenu();
+              return;
+            }
+          break; } 
+          */
+          case RENAME: {
+            vector<fs::path> originalFilePaths, finalFilePaths; vector<string> parsedPaths;
+            int fileAmount ,worksheetNumber ,fileExtension ,maxExtensionAmount ,maxOptions;
+            bool pathsInCorrectForm, consistentFileExtension;
+            string userChoice, tempTitleStorage;
 
-          while (true) {
-            if (stopPromptingUser) return;
-            clearScreen();
-            cout << "Drag All Of The Files You Want To Rename Here: ";
-            getline(cin >> ws, userChoice);
-            if (userChoice == "q" || userChoice == "exit") { return; }
+            while (true) {
+              if (::stopPromptingUser) return;
+              clearScreen();
+              cout << "Drag The File(s) You Want To Rename Here: ";
+              getline(cin >> ws, userChoice);
+              if (userChoice == "q" || userChoice == "exit") { return; }
 
-            parsedPaths = separatePaths(userChoice);
-            
-            pathsInCorrectForm = !parsedPaths.empty();
-            for (const auto& p : parsedPaths) {
-                if (p.empty() || !fs::exists(p)) {
-                    pathsInCorrectForm = false;
+              parsedPaths = separatePaths(userChoice);
+              
+              pathsInCorrectForm = !parsedPaths.empty();
+              for (const auto& p : parsedPaths) {
+                  if (p.empty() || !fs::exists(p)) {
+                      pathsInCorrectForm = false;
+                      break;
+                  }
+              }
+
+              if (pathsInCorrectForm) {
+                  for (const auto& p : parsedPaths) {
+                      originalFilePaths.push_back(p);
+                  }
+                  break; // Exit path input loop
+              } else {
+                  chastiseIncorrectInput("path");
+              }
+            }
+
+            fileAmount = originalFilePaths.size();
+
+            // Handle single file case
+            if (fileAmount == 1) {
+                fs::path originalFilePath = originalFilePaths[0];
+                clearScreen();
+                cout << "File: " << originalFilePath << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+
+                tempTitleStorage = config.createTitle();
+                if (tempTitleStorage.empty()) { return; } // User quit in createTitle
+                fs::path finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
+                try {
+                    fs::rename(originalFilePath, finalFilePath);
+                } catch(const std::exception& error) {
+                    cout << "\nERROR Incorrect Path Formatting" << endl;
+                    std::cerr << error.what() << endl;
+                    this_thread::sleep_for(chrono::seconds(2));
+                }
+                break; // Back to main menu
+            }
+
+            // We have multiple files. Get other info.
+            while (true) {
+                if (::stopPromptingUser) { return; }
+                clearScreen();
+                cout << fileAmount << " files to be renamed." << endl;
+                for (size_t i = 0; i < originalFilePaths.size(); ++i) { cout << "[ " << (i + 1) << " ] " << originalFilePaths.at(i) << endl; }
+                cout << "What Is The Number Of This Worksheet: ";
+                cin >> userChoice;
+                if (validateInput(::stopPromptingUser, userChoice, &MAX_INT)) {
+                    worksheetNumber = stoi(userChoice);
                     break;
                 }
             }
 
-            if (pathsInCorrectForm) {
-                for (const auto& p : parsedPaths) {
-                    originalFilePaths.push_back(p);
+            fileExtension = 0;
+            consistentFileExtension = false;
+            maxExtensionAmount = config.schemes[config.selectedSchemeIndex].fileTypes.size();
+
+            if (maxExtensionAmount > 1) {
+                while (true) {
+                    if (::stopPromptingUser) { return; }
+                    clearScreen();
+                    cout << "Do You Want All Your Files To Have The Same Extension?" << endl;
+                    displayOptions();
+                    maxOptions = 2;
+                    cin >> userChoice;
+                    if (validateInput(::stopPromptingUser, userChoice, &maxOptions)) {
+                        if (userChoice == "1") {
+                            consistentFileExtension = true;
+                            // Now ask for which extension
+                            while (true) {
+                                if (::stopPromptingUser) { return; }
+                                clearScreen();
+                                cout << "Select File Type: " << endl;
+                                displayOptions(config.schemes[config.selectedSchemeIndex].fileTypes);
+                                cin >> userChoice;
+                                if (validateInput(::stopPromptingUser, userChoice, &maxExtensionAmount)) {
+                                    fileExtension = stoi(userChoice) - 1;
+                                    break; // from inner extension choice loop
+                                }
+                            }
+                        } else {
+                            consistentFileExtension = false;
+                        }
+                        break; // Exit outer extension choice loop
+                    }
                 }
-                break; // Exit path input loop
             } else {
-                chastiseIncorrectInput("path");
+                consistentFileExtension = true;
+                fileExtension = 0;
             }
-          }
 
-          fileAmount = originalFilePaths.size();
-
-          // Handle single file case
-          if (fileAmount == 1) {
-              fs::path originalFilePath = originalFilePaths[0];
-              clearScreen();
-              cout << "Only one file detected. Proceeding with single file rename..." << endl;
-              cout << "File: " << originalFilePath.string() << endl;
-              this_thread::sleep_for(chrono::seconds(2));
-
-              tempTitleStorage = config.createTitle();
-              if (tempTitleStorage.empty()) { return; } // User quit in createTitle
-              fs::path finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
-              try {
-                  fs::rename(originalFilePath, finalFilePath);
-              } catch(const std::exception& error) {
-                  cout << "\nERROR Incorrect Path Formatting" << endl;
-                  std::cerr << error.what() << endl;
-                  this_thread::sleep_for(chrono::seconds(2));
-              }
-              return; // Back to main menu
-          }
-
-          // We have multiple files. Get other info.
-          while (true) {
-              if (stopPromptingUser) { return; }
-              clearScreen();
-              cout << fileAmount << " files to be renamed." << endl;
-              cout << "What Is The Number Of This Worksheet: ";
-              cin >> userChoice;
-              if (validateInput(stopPromptingUser, userChoice, &MAX_INT)) {
-                  worksheetNumber = stoi(userChoice);
-                  break;
-              }
-          }
-
-          fileExtension = 0;
-          consistentFileExtension = false;
-          maxExtensionAmount = config.schemes[config.selectedSchemeIndex].fileTypes.size();
-
-          if (maxExtensionAmount > 1) {
-              while (true) {
-                  if (stopPromptingUser) { return; }
-                  clearScreen();
-                  cout << "Do You Want All Your Files To Have The Same Extension?" << endl;
-                  displayOptions();
-                  maxOptions = 2;
-                  cin >> userChoice;
-                  if (validateInput(stopPromptingUser, userChoice, &maxOptions)) {
-                      if (userChoice == "1") {
-                          consistentFileExtension = true;
-                          // Now ask for which extension
-                          while (true) {
-                              if (stopPromptingUser) { return; }
-                              clearScreen();
-                              cout << "Select File Type: " << endl;
-                              displayOptions(config.schemes[config.selectedSchemeIndex].fileTypes);
-                              cin >> userChoice;
-                              if (validateInput(stopPromptingUser, userChoice, &maxExtensionAmount)) {
-                                  fileExtension = stoi(userChoice) - 1;
-                                  break; // from inner extension choice loop
-                              }
-                          }
-                      } else {
-                          consistentFileExtension = false;
-                      }
-                      break; // Exit outer extension choice loop
-                  }
-              }
-          } else {
-              consistentFileExtension = true;
-              fileExtension = 0;
-          }
-
-          // Rename loop
-          finalFilePaths.resize(fileAmount);
-          for (int i = 0; i < fileAmount; i++) {
-              if (stopPromptingUser) { return; }
-              clearScreen();
-              cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
-              cout << "Worksheet Number: " << worksheetNumber << endl;
-              cout << endl << "Current File Path #" << (i + 1) << ": " << endl
-                   << originalFilePaths[i] << endl << endl;
-              tempTitleStorage = config.createTitle(&worksheetNumber, (consistentFileExtension ? &fileExtension : nullptr) , &fileAmount);
-              if (tempTitleStorage.empty()) { return; }
-              finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
-              try {
-                  fs::rename(originalFilePaths[i], finalFilePaths[i]);
-              } catch(const std::exception& error) {
-                  cout << "\nERROR Incorrect Path Formatting" << endl;
-                  std::cerr << error.what() << endl;
-                  this_thread::sleep_for(chrono::seconds(2));
-                  return;
-              } 
-          }
-        break; }
-        case 3: {
-          vector<string> tempStorage; int amountOfSchemes = config.schemes.size();
-          for (auto& course : config.schemes) {
-          tempStorage.push_back(course.courseTitle);
-          }
-          do {
-            clearScreen();
-            cout << "Select Course:" << endl;
-            displayOptions(tempStorage, nullptr, nullptr);
-            cin >> config.selectedSchemeIndex;
-          } while(!validateInput(stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes));
-          if (stopPromptingUser) { return; }
-          if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--; saveConfig(); }
-        break; } 
-        case 4: {
-          bool correctSurname = false, correctStudentID = false; string newSurname, newStudentID;
-          do {
-            clearScreen();
-            if (!correctSurname) {
-              cout << "The Current Surname Saved Is: " << config.surname << endl
-                  << "Change To: ";
-              cin >> newSurname;
-              if (validateInput(stopPromptingUser, newSurname, nullptr, "string")) { correctSurname = true; }  
-              else {
-                if (stopPromptingUser) { displayStartMenu(); return; } 
-                else { chastiseIncorrectInput("string"); continue; } 
-              }
+            // Rename loop
+            finalFilePaths.resize(fileAmount);
+            for (int i = 0; i < fileAmount; i++) {
+                if (::stopPromptingUser) { return; }
+                clearScreen();
+                cout << (i == (fileAmount - 1) ? ("Rename The Last File ⬇️") : ("Files Left To Rename: " + to_string(fileAmount - i))) << endl;
+                cout << "Worksheet Number: " << worksheetNumber << endl;
+                cout << endl << "Current File Path #" << (i + 1) << ": " << endl
+                    << originalFilePaths[i] << endl << endl;
+                tempTitleStorage = config.createTitle(&worksheetNumber, (consistentFileExtension ? &fileExtension : nullptr) , &fileAmount);
+                if (tempTitleStorage.empty()) { return; }
+                finalFilePaths[i] = originalFilePaths[i].parent_path() / tempTitleStorage;
+                try {
+                    fs::rename(originalFilePaths[i], finalFilePaths[i]);
+                } catch(const std::exception& error) {
+                    cout << "\nERROR Incorrect Path Formatting" << endl;
+                    std::cerr << error.what() << endl;
+                    this_thread::sleep_for(chrono::seconds(2));
+                    return;
+                } 
             }
-            cout << "The Current StudentID Saved Is: " << config.studentID << endl
-               << "Change To: ";
-            cin >> newStudentID;
-            if (validateInput(stopPromptingUser, newStudentID, nullptr, "string")) { correctStudentID = true; }  
-              else {
-                if (stopPromptingUser) { displayStartMenu(); return; } 
-                else { chastiseIncorrectInput("string"); continue; } 
+          break; }
+          case CHANGE_SCHEMA: {
+            vector<string> tempStorage; int amountOfSchemes = config.schemes.size();
+            for (auto& course : config.schemes) {
+            tempStorage.push_back(course.courseTitle);
+            }
+            do {
+              clearScreen();
+              cout << "Select Course:" << endl;
+              displayOptions(tempStorage, nullptr, nullptr);
+              cin >> config.selectedSchemeIndex;
+            } while(!validateInput(::stopPromptingUser, to_string(config.selectedSchemeIndex), &amountOfSchemes));
+            if (::stopPromptingUser) { return; }
+            if (config.selectedSchemeIndex > 0) { config.selectedSchemeIndex--; saveConfig(); }
+          break; } 
+          case EDIT_USER_INFO: {
+            bool correctSurname = false, correctStudentID = false; string newSurname, newStudentID;
+            do {
+              clearScreen();
+              if (!correctSurname) {
+                cout << "The Current Surname Saved Is: " << config.surname << endl
+                    << "Change To: ";
+                cin >> newSurname;
+                if (validateInput(::stopPromptingUser, newSurname, nullptr, "string")) { correctSurname = true; }  
+                else {
+                  if (::stopPromptingUser) { displayStartMenu(); return; } 
+                  else { chastiseIncorrectInput("string"); continue; } 
+                }
               }
-          } while (!correctSurname || !correctStudentID);
-          saveConfig();
-        break; }
-        case 5: {
-          clearScreen();
-          cout << "Are you sure you want to delete your configuration? (yes/no): ";
-          string confirm;
-          cin >> confirm;
-          if (confirm != "yes") { displayStartMenu(); return; }
-          config.surname.clear();
-          config.studentID.clear();
-          config.schemes.clear();
-          config.selectedSchemeIndex = 0;
-          fs::remove(configPath);
-          initialSetUp();
-        break; } 
-        case 6:
-        return;
-        default:
-        break;
-      }
+              cout << "The Current StudentID Saved Is: " << config.studentID << endl
+                << "Change To: ";
+              cin >> newStudentID;
+              if (validateInput(::stopPromptingUser, newStudentID, nullptr, "string")) { correctStudentID = true; }  
+                else {
+                  if (::stopPromptingUser) { displayStartMenu(); return; } 
+                  else { chastiseIncorrectInput("string"); continue; } 
+                }
+            } while (!correctSurname || !correctStudentID);
+            saveConfig();
+          break; }
+          case DELETE_USER_CONFIG: {
+            clearScreen();
+            cout << "Are you sure you want to delete your configuration? (yes/no): ";
+            string confirm;
+            cin >> confirm;
+            if (confirm != "yes") { displayStartMenu(); return; }
+            config.surname.clear();
+            config.studentID.clear();
+            config.schemes.clear();
+            config.selectedSchemeIndex = 0;
+            fs::remove(configPath);
+            initialSetUp();
+          break; } 
+          case EXIT_PROGRAMM: {
+            return;
+          break; } // is redundant but included for symmetry
+          default: {
+            throw runtime_error("Invalid Input Passed To processUserChoice() Function");
+          break; }
+        }
+      } catch (const runtime_error& e) {
+          cerr << e.what() << endl << "Passed Value: " << selectedOption << endl;
+          return;
+        }
       displayStartMenu();
       return;
     }
@@ -405,7 +433,7 @@ class renamer {
       if (!fs::exists(configPath)) { return false; }
       ifstream cachedConfig(configPath);
       int lineCount = 0, schemeIndexCount = 0;
-      namingScheme tempBundle;
+      NamingScheme tempBundle;
       string lineContent;
       if (!cachedConfig.is_open()) { cerr << "\nERROR: Failed To Open File: " << configPath << endl; return false; }
         config.surname.clear();
@@ -463,18 +491,16 @@ class renamer {
     }
 
   public:
-    renamer() {
+    Renamer() {
       if(!fs::exists(configPath)) { initialSetUp(); }
       else { loadConfig(); }
       displayStartMenu();
     }
     void displayStartMenu() {
       clearScreen();
-      string userInput, tempTitle = "Automatic Worksheet Titler", tempOption = "Rename Single File";
-      vector<string> options = {}; int amountOfOptions; stopPromptingUser = false;
-      tempOption += ((config.schemes[config.selectedSchemeIndex].courseTitle == "TGI (special)") ? "\n" : "");
-        options.push_back(tempOption);
-        if (config.schemes[config.selectedSchemeIndex].courseTitle != "TGI (special)") options.push_back("Rename Multiple Files\n");
+      string userInput, tempTitle = "Automatic Worksheet Titler";
+      vector<string> options = {}; int amountOfOptions; ::stopPromptingUser = false;
+        options.push_back("Rename File(s)");
         options.push_back("Select Schema");
         options.push_back("Edit User Information\n");
         // options.push_back("Edit Avaliable Schema(s)"); //* optional add later
@@ -486,18 +512,15 @@ class renamer {
           displayOptions(options, &tempTitle, &config);
           cin >> userInput;
           if (userInput == "q" || userInput == "exit") { break; }
-        } while (!validateInput(stopPromptingUser, userInput, &amountOfOptions));
-      if (userInput == "q" || userInput == "exit") { processUserChoice(6); }
-      else {
-        int choice = stoi(userInput);
-        if (config.schemes[config.selectedSchemeIndex].courseTitle == "TGI (special)" && choice >= 2) { choice++; }
-        processUserChoice(choice);
+        } while (!validateInput(::stopPromptingUser, userInput, &amountOfOptions));
+      if (userInput == "q" || userInput == "exit") { processUserChoice(EXIT_PROGRAMM); }
+      else { MenuOptions choice = static_cast<MenuOptions>(stoi(userInput)); processUserChoice(choice);
       }
       
     }
 };
-//!------------------------------------------------------------------------------------------------------------------------------------------------------------
-void displayOptions(vector<string> options, string* highlightedTitle, userConfig* config){
+
+void displayOptions(vector<string> options, string* highlightedTitle, UserConfig* config) {
   if (highlightedTitle != nullptr) {
     string padding, spaces;
     for (int i = 0; i < highlightedTitle->length(); i++) { 
@@ -532,7 +555,7 @@ string replaceSubstring (string& superString, const string& stringToReplace, con
   }
   return returnString ? superString : "";
 }
-void chastiseIncorrectInput(string dataType, int& maxValidInput) {
+void chastiseIncorrectInput(string dataType, const int& maxValidInput) {
     clearScreen();
     cout << "Please ";  
     if (dataType == "int") { cout << "Select Insert A Number In Allowed Range: " << "(1–" << maxValidInput << ")";}
@@ -543,7 +566,7 @@ void chastiseIncorrectInput(string dataType, int& maxValidInput) {
     this_thread::sleep_for(chrono::seconds(1));
     clearScreen();
   }
-bool validateInput(bool& stopPrompting, string userInput, int* largestAvaliableOption, string expectedDataType){
+bool validateInput(bool& stopPrompting, string userInput, const int* largestAvaliableOption, string expectedDataType) {
   bool successfulInput = true; int integerInput;
   if (userInput == "exit" || userInput == "q") { stopPrompting = true; successfulInput = false; }
   else if (userInput.empty()) { successfulInput = false; }
@@ -574,6 +597,7 @@ vector<string> separatePaths(const string& input) {
     vector<string> paths; string currentPath;
     bool isEscaped = false;
 
+    // TODO Add #ifdef _WIN32 ... (handle windows path formatting)
     for (char token : input) {
       if (isEscaped) { currentPath += token; isEscaped = false; } 
       else if (token == '\\') { isEscaped = true; } 
@@ -593,33 +617,42 @@ void clearScreen () {
   #endif
 }
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
+//* Clear Terminal + Start Process By Creating A 'Renamer' instance
 int main () {
   clearScreen();
-  renamer instance;
+  Renamer instance;
   clearScreen();
   return 0;
 }
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*
   0. 🚧 Fix bugs in renaming process
-    0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
-    0.1. ✅ infinite loop after catching an error
-    0.2. ✅ incorrect input reading if not inside ""
-    0.3. ❌ add a time delay for error of incorrect path amonut (multiple rename)
-      0.3.1. ❌ if fewer paths than requested still complete the rename (if user agrees)
+    // 0.0. ✅ infinite loop after exiting ("exit" or "q") in case 2 (multiple rename)
+    // 0.1. ✅ infinite loop after catching an error
+    // 0.2. ✅ incorrect input reading if not inside ""
+    // 0.3. ✅ add a time delay for error of incorrect path amonut (multiple rename)
+      // 0.3.1. ✅ if fewer paths than requested still complete the rename (if user agrees)
     0.4. ❌ add a double check before deleting a file (renaming to an existing file name)
-  1. ✅ Add an input verifier function
-  2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
-    2.1. ✅ for strings
-    2.2. ✅ for integers
-  3. ✅ Work through all comments
-    3.1 ✅ Fix multiline rename
-  4. 🚧 Minimize variable usage
+  // 1. ✅ Add an input verifier function
+  // 2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
+    // 2.1. ✅ for strings
+    // 2.2. ✅ for integers
+  3. 🚧 Handle all comments
+    // 3.1 ✅ Fix multiline rename
+    3.2. ❌ add documentation for all functions
+    3.3. ❌ remove all actionable comments
+      3.3.1. ❌ todos
+      3.3.2. ❌ new features
+      3.3.3. ❌ remember to ...
+  4. ❌ Minimize redundant variable usage
   5. ❌ Minimize code repition (functions + separate files)
     5.1. ❌ verification for "q" || "exit" as a function
+    5.2. 🚧 merge the single-multi Renamer options into 1
   6. ❌ Add cross platform compatibility 
     6.1. ✅ clearing the terminal
     6.2. ❌ parsing "/" vs "\"
     6.3. ❌ invividual terminal formatting (when dragging files)
   7. ❌ Refactor + review code
+    7.0. ✅ replace the case 'int' with an enum
+    7.1. ❌ replace the .txt config file with a .json one
 */
