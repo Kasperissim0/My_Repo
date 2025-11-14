@@ -1,7 +1,7 @@
 --START--
-Korniienko
-12429280
-1
+
+
+2147483647
 ----
 TGI
 a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr].[Extension]
@@ -16,5 +16,5 @@ PDF
 TGI (special)
 a[Matrikelnummer]_S[AufgabenblattNr].[Extension]
 a12345678_S1.pdf
-pdf|ac
+pdf|ac|test
 --END--
