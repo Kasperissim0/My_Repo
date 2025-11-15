@@ -20,7 +20,7 @@ bool stopPromptingUser = false;
 //* Bundle Of Relevant Data For Each Course Template Type
 struct NamingScheme;
 //* User Information That Is Stored In Persistent File
-  // As Well As A Method For Creating The Final Title For The Rename
+  // + As Well As A Method For Creating The Final Title For The Rename
 struct UserConfig;
 //* The Object For The Terminal UI 
   // + Loads/Saves User Info
@@ -59,60 +59,77 @@ struct NamingScheme {
   unsigned short lastWorksheet;
 };
 struct UserConfig {
-  int selectedSchemeIndex = MAX_INT; // the first one by default
-  string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it as a string instead of int
-  vector<NamingScheme> schemes;
+  private:
+    enum PatternsToReplace {
+      STUDENT_ID,
+      SURNAME,
+      NUMBER_OF_EXERCISE_SHEET,
+      NUMBER_OF_PROBLEM,
+      FILE_EXTENSION
+    };
+    map<PatternsToReplace, string> patternValues {
+      {STUDENT_ID, "[Matrikelnummer]"},
+      {SURNAME, "[Nachname]"},
+      {NUMBER_OF_EXERCISE_SHEET, "[AufgabenblattNr]"},
+      {NUMBER_OF_PROBLEM, "[BeispielNr]"},
+      {FILE_EXTENSION, "[Extension]"}
+    };
+  
+  public: 
+    int selectedSchemeIndex = MAX_INT; // the first one by default
+    string surname, studentID; // since @studentID will be used in the string  - i don't see a problem with storing it as a string instead of int
+    vector<NamingScheme> schemes;
 
-  string createTitle(int* consistentWorksheetNumber = nullptr,int* consistentFileExtension = nullptr, int* exerciseNumberRange = nullptr) {
-    string finalTitle = schemes.at(selectedSchemeIndex).pattern, userInput; bool errorCaught = false;
-    int amountOfFileTypes = schemes.at(selectedSchemeIndex).fileTypes.size(), backup = 1;
-    if (finalTitle.find("[Matrikelnummer]") != string::npos) { replaceSubstring(finalTitle, "[Matrikelnummer]", studentID); }
-    if (finalTitle.find("[Nachname]") != string::npos) { replaceSubstring(finalTitle, "[Nachname]", surname); }
-    if (finalTitle.find("[AufgabenblattNr]") != string::npos) {
-      if (consistentWorksheetNumber != nullptr) {
-         userInput = to_string(*consistentWorksheetNumber);
+    string createTitle(int* consistentWorksheetNumber = nullptr,int* consistentFileExtension = nullptr, int* exerciseNumberRange = nullptr) {
+      string finalTitle = schemes.at(selectedSchemeIndex).pattern, userInput; bool errorCaught = false;
+      int amountOfFileTypes = schemes.at(selectedSchemeIndex).fileTypes.size(), backup = 1;
+      if (finalTitle.find(patternValues[STUDENT_ID]) != string::npos) { replaceSubstring(finalTitle, patternValues[STUDENT_ID], studentID); }
+      if (finalTitle.find(patternValues[SURNAME]) != string::npos) { replaceSubstring(finalTitle, patternValues[SURNAME], surname); }
+      if (finalTitle.find(patternValues[NUMBER_OF_EXERCISE_SHEET]) != string::npos) {
+        if (consistentWorksheetNumber != nullptr) {
+          userInput = to_string(*consistentWorksheetNumber);
+        }
+        else {
+          do {
+            if (::stopPromptingUser) return "";
+            cout << "What Is The Number Of This Worksheet: ";
+            cin >> userInput;
+            if (userInput == "q" || userInput == "exit") { return ""; }
+            try { stoi(userInput); }  
+            catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
+          } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
+        }
+        replaceSubstring(finalTitle, patternValues[NUMBER_OF_EXERCISE_SHEET], userInput);
       }
-      else {
+      if (finalTitle.find(patternValues[NUMBER_OF_PROBLEM]) != string::npos) {
         do {
           if (::stopPromptingUser) return "";
-          cout << "What Is The Number Of This Worksheet: ";
+          cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : (" (1-" + to_string(*exerciseNumberRange) + "): "));
           cin >> userInput;
-          if (userInput == "q" || userInput == "exit") { return ""; }
+          if (userInput == "q" || userInput == "exit") return "";
           try { stoi(userInput); }  
           catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
         } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
+        replaceSubstring(finalTitle, patternValues[NUMBER_OF_PROBLEM], userInput);  
       }
-      replaceSubstring(finalTitle, "[AufgabenblattNr]", userInput);
+      userInput = "1"; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
+      if (amountOfFileTypes > 1 && consistentFileExtension == nullptr) {
+        do {
+          if (::stopPromptingUser) return "";
+          cout << "Select File Type: " << endl;
+          displayOptions(schemes.at(selectedSchemeIndex).fileTypes, nullptr, nullptr, true);
+          cin >> userInput;
+          if (userInput == "q" || userInput == "exit") return "";
+          try { stoi(userInput); }  
+          catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", amountOfFileTypes); }; continue; } // want to check if it is an integer
+        } while (!validateInput(::stopPromptingUser, userInput, &amountOfFileTypes));
+      try { stoi(userInput); } // double check for single extension type case
+      catch (const exception&) { errorCaught = true; } 
+      }
+      if (consistentFileExtension != nullptr) { replaceSubstring(finalTitle, patternValues[FILE_EXTENSION], schemes.at(selectedSchemeIndex).fileTypes[*consistentFileExtension]); }
+      else { replaceSubstring(finalTitle, patternValues[FILE_EXTENSION], schemes.at(selectedSchemeIndex).fileTypes[(errorCaught ? backup : stoi(userInput)) - 1]); }
+      return finalTitle;
     }
-    if (finalTitle.find("[BeispielNr]") != string::npos) {
-      do {
-        if (::stopPromptingUser) return "";
-        cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : (" (1-" + to_string(*exerciseNumberRange) + "): "));
-        cin >> userInput;
-        if (userInput == "q" || userInput == "exit") return "";
-         try { stoi(userInput); }  
-         catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
-      } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
-      replaceSubstring(finalTitle, "[BeispielNr]", userInput);  
-    }
-    userInput = "1"; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
-    if (amountOfFileTypes > 1 && consistentFileExtension == nullptr) {
-      do {
-        if (::stopPromptingUser) return "";
-        cout << "Select File Type: " << endl;
-        displayOptions(schemes.at(selectedSchemeIndex).fileTypes, nullptr, nullptr, true);
-        cin >> userInput;
-        if (userInput == "q" || userInput == "exit") return "";
-        try { stoi(userInput); }  
-        catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", amountOfFileTypes); }; continue; } // want to check if it is an integer
-      } while (!validateInput(::stopPromptingUser, userInput, &amountOfFileTypes));
-    try { stoi(userInput); } // double check for single extension type case
-    catch (const exception&) { errorCaught = true; } 
-    }
-    if (consistentFileExtension != nullptr) { replaceSubstring(finalTitle, "[Extension]", schemes.at(selectedSchemeIndex).fileTypes[*consistentFileExtension]); }
-    else { replaceSubstring(finalTitle, "[Extension]", schemes.at(selectedSchemeIndex).fileTypes[(errorCaught ? backup : stoi(userInput)) - 1]); }
-    return finalTitle;
-  }
 };
 class Renamer {
   private:
@@ -131,12 +148,12 @@ class Renamer {
       DELETE_USER_CONFIG,
       EXIT_PROGRAMM
     }; 
-    map<MenuOptions, string> OptionValues {
+    map<MenuOptions, string> optionValues {
       {RENAME, "Rename File(s)"},
       {SWITCH_TO_DIFFERENT_SCHEMA, "Select Schema"},
       {EDIT_USER_INFO, "Edit User Information\n"},
-      // {EDIT_EXISTING_SCHEMA, "Edit Avaliable Schema(s)"}, //? optional add later
-      // {ADD_NEW_SCHEMA, "Add Additional Schema(s)"}, //? optional add later
+      // {EDIT_EXISTING_SCHEMA, "Edit Avaliable Schema(s)"},   //? optional add later
+      // {ADD_NEW_SCHEMA, "Add Additional Schema(s)"},         //? optional add later
       {DELETE_USER_CONFIG, "Delete Configuration File"},
       {EXIT_PROGRAMM, "Exit"}
     };
@@ -485,7 +502,7 @@ class Renamer {
       vector<string> options = {}; int amountOfOptions; ::stopPromptingUser = false;
 
       // Workaround with the type conversions since you cannot increment an enum
-      for(int i = static_cast<int>(MenuOptions::RENAME); i <= static_cast<int>(MenuOptions::EXIT_PROGRAMM); ++i) { options.push_back(OptionValues[static_cast<MenuOptions>(i)]); }
+      for(int i = static_cast<int>(MenuOptions::RENAME); i <= static_cast<int>(MenuOptions::EXIT_PROGRAMM); ++i) { options.push_back(optionValues[static_cast<MenuOptions>(i)]); }
       amountOfOptions = options.size();
       do {
           displayOptions(options, &tempTitle, &config);

@@ -57,7 +57,8 @@
     "__config": "cpp",
     "fstream": "cpp",
     "regex": "cpp",
-    "cstddef": "cpp"
+    "cstddef": "cpp",
+    "map": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "C_Cpp.intelliSenseEngine": "default",
