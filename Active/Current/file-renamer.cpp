@@ -134,7 +134,7 @@ struct UserConfig {
 class Renamer {
   private:
     UserConfig config;
-    const string CONFIG_DIRECTORY = ".Renamer-config";
+    const string CONFIG_DIRECTORY = ".renamer-config";
     const string CONFIG_FILE = "config.txt";
     const fs::path directoryPath = CONFIG_DIRECTORY;
     const fs::path configPath = directoryPath / CONFIG_FILE;
