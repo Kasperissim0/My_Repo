@@ -52,6 +52,9 @@ vector<string> separatePaths(const string& input); // TODO Make Cross-OS Compati
 void clearScreen ();
 //* Gets User Confirmation Whether To Erase An Existing File After Title Collision
 bool overwriteExistingFile(const fs::path& file);
+//* Returns A String (Path) After Having Replaced All Instances Of " " With "\ "
+// + Necessary for Executing Command 'magick some\ folder/file \ 1.heic some\ folder/file \ 1.pdf'
+string breakWhiteSpaces(string input);
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 struct NamingScheme {
   vector<string> fileTypes;
@@ -200,7 +203,7 @@ class Renamer {
       string userChoice, tempTitleStorage, pathInput, cleanedPath;
       try { // Attempt To Process User Input, Catch Invalid Values
         switch (selectedOption) {
-          case RENAME: {
+          case RENAME: { // TODO ADD .heic conversion using 'system("magick file.heic file.pdf")' in the command line
             vector<fs::path> originalFilePaths, finalFilePaths; vector<string> parsedPaths;
             int fileAmount, worksheetNumber, fileExtension, maxExtensionAmount, maxOptions;
             bool pathsInCorrectForm, consistentFileExtension;
@@ -245,11 +248,14 @@ class Renamer {
                 tempTitleStorage = config.createTitle();
                 if (tempTitleStorage.empty()) { break; } // User quit in createTitle
                 fs::path finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
+                string command = "magick " + breakWhiteSpaces(originalFilePath.string()) + " " + breakWhiteSpaces(finalFilePath.string()) + " && rm " + breakWhiteSpaces(originalFilePath.string());
+                // clog << command;
+                this_thread::sleep_for(chrono::seconds(3));
 
                 if (!fs::exists(finalFilePath) || (fs::exists(finalFilePath) && overwriteExistingFile(finalFilePath))) {
                   // TODO make sure q (i.e. ::stopPromptingUser) exits without hitting the 'else' block
                   if (::stopPromptingUser) return;
-                  try { fs::rename(originalFilePath, finalFilePath); } 
+                  try { ((originalFilePath.string().find("heic") != string::npos) ? (void)system(command.c_str()) : fs::rename(originalFilePath, finalFilePath)); } 
                   catch(const std::exception& error) {
                       cout << "\nERROR Incorrect Path Formatting" << endl;
                       std::cerr << error.what() << endl;
@@ -329,8 +335,11 @@ class Renamer {
 
                 if (!fs::exists(finalFilePaths.at(i)) || (fs::exists(finalFilePaths.at(i)) && overwriteExistingFile(finalFilePaths.at(i)))) {
                   // TODO make sure q (i.e. ::stopPromptingUser) exits without hitting the 'else' block
+                  string command = "magick " + breakWhiteSpaces(originalFilePaths.at(i).string()) + " " + breakWhiteSpaces(finalFilePaths.at(i).string()) + " && rm " + breakWhiteSpaces(originalFilePaths.at(i).string());
+                  // clog << command;
+                  this_thread::sleep_for(chrono::seconds(3));
                   if (::stopPromptingUser) return;
-                  try { fs::rename(originalFilePaths[i], finalFilePaths[i]); }
+                  try { ((originalFilePaths.at(i).string().find("heic") != string::npos) ? (void)system(command.c_str()) : fs::rename(originalFilePaths.at(i), finalFilePaths.at(i))); }
                   catch(const std::exception& error) {
                       cout << "\nERROR Incorrect Path Formatting" << endl;
                       std::cerr << error.what() << endl;
@@ -672,6 +681,9 @@ bool overwriteExistingFile(const fs::path& file) {
   else if (!::stopPromptingUser) chastiseIncorrectInput("string");
   return false; // reached if stopPromptingUser and if !validateInput !stopPromptingUser
 }
+string breakWhiteSpaces(string input) {
+  for (size_t i = 0; i < input.size(); ++i) { if (input.at(i) == ' ') { input.insert((input.begin() + i), '\\'); ++i; } } return input;
+}
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 //* Clear Terminal + Start Process By Creating A 'Renamer' instance
 int main () {
@@ -689,7 +701,8 @@ int main () {
     // 0.2. ✅ incorrect input reading if not inside ""
     // 0.3. ✅ add a time delay for error of incorrect path amonut (multiple rename)
       // 0.3.1. ✅ if fewer paths than requested still complete the rename (if user agrees)
-    0.4. 🚧 add a double check before deleting a file (renaming to an existing file name)
+    // 0.4. ✅ add a double check before deleting a file (renaming to an existing file name)
+    0.5. 🚧 Handle " " breaking for command rename 'magick some\ folder/file\ 3.heic some\ folderfile\ 3.pdf
   // 1. ✅ Add an input verifier function
   // 2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
     // 2.1. ✅ for strings

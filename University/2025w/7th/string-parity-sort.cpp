@@ -28,9 +28,9 @@ int main() {
 		unsigned entry = 0;
 		clearScreen();
 		while (cout << "Insert #1." << ++entry << ": " && cin >> temp) v1.push_back(temp);
-		entry = 0; cin.ignore('\n', numeric_limits<int>::max()); cin.clear();
+		entry = 0; cin.clear(); cin.ignore();
 		while (cout << "Insert #2." << ++entry << ": " && cin >> temp) v2.push_back(temp);
-		sortByParity(v1, v2);
+		cin.clear(); cin.ignore(); sortByParity(v1, v2);
 		for (const auto& elem : v1) cout << elem << " ";
 		cout << endl;
 		for (const auto& elem : v2) cout << elem << " ";
