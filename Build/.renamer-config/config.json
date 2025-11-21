@@ -1,0 +1,40 @@
+{
+  "user": {
+    "surname": "Korniienko",
+    "studentID": "12429280",
+    "moodleToken": ""
+  },
+  "selectedSchemeIndex": 0,
+  "courses": [
+    {
+      "courseTitle": "TGI",
+      "moodleCourseId": 0,
+      "assignmentPattern": "Blatt {worksheet}",
+      "pattern": "a[Matrikelnummer]_UE[AufgabenblattNr]_BSP[BeispielNr].[Extension]",
+      "example": "a12345678_UE1_BSP2.png",
+      "fileTypes": ["jpg", "jpeg", "png", "pdf", "txt"],
+      "lastWorksheet": 0,
+      "autoUpload": true
+    },
+    {
+      "courseTitle": "MGI",
+      "moodleCourseId": 0,
+      "assignmentPattern": "Blatt {worksheet}",
+      "pattern": "[Nachname]_[Matrikelnummer]_B[AufgabenblattNr]_A[BeispielNr].[Extension]",
+      "example": "Archimedes_31415926_B5_A3.PDF",
+      "fileTypes": ["PDF"],
+      "lastWorksheet": 0,
+      "autoUpload": true
+    },
+    {
+      "courseTitle": "TGI (Semester Assignment)",
+      "moodleCourseId": 0,
+      "assignmentPattern": "Semesteraugabe {worksheet}",
+      "pattern": "a[Matrikelnummer]_S[AufgabenblattNr].[Extension]",
+      "example": "a12345678_S1.pdf",
+      "fileTypes": ["pdf", "ac"],
+      "lastWorksheet": 0,
+      "autoUpload": false
+    }
+  ]
+}

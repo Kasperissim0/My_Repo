@@ -52,7 +52,8 @@ vector<string> separatePaths(const string& input); // TODO Make Cross-OS Compati
 //* Cross-OS Compatible Function For Clearing The Terminal
 void clearScreen ();
 //* Gets User Confirmation Whether To Erase An Existing File After Title Collision
-bool overwriteExistingFile(const fs::path& file);
+  // + Appends String To File Title If Chosen (For Valid Rename Without Overwriting)
+bool overwriteExistingFile(fs::path& file);
 //* Returns A String (Path) After Having Replaced All Instances Of " " With "\ "
 // + Necessary for Executing Command 'magick some\ folder/file \ 1.heic some\ folder/file \ 1.pdf'
 string breakWhiteSpaces(string input);
@@ -86,7 +87,7 @@ struct UserConfig {
 
     string createTitle(int* consistentWorksheetNumber = nullptr,int* consistentFileExtension = nullptr, int* exerciseNumberRange = nullptr) {
       string finalTitle = schemes.at(selectedSchemeIndex).pattern, userInput; bool errorCaught = false;
-      int amountOfFileTypes = schemes.at(selectedSchemeIndex).fileTypes.size(), backup = 1;
+      int amountOfFileTypes = schemes.at(selectedSchemeIndex).fileTypes.size(), backup = 1, tempStorage;
       if (finalTitle.find(patternValues[STUDENT_ID]) != string::npos) { replaceSubstring(finalTitle, patternValues[STUDENT_ID], studentID); }
       if (finalTitle.find(patternValues[SURNAME]) != string::npos) { replaceSubstring(finalTitle, patternValues[SURNAME], surname); }
       if (finalTitle.find(patternValues[NUMBER_OF_EXERCISE_SHEET]) != string::npos) {
@@ -99,11 +100,11 @@ struct UserConfig {
             cout << "What Is The Number Of This Worksheet: ";
             cin >> userInput;
             if (userInput == "q" || userInput == "exit") { return ""; }
-            try { stoi(userInput); }  
+            try { tempStorage = stoi(userInput); }  
             catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
           } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
         }
-        replaceSubstring(finalTitle, patternValues[NUMBER_OF_EXERCISE_SHEET], userInput);
+        replaceSubstring(finalTitle, patternValues[NUMBER_OF_EXERCISE_SHEET], to_string(tempStorage));
       }
       if (finalTitle.find(patternValues[NUMBER_OF_PROBLEM]) != string::npos) {
         do {
@@ -111,10 +112,10 @@ struct UserConfig {
           cout << "What Is The Number Of This Exercise" << (exerciseNumberRange == nullptr ? ": " : (" (1-" + to_string(*exerciseNumberRange) + "): "));
           cin >> userInput;
           if (userInput == "q" || userInput == "exit") return "";
-          try { stoi(userInput); }  
-          catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", MAX_INT); }; continue; } // want to check if it is an integer
+          try { tempStorage = stoi(userInput); }  
+          catch (const exception&) { continue; } // want to check if it is an integer
         } while (!validateInput(::stopPromptingUser, userInput, &MAX_INT));
-        replaceSubstring(finalTitle, patternValues[NUMBER_OF_PROBLEM], userInput);  
+        replaceSubstring(finalTitle, patternValues[NUMBER_OF_PROBLEM], to_string(tempStorage));  
       }
       userInput = "1"; // if there is only one choice do not even ask (index 0, so set to 1 since it is decrimented later)
       if (amountOfFileTypes > 1 && consistentFileExtension == nullptr) {
@@ -124,14 +125,14 @@ struct UserConfig {
           displayOptions(schemes.at(selectedSchemeIndex).fileTypes, nullptr, nullptr, true);
           cin >> userInput;
           if (userInput == "q" || userInput == "exit") return "";
-          try { stoi(userInput); }  
+          try { tempStorage = stoi(userInput); }  
           catch (const exception&) { if (!::stopPromptingUser) { chastiseIncorrectInput("int", amountOfFileTypes); }; continue; } // want to check if it is an integer
         } while (!validateInput(::stopPromptingUser, userInput, &amountOfFileTypes));
-      try { stoi(userInput); } // double check for single extension type case
+      try { tempStorage = stoi(userInput); } // double check for single extension type case
       catch (const exception&) { errorCaught = true; } 
       }
       if (consistentFileExtension != nullptr) { replaceSubstring(finalTitle, patternValues[FILE_EXTENSION], schemes.at(selectedSchemeIndex).fileTypes[*consistentFileExtension]); }
-      else { replaceSubstring(finalTitle, patternValues[FILE_EXTENSION], schemes.at(selectedSchemeIndex).fileTypes[(errorCaught ? backup : stoi(userInput)) - 1]); }
+      else { replaceSubstring(finalTitle, patternValues[FILE_EXTENSION], schemes.at(selectedSchemeIndex).fileTypes[(errorCaught ? backup : tempStorage) - 1]); }
       return finalTitle;
     }
 };
@@ -347,7 +348,7 @@ class Renamer {
                 }
                 else {
                   clearScreen();
-                  cout << "Rename Of File " << finalFilePaths.at(i).filename() << " Cancelled." << endl;
+                  cout << "Rename Of File " << originalFilePaths.at(i).filename() << " Cancelled." << endl;
                   this_thread::sleep_for(chrono::seconds(2));
                   continue; // Skip to the next file in the loop
                 }
@@ -667,20 +668,42 @@ void clearScreen () {
     system("clear");
   #endif
 }
-bool overwriteExistingFile(const fs::path& file) {
+bool overwriteExistingFile(fs::path& file) {
   string userInput;
-
+  
   clearScreen();
   cout << "A File by the Name " << file.filename() << " Already Exists at This Location." << endl
        << endl << "Do You Want to Overwrite It?" << endl;
   displayOptions();
   cin >> userInput;
-  if (validateInput(::stopPromptingUser, userInput, nullptr, "string")) return ((userInput == "1") ? true : false);
-  else if (!::stopPromptingUser) chastiseIncorrectInput("string");
-  return false; // reached if stopPromptingUser and if !validateInput !stopPromptingUser
+  if (validateInput(::stopPromptingUser, userInput, nullptr, "string")) {
+    if (userInput == "1") return true;
+    else {
+      system("clear");
+      cout << "Do You Want To Append Something To The File Name?" << endl;
+      displayOptions();
+      cin >> userInput;
+      if (userInput != "1") return false;
+      else {
+        system("clear");
+        cout << "Add Something To The File To Complete The Rename" << endl << endl
+             << file.stem().string();
+        cin >> userInput;
+        if (validateInput(::stopPromptingUser, userInput, nullptr, "string")) {
+          fs::path newPath = file.parent_path() / (file.stem().string() + userInput + file.extension().string());
+          file = newPath;
+          return true;
+        }
+        else if (!::stopPromptingUser) { chastiseIncorrectInput("string"); return overwriteExistingFile(file); }
+        else return false;
+      }
+    }
+  }
+  else if (!::stopPromptingUser) { chastiseIncorrectInput("string"); return overwriteExistingFile(file); }
+  else return false;
 }
 string breakWhiteSpaces(string input) {
-  for (size_t i = 0; i < input.size(); ++i) { if (input.at(i) == ' ') { input.insert((input.begin() + i), '\\'); ++i; } } return input;
+  for (size_t i = 0; i < input.size(); ++i) { if (input.at(i) == ' ') input.insert((input.begin() + i++), '\\'); } return input;
 }
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 //* Clear Terminal + Start Process By Creating A 'Renamer' instance
@@ -710,7 +733,7 @@ int main () {
     // 3.2. ✅ add documentation for all functions/classes
     3.3. 🚧 remove all actionable comments
       3.3.1. 🚧 todos
-      3.3.2. ❌ new features
+      3.3.2. 🚧 new features
       3.3.3. 🚧 remember to ...
   5. ❌ Minimize code repition (functions + separate files)
     // 5.1. ✅ verification for "q" || "exit" as a function
@@ -719,10 +742,11 @@ int main () {
     // 6.1. ✅ clearing the terminal
     6.2. ❌ parsing "/" and "\" from paths based on OS
     // 6.3. ✅ invividual terminal formatting (when dragging files)
-  7. ❌ Refactor + review code
+  7. 🚧 Refactor + review code
     // 7.0. ✅ replace the case 'int' with an enum
     7.1. ❌ replace the .txt config file with a .json one
     7.2. ❌ minimize redundant variable usage
   8. 🚧 Add automatic file upload to corresponding moodle course
-  9. ❌ Create iPhone App
+  // 9. ✅ Add append options for name collisions
+  10. ❌ Create iPhone App
 */
