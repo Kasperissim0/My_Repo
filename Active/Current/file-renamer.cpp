@@ -10,6 +10,7 @@
 #include <fstream> // For reading/writing to files
 #include <filesystem> // For manipulating files
 #include <sstream> // For reading/writing to strings
+#include <nlohmann/json.hpp> // For better organized config file
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 using namespace std;
 namespace fs = filesystem;
@@ -249,9 +250,7 @@ class Renamer {
                 if (tempTitleStorage.empty()) { break; } // User quit in createTitle
                 fs::path finalFilePath = originalFilePath.parent_path() / tempTitleStorage;
                 string command = "magick " + breakWhiteSpaces(originalFilePath.string()) + " " + breakWhiteSpaces(finalFilePath.string()) + " && rm " + breakWhiteSpaces(originalFilePath.string());
-                // clog << command;
-                this_thread::sleep_for(chrono::seconds(3));
-
+                // clog << command; this_thread::sleep_for(chrono::seconds(3));
                 if (!fs::exists(finalFilePath) || (fs::exists(finalFilePath) && overwriteExistingFile(finalFilePath))) {
                   // TODO make sure q (i.e. ::stopPromptingUser) exits without hitting the 'else' block
                   if (::stopPromptingUser) return;
@@ -336,8 +335,7 @@ class Renamer {
                 if (!fs::exists(finalFilePaths.at(i)) || (fs::exists(finalFilePaths.at(i)) && overwriteExistingFile(finalFilePaths.at(i)))) {
                   // TODO make sure q (i.e. ::stopPromptingUser) exits without hitting the 'else' block
                   string command = "magick " + breakWhiteSpaces(originalFilePaths.at(i).string()) + " " + breakWhiteSpaces(finalFilePaths.at(i).string()) + " && rm " + breakWhiteSpaces(originalFilePaths.at(i).string());
-                  // clog << command;
-                  this_thread::sleep_for(chrono::seconds(3));
+                  // clog << command; this_thread::sleep_for(chrono::seconds(3));
                   if (::stopPromptingUser) return;
                   try { ((originalFilePaths.at(i).string().find("heic") != string::npos) ? (void)system(command.c_str()) : fs::rename(originalFilePaths.at(i), finalFilePaths.at(i))); }
                   catch(const std::exception& error) {
@@ -702,7 +700,7 @@ int main () {
     // 0.3. ✅ add a time delay for error of incorrect path amonut (multiple rename)
       // 0.3.1. ✅ if fewer paths than requested still complete the rename (if user agrees)
     // 0.4. ✅ add a double check before deleting a file (renaming to an existing file name)
-    0.5. 🚧 Handle " " breaking for command rename 'magick some\ folder/file\ 3.heic some\ folderfile\ 3.pdf
+    // 0.5. ✅ Handle " " breaking for command rename 'magick some\ folder/file\ 3.heic some\ folderfile\ 3.pdf
   // 1. ✅ Add an input verifier function
   // 2. ✅ Add a possibility to exit at EVERY cin (q/exit) function check
     // 2.1. ✅ for strings
@@ -710,10 +708,10 @@ int main () {
   3. 🚧 Handle all comments
     // 3.1 ✅ Fix multiline rename
     // 3.2. ✅ add documentation for all functions/classes
-    4.3. 🚧 remove all actionable comments
-      4.3.1. 🚧 todos
-      4.3.2. ❌ new features
-      4.3.3. 🚧 remember to ...
+    3.3. 🚧 remove all actionable comments
+      3.3.1. 🚧 todos
+      3.3.2. ❌ new features
+      3.3.3. 🚧 remember to ...
   5. ❌ Minimize code repition (functions + separate files)
     // 5.1. ✅ verification for "q" || "exit" as a function
     // 5.2. ✅ merge the single-multi Renamer options into 1
@@ -725,4 +723,6 @@ int main () {
     // 7.0. ✅ replace the case 'int' with an enum
     7.1. ❌ replace the .txt config file with a .json one
     7.2. ❌ minimize redundant variable usage
+  8. 🚧 Add automatic file upload to corresponding moodle course
+  9. ❌ Create iPhone App
 */

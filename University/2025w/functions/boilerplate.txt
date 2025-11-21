@@ -1,5 +1,7 @@
 #include<iostream>
-#include "functions/screen.h" // use  "clang++ x.cpp -I.. -o a" for correct preprocessor behaviour
+#include "functions/screen.h" // adds clearScreen()          + #include <iomanip>
+#include "functions/wait.h"   // adds wait(unsigned seconds) + #include <thread> and #include <chrono>
+															// use  "clang++ x.cpp -I.. -o a" for correct preprocessor behaviour
 
 using namespace std;
 
