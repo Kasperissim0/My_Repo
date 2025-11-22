@@ -6,7 +6,7 @@
         //     "type": "shell",
         //     "command": "${workspaceFolder}/.vscode/format_all.sh",
         //     "args": [
-        //         "${workspaceFolder}/Active/Current"
+        //         "${workspaceFolder}/1_Active/Current"
         //     ],
         //     "presentation": {
         //         "reveal": "silent"
@@ -19,8 +19,8 @@
             "command": "rm",
             "args": [
                 "-rf",
-                "${workspaceFolder}/Build/${fileBasenameNoExtension}",
-                "${workspaceFolder}/Build/${fileBasenameNoExtension}.dSYM"
+                "${workspaceFolder}/2_Build/${fileBasenameNoExtension}",
+                "${workspaceFolder}/2_Build/${fileBasenameNoExtension}.dSYM"
             ],
             "problemMatcher": []
         },
@@ -30,7 +30,7 @@
             "command": "mkdir",
             "args": [
                 "-p",
-                "${workspaceFolder}/Build"
+                "${workspaceFolder}/2_Build"
             ],
             "problemMatcher": []
         },
@@ -43,9 +43,9 @@
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-g",
-                "${workspaceFolder}/Active/Current/${fileBasename}",
+                "${workspaceFolder}/1_Active/Current/${fileBasename}",
                 "-o",
-                "${workspaceFolder}/Build/${fileBasenameNoExtension}",
+                "${workspaceFolder}/2_Build/${fileBasenameNoExtension}",
                 "-I/opt/homebrew/include",
                 "-L/opt/homebrew/lib",
                 "-lsfml-graphics",
@@ -74,7 +74,7 @@
             "type": "shell",
             "command": "pdflatex",
             "args": [
-                "-output-directory=${workspaceFolder}/Build",
+                "-output-directory=${workspaceFolder}/2_Build",
                 "${workspaceFolder}/Latex/semester_aufgabe.tex"
             ],
             "options": {

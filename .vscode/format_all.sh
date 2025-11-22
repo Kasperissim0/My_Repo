@@ -1,4 +1,4 @@
-#!/bin/bash
+#/bin/bash
 
 # Format all .cpp and .h files in the Code directory
-find "$1" \( -name "*.cpp" -o -name "*.h" \) -exec clang-format -i {} \;
+# find "$1" \( -name "*.cpp" -o -name "*.h" \) -exec clang-format -i {} \;

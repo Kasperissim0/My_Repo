@@ -5,7 +5,7 @@
             "name": "Debug SFML App",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/Build/${fileBasenameNoExtension}",
+            "program": "${workspaceFolder}/2_Build/${fileBasenameNoExtension}",
             "args": [],
             "preLaunchTask": "build",
             "cwd": "${workspaceFolder}",

@@ -10,6 +10,7 @@
 #include <fstream> // For reading/writing to files
 #include <filesystem> // For manipulating files
 #include <sstream> // For reading/writing to strings
+#include <curl/curl.h> // For http/api calls
 #include <nlohmann/json.hpp> // For better organized config file
 //!------------------------------------------------------------------------------------------------------------------------------------------------------------
 using namespace std;
