@@ -1,18 +1,18 @@
 {
     "version": "2.0.0",
     "tasks": [
-        {
-            "label": "Format with clang-format",
-            "type": "shell",
-            "command": "${workspaceFolder}/.vscode/format_all.sh",
-            "args": [
-                "${workspaceFolder}/Active/Current"
-            ],
-            "presentation": {
-                "reveal": "silent"
-            },
-            "problemMatcher": []
-        },
+        // {
+        //     "label": "Format with clang-format",
+        //     "type": "shell",
+        //     "command": "${workspaceFolder}/.vscode/format_all.sh",
+        //     "args": [
+        //         "${workspaceFolder}/Active/Current"
+        //     ],
+        //     "presentation": {
+        //         "reveal": "silent"
+        //     },
+        //     "problemMatcher": []
+        // },
         {
             "label": "clean",
             "type": "shell",
@@ -50,7 +50,8 @@
                 "-L/opt/homebrew/lib",
                 "-lsfml-graphics",
                 "-lsfml-window",
-                "-lsfml-system"
+                "-lsfml-system",
+                "-lcurl"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
